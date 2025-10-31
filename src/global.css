@@ -75,7 +75,6 @@ html, body, #root {
   }
 }
 
-/* pegar de exemplo o sistema de emprestimos para plugar a sidebar e a dashboard juntas corretinha responsiva. */
 
 @supports (-webkit-touch-callout: none) {
   input,
