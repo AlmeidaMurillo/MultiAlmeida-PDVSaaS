@@ -24,9 +24,10 @@ export default function EmpresasAdmin() {
         status: "Ativo",
     });
 
-    function handleChange(e) {
+    function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
         setForm({ ...form, [e.target.name]: e.target.value });
     }
+
 
     function salvarEmpresa() {
         setEmpresas([...empresas, { id: Date.now(), ...form }]);
@@ -34,7 +35,7 @@ export default function EmpresasAdmin() {
         setModal(false);
     }
 
-    function excluirEmpresa(id) {
+    function excluirEmpresa(id: number) {
         setEmpresas(empresas.filter(emp => emp.id !== id));
     }
 
