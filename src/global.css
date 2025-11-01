@@ -1,5 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/*
+
+Resolver a questao da altura das telas para celulares que esta ficando cortada as ultimas partes das telas.
+
+
+
+
+*/
+
+
+
 :root {
   --bg-color: #1e1f23;
   --sidebar-bg: #1e1f23;

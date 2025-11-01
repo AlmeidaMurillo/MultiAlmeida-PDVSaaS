@@ -52,9 +52,6 @@
   height: calc(100dvh - 4.5rem);
   margin-top: 4.5rem;
   transition: margin-left 0.3s ease;
-  overflow: hidden;
-  background-color: var(--bg-color);
-  color: var(--text-color);
 }
 
 .sidebar {
@@ -192,14 +189,11 @@
 }
 
 .pageContent {
+  flex: 1;
   margin-left: 260px;
-  width: 100%;
   padding: 1rem;
-  margin-left: 260px;
-  transition: margin-left 0.3s ease;
-  min-height: 100vh;
+  height: calc(100dvh - 4.5rem);
   overflow-y: auto;
-  background-color: var(--bg-color);
 }
 
 .pageContent.collapsed {
