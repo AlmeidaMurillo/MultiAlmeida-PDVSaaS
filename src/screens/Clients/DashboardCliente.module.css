@@ -1,0 +1,209 @@
+.container {
+  min-height: 100vh;
+  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.headerLeft h1 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.empresaInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #666;
+  font-size: 16px;
+}
+
+.empresaInfo svg {
+  color: #667eea;
+}
+
+.papel {
+  font-style: italic;
+  color: #888;
+}
+
+.trocarEmpresaBtn {
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.trocarEmpresaBtn:hover {
+  background: #5a6fd8;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.iconButton:hover {
+  background: #f0f0f0;
+}
+
+.logoutBtn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.logoutBtn:hover {
+  background: #c82333;
+}
+
+.main {
+  flex: 1;
+  padding: 30px;
+}
+
+.welcomeCard {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.welcomeCard h2 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 28px;
+}
+
+.welcomeCard p {
+  margin: 10px 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.card p {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.metric {
+  font-size: 32px !important;
+  font-weight: bold;
+  color: #667eea !important;
+}
+
+/* Tema escuro */
+[data-theme="dark"] .container {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] .header {
+  background: #2c2c2c;
+  border-bottom-color: #404040;
+}
+
+[data-theme="dark"] .headerLeft h1 {
+  color: white;
+}
+
+[data-theme="dark"] .empresaInfo {
+  color: #ccc;
+}
+
+[data-theme="dark"] .papel {
+  color: #aaa;
+}
+
+[data-theme="dark"] .welcomeCard {
+  background: #2c2c2c;
+  color: white;
+}
+
+[data-theme="dark"] .welcomeCard h2 {
+  color: white;
+}
+
+[data-theme="dark"] .welcomeCard p {
+  color: #ccc;
+}
+
+[data-theme="dark"] .card {
+  background: #2c2c2c;
+  color: white;
+}
+
+[data-theme="dark"] .card h3 {
+  color: white;
+}
+
+[data-theme="dark"] .card p {
+  color: #ccc;
+}
+
+[data-theme="dark"] .metric {
+  color: #667eea !important;
+}

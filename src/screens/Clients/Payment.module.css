@@ -1,0 +1,302 @@
+/* ===== HEADER ===== */
+.headerTop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4.5rem;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  z-index: 1001;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  user-select: none;
+}
+
+/* logo */
+.logoContainer {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: .78rem;
+  opacity: .8;
+  font-weight: 500;
+}
+
+/* icons */
+.iconsContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+
+/* ===== PAGE WRAPPER ===== */
+.pageWrapper {
+  margin-top: 4.5rem;
+  height: calc(100vh - 4.5rem);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2rem 1rem;
+}
+
+
+/* ===== MAIN CONTAINER ===== */
+.container {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.container h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: .5rem;
+}
+
+
+/* ===== FORM ===== */
+.form {
+  background: linear-gradient(135deg, var(--card-bg), rgba(255,255,255,0.05));
+  border: 1px solid var(--card-border);
+  padding: 2.2rem;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 800px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+  box-shadow: 0 15px 50px rgba(0,0,0,.2);
+}
+
+/* Título da seção */
+.form h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid var(--primary-color);
+  margin-bottom: .4rem;
+}
+
+/* Espaçamento automático entre grupos */
+.form > div:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+/* ===== LABELS ===== */
+label {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--input-text);
+  margin-bottom: 6px;
+}
+
+/* ===== INPUTS ===== */
+.input,
+.select,
+input,
+select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border-radius: 8px;
+  font-size: 16px;
+  transition: 0.12s ease;
+}
+
+.input::placeholder,
+input::placeholder {
+  color: var(--input-placeholder);
+  opacity: .7;
+}
+
+.input:focus,
+.select:focus,
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.18);
+}
+
+/* Espaço entre inputs automático */
+input:not(:last-child),
+select:not(:last-child),
+.input:not(:last-child),
+.select:not(:last-child) {
+  margin-bottom: 1.1rem;
+}
+
+/* Grid automático para inputs */
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+}
+
+
+/* ===== PLANOS ===== */
+.planosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+  gap: 1.2rem;
+  margin: 1rem 0;
+}
+
+.planoCard {
+  background: var(--card-bg);
+  border: 2px solid transparent;
+  padding: 22px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: .25s;
+}
+
+.planoCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.2);
+}
+
+.planoCard.selected {
+  border-color: var(--primary-color);
+  background: var(--primary-gradient);
+  color: #fff;
+}
+
+
+/* ===== BUTTONS ===== */
+.button,
+.buttonSecondary,
+.copyButton {
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.button {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+}
+
+.button:hover:not(:disabled) {
+  opacity: .9;
+  transform: translateY(-2px);
+}
+
+.buttonSecondary {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.buttonSecondary:hover {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.copyButton {
+  background: var(--success);
+  color: white;
+}
+
+.copyButton:hover {
+  background: var(--success-hover);
+}
+
+
+/* ===== ERROR ===== */
+.error {
+  color: var(--danger);
+  background: var(--danger-bg);
+  padding: .9rem 1.2rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+
+/* ===== PIX / QR ===== */
+.qrCodeContainer,
+.pixCodeContainer {
+  background-color: var(--card-bg);
+  border: 2px solid var(--card-border);
+  padding: 18px;
+  border-radius: 12px;
+}
+
+.qrCodeImage {
+  width: 200px;
+  height: 200px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ===== BENEFITS LIST ===== */
+.beneficiosList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.beneficiosList li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.beneficiosList li:last-child {
+  border-bottom: none;
+}
+
+/* ===== SECURITY BADGE ===== */
+.securityBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--success), var(--success-hover));
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+}

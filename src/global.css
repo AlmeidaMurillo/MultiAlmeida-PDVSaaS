@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+/* 
+
+ARRUMAR QUESTAO DE ESTILIZAÇÃO DA INPUT SELECT DA LANDINGPAGE BUGADA, E DAS INPUTS SENHA DA TELA REGISTRO
+
+ARRUMAR QUESTAO DE O LOGIN DE ADMIN PARA FUNCIONAR CORRETAMENTE QUE NAO ESTA LOGANDO.
+
+ARRUMAR QUESTAO DO TEMPO EXPIRAÇÃO PAGAMENTO QUE AS VEZES QUANDO EU RECARREGO A PAGINA ELE EM VEZ DE CONTINUAR O TEMPO CERTO ELE JA DIMINUI -1MINUTO
+
+ARRUMAR QUESTAO DA EXPIRAÇÃO DO TEMPO DE PAGAMENTO QUE NAO ESTA FUNCIONANDO CORRETAMENTE
+
+
+*/
+
+
+:root {
+  --bg-color: #1e1f23;
+  --sidebar-bg: #1e1f23;
+  --text-color: #fff;
+  --primary-color: #5865f2;
+  --hover-bg: #2a2d33;
+  --input-bg: #3b3f45;
+  --input-text: #fff;
+  --input-placeholder: #aaa;
+  --button-hover: #4752c4;
+  --footer-color: #ccc;
+}
+
+[data-theme="light"] {
+  --bg-color: #f5f5f5;
+  --sidebar-bg: #fff;
+  --text-color: #222;
+  --primary-color: #7289da;
+  --hover-bg: #e0e0e0;
+  --input-bg: #f0f0f0;
+  --input-text: #222;
+  --input-placeholder: #666;
+  --button-hover: #5a6fcf;
+  --footer-color: #444;
+}
+
+
+html,
+body,
+#root {
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 16px;
+  box-sizing: border-box;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 2px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #929292;
+    transition: background 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--hoverscrollbar-thumb);
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+

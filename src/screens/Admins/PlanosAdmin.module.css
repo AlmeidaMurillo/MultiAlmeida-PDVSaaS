@@ -1,0 +1,285 @@
+.planosContent {
+  padding: 1.5rem;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  color: var(--text-color);
+}
+
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.titleRow h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.btnAdd {
+  background: var(--primary-color);
+  color: var(--text-color);
+  padding: 0.8rem 1.4rem;
+  border: none;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.2s;
+}
+
+.btnAdd:hover {
+  background: var(--button-hover);
+}
+
+.periodoSection {
+  margin-bottom: 3rem;
+}
+
+.periodoSection h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--primary-color);
+  padding-left: 0.5rem;
+}
+
+.cardsRow {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.planoCard {
+  background: var(--sidebar-bg);
+  flex: 1 1 280px;
+  padding: 1.5rem;
+  border-radius: 0.8rem;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: 0.3s;
+}
+
+.planoCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+
+.planoNome {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.preco {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--primary-color);
+}
+
+.beneficiosList {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.95rem;
+}
+
+.beneficiosList li::before {
+  content: "✔";
+  margin-right: 0.4rem;
+  color: #4aff4a;
+  font-size: 0.9rem;
+}
+
+.empresasBox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  margin-top: 0.6rem;
+  opacity: 0.8;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.actions button {
+  background: var(--primary-color);
+  border: none;
+  color: var(--text-color);
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: 0.2s;
+}
+
+.actions button:hover {
+  background: var(--button-hover);
+}
+
+.modalBg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal {
+  background: var(--sidebar-bg);
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+.modal select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin: 0.5rem 0;
+  border-radius: 6px;
+  border: 1px solid var(--input-placeholder);
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  font-size: 1rem;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.modal select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3);
+}
+
+.modal select option {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+}
+
+.modal input,
+.modal textarea {
+  width: 100%;
+  padding: 0.8rem;
+  background: var(--input-bg);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--input-text);
+}
+
+.modal textarea {
+  resize: vertical;
+}
+
+.modalBtns {
+  display: flex;
+  gap: 1rem;
+}
+
+.modalBtns button {
+  flex: 1;
+  padding: 0.8rem;
+  background: var(--primary-color);
+  color: var(--text-color);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modalBtns button:hover {
+  background: var(--button-hover);
+}
+
+.btnCancel {
+  background: #b71c1c;
+}
+
+.btnCancel:hover {
+  background: #8a1616;
+}
+
+.testeConfig {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.testeConfig input {
+    width: 60px;
+}
+
+.testeConfig select {
+    width: 100px;
+}
+
+.error {
+  background-color: #d32f2f;
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+.modalError {
+  background-color: #d32f2f;
+  color: white;
+  padding: 0.8rem;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1024px) {
+  .cardsRow {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .titleRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btnAdd {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cardsRow {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+}

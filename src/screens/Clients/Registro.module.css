@@ -1,0 +1,239 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ========================================================================== */
+/* Container geral do registro */
+/* ========================================================================== */
+.registroContainer {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ========================================================================== */
+/* Box principal */
+/* ========================================================================== */
+.registroBox {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  transition: padding-top 0.3s ease-in-out;
+}
+
+/* ========================================================================== */
+/* Títulos */
+/* ========================================================================== */
+.companyName {
+  font-size: clamp(1.2rem, 5vw, 2rem); 
+  font-weight: 600;
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  word-break: break-word; 
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--input-placeholder);
+  margin-bottom: 30px;
+}
+
+.sectionTitle {
+  font-size: clamp(0.9rem, 1.6vw, 1.6rem); 
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-color);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  word-break: break-word;
+}
+
+
+/* ========================================================================== */
+/* Formulário */
+/* ========================================================================== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.inputIcon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: var(--input-placeholder);
+  font-size: 1.05rem;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 40px 12px 40px;
+  border: 1px solid var(--input-placeholder);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.input:focus {
+  outline: 2px solid var(--primary-color);
+}
+
+.eyeIcon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.05rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.eyeIcon:hover {
+  color: var(--text-color);
+}
+
+/* Botão */
+.button {
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: var(--button-hover);
+  transform: scale(1.03);
+}
+
+/* Quando o teclado móvel está aberto */
+.keyboardOpen {
+  padding-top: 80px;
+  transition: padding-top 0.3s ease;
+}
+
+/* ========================================================================== */
+/* Rodapé */
+/* ========================================================================== */
+.footer {
+  margin-top: 30px;
+  width: 100%;
+  text-align: center;
+  color: var(--footer-color);
+  font-size: 0.85rem;
+}
+
+.rights {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.rights strong {
+  color: var(--text-color);
+}
+
+/* ========================================================================== */
+/* Botão de alternar tema (sol/lua) */
+/* ========================================================================== */
+.themeToggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 1.3rem;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.themeToggle:hover {
+  transform: scale(1.2);
+  color: var(--primary-color);
+}
+
+/* ========================================================================== */
+/* Responsividade */
+/* ========================================================================== */
+@media (max-width: 480px) {
+  .registroBox {
+    padding: 30px 20px;
+    max-width: 100%;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  .button {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .input {
+    font-size: 0.95rem;
+    padding: 12px 35px;
+  }
+
+  .button {
+    font-size: 0.9rem;
+    padding: 14px;
+  }
+}
