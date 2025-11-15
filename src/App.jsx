@@ -5,7 +5,7 @@ import { auth } from "./auth";
 import Spinner from "./Components/Spinner/Spinner";
 
 // Lazy loading das páginas
-const LandingPage = lazy(() => import("./screens/LandingPage"));
+const LandingPage = lazy(() => import("./screens/Clients/LandingPage"));
 const LoginAdmin = lazy(() => import("./screens/Admins/LoginAdmin"));
 const Registro = lazy(() => import("./screens/Clients/Registro"));
 const Login = lazy(() => import("./screens/Clients/Login"));
@@ -62,7 +62,7 @@ function App() {
           {/* Rotas protegidas de cliente */}
           <Route
             path="/dashboard"
-            element={auth.isCliente() ? <DashboardCliente /> : <Navigate to="/login" />}
+            element={auth.isLoggedInCliente() ? <DashboardCliente /> : <Navigate to="/login" />}
           />
         </Routes>
       </Suspense>

@@ -132,7 +132,7 @@ select {
   color: var(--input-text);
   border-radius: 8px;
   font-size: 16px;
-  transition: 0.12s ease;
+  transition: all 0.3s ease;
 }
 
 .input::placeholder,

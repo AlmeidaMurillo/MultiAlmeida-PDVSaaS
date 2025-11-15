@@ -200,6 +200,7 @@
 }
 
 .itemCard {
+    position: relative;
     border: 2px solid var(--input-placeholder);
     border-radius: 0.75rem;
     background: var(--input-bg);
@@ -231,8 +232,10 @@
 .itemHeader {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 0.75rem;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .itemTitle {
@@ -249,6 +252,9 @@
 }
 
 .removeButton {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
     background: none;
     border: none;
     color: #9ca3af;
@@ -257,10 +263,105 @@
     padding: 0.25rem;
     border-radius: 0.25rem;
     transition: all 0.2s;
+    z-index: 10;
 }
 
 .removeButton:hover {
     color: #ef4444;
+}
+
+.selectsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.selectLabel {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.planoSelect, .periodoSelect {
+    padding: 0.75rem;
+    border: 2px solid var(--input-placeholder);
+    border-radius: 0.5rem;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 0.875rem;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.planoSelect:hover, .periodoSelect:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.planoSelect:focus, .periodoSelect:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+
+
+.cupomInput {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--input-placeholder);
+    border-radius: 0.5rem;
+    background: var(--input-bg);
+    color: var(--text-color);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.cupomInput:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.cupomButton {
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+    font-size: 0.875rem;
+}
+
+.cupomButton:hover {
+    background: var(--button-hover);
+}
+
+.cupomButton:disabled {
+    background: var(--input-placeholder);
+    cursor: not-allowed;
+}
+
+.removerCupomButton {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+}
+
+.removerCupomButton:hover {
     background-color: #fef2f2;
 }
 
@@ -843,4 +944,77 @@
   .footerSection {
     padding: 1rem;
   }
+}
+
+/* Empty State */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--input-bg);
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
+}
+
+.emptyIcon {
+  color: var(--input-placeholder);
+  margin-bottom: 1.5rem;
+}
+
+.empty h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.empty p {
+  font-size: 1rem;
+  color: var(--input-placeholder);
+  margin-bottom: 2rem;
+}
+
+.explorarButton {
+  background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+  color: var(--text-color);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.explorarButton:hover {
+  background: linear-gradient(135deg, var(--button-hover), #2563eb);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.beneficiosList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.beneficiosList li {
+    font-size: 0.875rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.beneficiosList li::before {
+    content: '✔';
+    color: #22c55e;
+    font-weight: bold;
+    font-size: 1rem;
 }

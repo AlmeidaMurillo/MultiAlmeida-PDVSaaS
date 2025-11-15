@@ -21,11 +21,13 @@ ARRUMAR QUESTAO DA EXPIRAÇÃO DO TEMPO DE PAGAMENTO QUE NAO ESTA FUNCIONANDO CO
   --text-color: #fff;
   --primary-color: #5865f2;
   --hover-bg: #2a2d33;
+  --active-bg: #1a1d23;
   --input-bg: #3b3f45;
   --input-text: #fff;
   --input-placeholder: #aaa;
   --button-hover: #4752c4;
   --footer-color: #ccc;
+  --hoverscrollbar-thumb: #b0b0b0;
 }
 
 [data-theme="light"] {
@@ -34,11 +36,13 @@ ARRUMAR QUESTAO DA EXPIRAÇÃO DO TEMPO DE PAGAMENTO QUE NAO ESTA FUNCIONANDO CO
   --text-color: #222;
   --primary-color: #7289da;
   --hover-bg: #e0e0e0;
+  --active-bg: #c8c8c8;
   --input-bg: #f0f0f0;
   --input-text: #222;
   --input-placeholder: #666;
   --button-hover: #5a6fcf;
   --footer-color: #444;
+  --hoverscrollbar-thumb: #606060;
 }
 
 

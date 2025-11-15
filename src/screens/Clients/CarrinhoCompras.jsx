@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaMoon, FaSun, FaArrowLeft } from "react-icons/fa";
+import { FaMoon, FaSun, FaArrowLeft, FaShoppingCart, FaTrash } from "react-icons/fa";
 import api from "../../auth";
+import { auth } from "../../auth";
 import styles from "./CarrinhoCompras.module.css";
 
 export default function CarrinhoCompras() {
@@ -10,14 +11,12 @@ export default function CarrinhoCompras() {
   const { planId, periodo } = location.state || {};
 
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+  const [itensCarrinho, setItensCarrinho] = useState([]);
   const [planos, setPlanos] = useState([]);
-  const [planoSelecionado, setPlanoSelecionado] = useState(planId || "");
-  const [periodoSelecionado, setPeriodoSelecionado] = useState(periodo || "mensal");
-
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [cupom, setCupom] = useState("");
-  const [cupomAplicado, setCupomAplicado] = useState(false);
-  const [descontoCupom, setDescontoCupom] = useState(0);
+  const [cupomAplicado, setCupomAplicado] = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -28,55 +27,123 @@ export default function CarrinhoCompras() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  // Verificar autenticação e redirecionar se necessário
+  useEffect(() => {
+    const checkAuth = async () => {
+      await auth.update();
+      if (!auth.isLoggedInCliente()) {
+        // Se não está logado, redirecionar para login com state para voltar ao carrinho
+        navigate("/login", { state: { from: "/carrinho", planId, periodo } });
+        return;
+      }
+      setLoading(false);
+    };
+    checkAuth();
+  }, [navigate, planId, periodo]);
+
   const carregarPlanos = useCallback(async () => {
     try {
       const response = await api.get("/api/planos");
-      const todosPlanos = response.data.planos || [];
-
-      const planosFiltrados = [];
-      todosPlanos.forEach((planoGrupo) => {
-        const periodo = planoGrupo[periodoSelecionado];
-        const nome = planoGrupo.nome;
-
-        if (periodo && periodo.beneficios && periodo.beneficios.length > 0) {
-          planosFiltrados.push({
-            id: periodo.id,
-            nome: nome,
-            periodo: periodoSelecionado,
-            preco: Number(periodo.preco),
-            duracaoDias: periodo.duracaoDias,
-            beneficios: periodo.beneficios,
-          });
-        }
-      });
-
-      setPlanos(planosFiltrados);
+      setPlanos(response.data.planos || []);
     } catch (err) {
       console.error("Erro ao carregar planos:", err);
     }
-  }, [periodoSelecionado]);
+  }, []);
+
+  const carregarCarrinho = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await api.get("/api/carrinho");
+      setItensCarrinho(response.data.itens || []);
+    } catch (err) {
+      console.error("Erro ao carregar carrinho:", err);
+      setError("Erro ao carregar carrinho");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Adicionar item ao carrinho se veio da landing page
+  useEffect(() => {
+    if (auth.isLoggedInCliente() && planId && periodo) {
+      const adicionarAoCarrinho = async () => {
+        try {
+          await api.post("/api/carrinho", { planoId: planId, periodo });
+          carregarCarrinho();
+        } catch (err) {
+          console.error("Erro ao adicionar ao carrinho:", err);
+        }
+      };
+      adicionarAoCarrinho();
+    }
+  }, [planId, periodo, carregarCarrinho]);
 
   useEffect(() => {
-    carregarPlanos();
-  }, [carregarPlanos]);
+    if (auth.isLoggedInCliente()) {
+      carregarPlanos();
+      carregarCarrinho();
+    }
+  }, [carregarPlanos, carregarCarrinho]);
 
-  const planoAtual = planos.find(p => p.id === planoSelecionado);
-
-  const handleContinuar = () => {
-    navigate("/payment", { state: { planId: planoSelecionado, periodo: periodoSelecionado } });
-  };
-
-  const aplicarCupom = () => {
-    if (cupom.toUpperCase() === "DESC10") {
-      setDescontoCupom((planoAtual?.preco || 0) * 0.1);
-      setCupomAplicado(true);
-    } else {
-      setDescontoCupom(0);
-      setCupomAplicado(false);
+  const removerItem = async (itemId) => {
+    try {
+      await api.delete(`/api/carrinho/${itemId}`);
+      carregarCarrinho();
+    } catch (err) {
+      console.error("Erro ao remover item:", err);
+      setError("Erro ao remover item");
     }
   };
 
-  const totalFinal = (planoAtual?.preco || 0) - descontoCupom;
+
+
+  const alterarPlanoPeriodo = async (itemId, novoPlanoId, novoPeriodo) => {
+    try {
+      // Remover item atual
+      await api.delete(`/api/carrinho/${itemId}`);
+      // Adicionar novo item
+      await api.post("/api/carrinho", { planoId: novoPlanoId, periodo: novoPeriodo });
+      carregarCarrinho();
+    } catch (err) {
+      console.error("Erro ao alterar plano/período:", err);
+      setError("Erro ao alterar plano/período");
+    }
+  };
+
+  const aplicarCupom = () => {
+    // Por enquanto apenas simula aplicação do cupom
+    if (cupom.trim()) {
+      setCupomAplicado(cupom.trim());
+      setCupom("");
+    }
+  };
+
+  const removerCupom = () => {
+    setCupomAplicado(null);
+  };
+
+  const handleContinuar = () => {
+    if (itensCarrinho.length > 0) {
+      navigate("/payment", { state: { itensCarrinho } });
+    }
+  };
+
+  const calcularTotal = () => {
+    return itensCarrinho.reduce((total, item) => {
+      const planoInfo = planos.find(p => p[item.periodo] && p[item.periodo].id === item.plano_id);
+      const preco = planoInfo ? Number(planoInfo[item.periodo].preco) * item.quantidade : 0;
+      return total + preco;
+    }, 0);
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Carregando carrinho...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -105,14 +172,16 @@ export default function CarrinhoCompras() {
             </div>
           </div>
           <div className={styles.badge}>
-            1 item
+            {itensCarrinho.length} {itensCarrinho.length === 1 ? 'item' : 'itens'}
           </div>
         </div>
       </div>
 
       {/* Conteúdo */}
       <div className={styles.content}>
-        {planoAtual ? (
+        {error && <div className={styles.error}>{error}</div>}
+
+        {itensCarrinho.length > 0 ? (
           <div className={styles.grid}>
             <div className={styles.itemsList}>
               <div className={styles.itemsHeader}>
@@ -120,63 +189,99 @@ export default function CarrinhoCompras() {
                 <p>Gerencie seus produtos e veja os descontos aplicados</p>
               </div>
 
-              <div className={styles.itemCard}>
-                <div className={styles.itemFlex}>
-                  <div className={styles.itemInfo}>
-                    <div className={styles.itemHeader}>
-                      <div>
-                        <h3 className={styles.itemTitle}>{planoAtual.nome}</h3>
-                        <p className={styles.itemDescription}>Plano {planoAtual.periodo}</p>
+              {itensCarrinho.map((item) => {
+                const plano = planos.find(p => p.mensal?.id === item.plano_id || p.trimestral?.id === item.plano_id || p.semestral?.id === item.plano_id || p.anual?.id === item.plano_id);
+                const periodoInfo = plano ? plano[item.periodo] : null;
+
+                return (
+                  <div key={item.id} className={styles.itemCard}>
+                    <div className={styles.itemFlex}>
+                      <div className={styles.itemInfo}>
+                        <button
+                          className={styles.removeButton}
+                          onClick={() => removerItem(item.id)}
+                        >
+                          <FaTrash />
+                        </button>
+                        <div className={styles.itemHeader}>
+                          <div className={styles.selectsContainer}>
+                            <label className={styles.selectLabel}>Plano</label>
+                            <select
+                              className={styles.planoSelect}
+                              value={plano?.nome || ''}
+                              onChange={(e) => {
+                                const novoPlanoNome = e.target.value;
+                                const novoPlano = planos.find(p => p.nome === novoPlanoNome);
+                                if (novoPlano) {
+                                  const novoPeriodoInfo = novoPlano[item.periodo];
+                                  if (novoPeriodoInfo) {
+                                    alterarPlanoPeriodo(item.id, novoPeriodoInfo.id, item.periodo);
+                                  }
+                                }
+                              }}
+                            >
+                              {planos.map((p) => (
+                                <option key={p.nome} value={p.nome}>
+                                  {p.nome}
+                                </option>
+                              ))}
+                            </select>
+                            <label className={styles.selectLabel}>Período</label>
+                            <select
+                              className={styles.periodoSelect}
+                              value={item.periodo}
+                              onChange={(e) => {
+                                const novoPeriodo = e.target.value;
+                                const novoPeriodoInfo = plano ? plano[novoPeriodo] : null;
+                                if (novoPeriodoInfo) {
+                                  alterarPlanoPeriodo(item.id, novoPeriodoInfo.id, novoPeriodo);
+                                }
+                              }}
+                            >
+                              {plano?.mensal && (
+                                <option value="mensal">
+                                  Mensal - R$ {plano.mensal.preco.toFixed(2)}
+                                </option>
+                              )}
+                              {plano?.trimestral && (
+                                <option value="trimestral">
+                                  Trimestral - R$ {plano.trimestral.preco.toFixed(2)}
+                                </option>
+                              )}
+                              {plano?.semestral && (
+                                <option value="semestral">
+                                  Semestral - R$ {plano.semestral.preco.toFixed(2)}
+                                </option>
+                              )}
+                              {plano?.anual && (
+                                <option value="anual">
+                                  Anual - R$ {plano.anual.preco.toFixed(2)}
+                                </option>
+                              )}
+                            </select>
+
+                          </div>
+                        </div>
+                        <div className={styles.badgeContainer}>
+                          <div>Duração: {periodoInfo?.duracaoDias || 0} dias</div>
+                        </div>
+                        {periodoInfo?.beneficios && (
+                          <ul className={styles.beneficiosList}>
+                            {periodoInfo.beneficios.map((beneficio, i) => (
+                              <li key={i}>{beneficio}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                      <div className={styles.itemPrice}>
+                        <p className={styles.itemPriceValue}>
+                          R${((periodoInfo?.preco || 0) * item.quantidade).toFixed(2)}
+                        </p>
                       </div>
                     </div>
-                    <div className={styles.badgeContainer}>
-                      <div>Duração: {planoAtual.duracaoDias} dias</div>
-                    </div>
-                    <ul>
-                      {planoAtual.beneficios.map((beneficio, i) => (
-                        <li key={i}>{beneficio}</li>
-                      ))}
-                    </ul>
                   </div>
-                  <div className={styles.itemPrice}>
-                    <p className={styles.itemPriceValue}>R${planoAtual.preco.toFixed(2)}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Seleção de Plano e Período */}
-              <div className={styles.selecao}>
-                <h3>Alterar Plano</h3>
-                <div className={styles.selecaoGrid}>
-                  <div>
-                    <label>Período:</label>
-                    <select
-                      value={periodoSelecionado}
-                      onChange={(e) => setPeriodoSelecionado(e.target.value)}
-                      className={styles.select}
-                    >
-                      <option value="mensal">Mensal</option>
-                      <option value="trimestral">Trimestral</option>
-                      <option value="semestral">Semestral</option>
-                      <option value="anual">Anual</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label>Plano:</label>
-                    <select
-                      value={planoSelecionado}
-                      onChange={(e) => setPlanoSelecionado(e.target.value)}
-                      className={styles.select}
-                    >
-                      {planos.map((plano) => (
-                        <option key={plano.id} value={plano.id}>
-                          {plano.nome} - R${plano.preco.toFixed(2)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
 
               {/* Banner */}
               <div className={styles.banner}>
@@ -190,27 +295,58 @@ export default function CarrinhoCompras() {
               <div className={styles.summaryCard}>
                 <h2 className={styles.summaryHeader}>Resumo do Pedido</h2>
                 <div className={styles.summaryContent}>
-                  <div className={styles.summaryItem}>
-                    <span className={styles.summaryItemLabel}>{planoAtual.nome} ({planoAtual.periodo})</span>
-                    <span className={styles.summaryItemValue}>R${planoAtual.preco.toFixed(2)}</span>
-                  </div>
+                  {itensCarrinho.map((item) => {
+                    const planoInfo = planos.find(p => p[item.periodo] && p[item.periodo].id === item.plano_id);
+                    const periodoInfo = planoInfo ? planoInfo[item.periodo] : null;
+                    const subtotal = (periodoInfo?.preco || 0) * item.quantidade;
 
+                    return (
+                      <div key={item.id} className={styles.summaryItem}>
+                        <span className={styles.summaryItemLabel}>
+                          {planoInfo?.nome || 'Plano'} ({item.periodo})
+                        </span>
+                        <span className={styles.summaryItemValue}>R${subtotal.toFixed(2)}</span>
+                      </div>
+                    );
+                  })}
+
+                  {/* Campo Cupom */}
                   <div className={styles.cupom}>
+                    <h4>Cupom de Desconto</h4>
                     <div className={styles.cupomInputGroup}>
                       <input
                         type="text"
-                        placeholder="Digite o cupom"
+                        placeholder="Digite seu cupom"
                         value={cupom}
-                        onChange={(e) => setCupom(e.target.value.toUpperCase())}
+                        onChange={(e) => setCupom(e.target.value)}
+                        className={styles.cupomInput}
                       />
-                      <button onClick={aplicarCupom}>Aplicar</button>
+                      <button
+                        className={styles.cupomButton}
+                        onClick={aplicarCupom}
+                        disabled={!cupom.trim()}
+                      >
+                        Aplicar
+                      </button>
                     </div>
-                    {cupomAplicado && descontoCupom > 0 && <div className={styles.cupomAplicado}>Cupom aplicado! -R${descontoCupom.toFixed(2)}</div>}
+                    {cupomAplicado && (
+                      <div className={styles.cupomAplicado}>
+                        <span>🎉 Cupom "{cupomAplicado}" aplicado!</span>
+                        <button
+                          className={styles.removerCupomButton}
+                          onClick={removerCupom}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
                   </div>
 
-                  <div className={styles.totalFinal}>Total: R${totalFinal.toFixed(2)}</div>
+                  <div className={styles.totalFinal}>Total: R${calcularTotal().toFixed(2)}</div>
 
-                  <button className={styles.checkoutButton} onClick={handleContinuar}>Continuar para Pagamento</button>
+                  <button className={styles.checkoutButton} onClick={handleContinuar}>
+                    Continuar para Pagamento
+                  </button>
                   <div className={styles.garantia}>30 dias para pedir reembolso</div>
                 </div>
               </div>
@@ -218,9 +354,12 @@ export default function CarrinhoCompras() {
           </div>
         ) : (
           <div className={styles.empty}>
+            <div className={styles.emptyIcon}>
+              <FaShoppingCart size={48} />
+            </div>
             <h2>Seu carrinho está vazio</h2>
             <p>Adicione produtos ao carrinho para continuar</p>
-            <button onClick={() => navigate("/")}>Explorar Planos</button>
+            <button className={styles.explorarButton} onClick={() => navigate("/")}>Explorar Planos</button>
           </div>
         )}
       </div>

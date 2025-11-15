@@ -1,134 +1,151 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaMoon, FaSun } from "react-icons/fa";
-import styles from "./LoginAdmin.module.css";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  FaUser,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaMoon,
+  FaSun,
+} from "react-icons/fa";
 import { auth } from "../../auth";
+import styles from "./LoginAdmin.module.css";
 
 function LoginAdmin() {
   const navigate = useNavigate();
-
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [inputFocused, setInputFocused] = useState(false);
-  const [theme, setTheme] = useState(
-    () => localStorage.getItem("theme") || "dark"
-  );
+
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  const toggleTema = () => {
+  const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   const toggleSenha = () => setMostrarSenha((prev) => !prev);
 
-  useEffect(() => {
-    const handleResize = () => {
-      const isKeyboardOpen = window.innerHeight < 500;
-      setInputFocused(isKeyboardOpen);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      const response = await auth.loginAdmin(email, senha);
-      if (response) {
-        navigate("/dashboardadmin");
+      const response = await auth.loginUsuario(email, senha);
+      if (response.tipo === "admin") {
+        setError("Use a página de login do administrador para acessar como admin.");
+        localStorage.removeItem("jwt_token");
+        localStorage.removeItem("empresas");
+        localStorage.removeItem("empresaAtual");
+        return;
       }
-    } catch (error) {
-      const getErrorMessage = (err) => {
-        if (!err) return "Erro ao fazer login";
-        if (typeof err === "string") return err;
-        if (err instanceof Error) return err.message;
-        const axiosErr = err || {};
-        return (
-          axiosErr?.response?.data?.error ||
-          axiosErr?.response?.data?.message ||
-          "Erro ao fazer login"
-        );
-      };
-
-      alert(getErrorMessage(error));
+      const locationState = location.state;
+      if (locationState?.from === "/carrinho" || locationState?.planId) {
+        navigate("/carrinho", { state: locationState });
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      console.error("Erro no login:", err);
+      if (err && err.response) {
+        if (err.response.status === 400 && err.response.data?.errors?.length > 0) {
+          setError(err.response.data.errors[0].msg);
+        } else if (err.response.status === 401 && err.response.data?.error) {
+          setError(err.response.data.error);
+        } else {
+          setError("Erro ao fazer login");
+        }
+      } else {
+        setError("Erro ao fazer login");
+      }
+      localStorage.removeItem("jwt_token");
+      localStorage.removeItem("empresas");
+      localStorage.removeItem("empresaAtual");
+    } finally {
+      setLoading(false);
     }
   };
 
+
   return (
-    <div
-      className={`${styles.loginContainer} ${
-        inputFocused ? styles.keyboardOpen : ""
-      }`}
-    >
-      <div className={styles.themeToggle} onClick={toggleTema}>
-        {theme === "dark" ? <FaSun /> : <FaMoon />}
-      </div>
+    <div className={styles.loginPage}>
+      <header className={styles.headerTop}>
+        <div className={styles.logoContainer}>
+          <div className={styles.logo}>MultiAlmeida</div>
+          <h2 className={styles.subtitle}>ERP SaaS PDV</h2>
+        </div>
 
-      <div className={styles.loginBox}>
-        <h1 className={styles.companyName}>MultiAlmeida</h1>
-        <h1 className={styles.title}>PDV SaaS</h1>
-        <h2 className={styles.subtitle}>Painel Administrativo</h2>
-
-        <p className={styles.subtitle}>
-          Acesse sua conta para gerenciar os clientes e sistemas
-        </p>
-
-        <form className={styles.form} onSubmit={handleLogin}>
-          <div className={styles.inputWrapper}>
-            <FaUser className={styles.inputIcon} />
-            <input
-              type="email"
-              placeholder="E-mail"
-              className={styles.input}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onFocus={() => setInputFocused(true)}
-              onBlur={() => setInputFocused(false)}
-              required
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <FaLock className={styles.inputIcon} />
-            <input
-              type={mostrarSenha ? "text" : "password"}
-              placeholder="Senha"
-              className={styles.input}
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              onFocus={() => setInputFocused(true)}
-              onBlur={() => setInputFocused(false)}
-              required
-            />
-            <span
-              onClick={toggleSenha}
-              className={`${styles.eyeIcon} ${styles.eyeIconHover}`}
-            >
-              {mostrarSenha ? <FaEyeSlash /> : <FaEye />}
-            </span>
-          </div>
-
-          <button type="submit" className={styles.button}>
-            Entrar
+        <div className={styles.actionsContainer}>
+          <button className={styles.iconButton} onClick={toggleTheme}>
+            {theme === "dark" ? <FaSun /> : <FaMoon />}
           </button>
-        </form>
-      </div>
+        </div>
+      </header>
 
-      <footer className={styles.footer}>
-        <p className={styles.rights}>
-          © {new Date().getFullYear()} <strong>MultiAlmeida</strong>. Todos os
-          direitos reservados.
-        </p>
-      </footer>
+      <main className={styles.mainContent}>
+        <section className={styles.hero}>
+          <div className={styles.heroContent}>
+            <h1 className={styles.heroTitle}>
+              Login do Administrador
+            </h1>
+            <p className={styles.heroSubtitle}>
+              Entre no painel administrativo para gerenciar o sistema.
+            </p>
+
+            <div className={styles.loginForm}>
+              <form className={styles.form} onSubmit={handleLogin}>
+                <div className={styles.inputWrapper}>
+                  <FaUser className={styles.inputIcon} />
+                  <input
+                    type="email"
+                    placeholder="E-mail"
+                    className={styles.input}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className={styles.inputWrapper}>
+                  <FaLock className={styles.inputIcon} />
+                  <input
+                    type={mostrarSenha ? "text" : "password"}
+                    placeholder="Senha"
+                    className={styles.input}
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    required
+                  />
+                  <span
+                    onClick={toggleSenha}
+                    className={styles.eyeIcon}
+                  >
+                    {mostrarSenha ? <FaEyeSlash /> : <FaEye />}
+                  </span>
+                </div>
+
+                {error && <p className={styles.error}>{error}</p>}
+
+                <button type="submit" className={styles.button} disabled={loading}>
+                  {loading ? "Entrando..." : "Entrar"}
+                </button>
+              </form>
+            </div>
+          </div>
+
+
+        </section>
+      </main>
     </div>
   );
 }
-
 
 export default LoginAdmin;
