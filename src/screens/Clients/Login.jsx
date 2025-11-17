@@ -75,6 +75,16 @@ function Login() {
   };
 
 
+  const handleRegistroClick = (e) => {
+    e.preventDefault();
+    const { planId, periodo } = location.state || {};
+    if (planId && periodo) {
+      navigate(`/registro?planId=${planId}&periodo=${periodo}`);
+    } else {
+      navigate('/registro');
+    }
+  };
+
   return (
     <div className={styles.loginPage}>
       <header className={styles.headerTop}>
@@ -140,7 +150,7 @@ function Login() {
               </form>
 
               <p className={styles.registroLink}>
-                Não tem conta? <a href="#" onClick={(e) => { e.preventDefault(); navigate(`/registro?planId=${location.state?.planId || ''}&periodo=${location.state?.periodo || 'mensal'}`); }}>Registre-se</a>
+                Não tem conta? <a href="#" onClick={handleRegistroClick}>Registre-se</a>
               </p>
             </div>
           </div>

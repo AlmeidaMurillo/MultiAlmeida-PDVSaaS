@@ -13,7 +13,7 @@ export default function CarrinhoCompras() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
   const [itensCarrinho, setItensCarrinho] = useState([]);
   const [planos, setPlanos] = useState([]);
-  const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState("");
   const [cupom, setCupom] = useState("");
   const [cupomAplicado, setCupomAplicado] = useState(null);
@@ -36,7 +36,6 @@ export default function CarrinhoCompras() {
         navigate("/login", { state: { from: "/carrinho", planId, periodo } });
         return;
       }
-      setLoading(false);
     };
     checkAuth();
   }, [navigate, planId, periodo]);
@@ -52,15 +51,12 @@ export default function CarrinhoCompras() {
 
   const carregarCarrinho = useCallback(async () => {
     try {
-      setLoading(true);
       setError("");
       const response = await api.get("/api/carrinho");
       setItensCarrinho(response.data.itens || []);
     } catch (err) {
       console.error("Erro ao carregar carrinho:", err);
       setError("Erro ao carregar carrinho");
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -137,13 +133,7 @@ export default function CarrinhoCompras() {
     }, 0);
   };
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Carregando carrinho...</div>
-      </div>
-    );
-  }
+
 
   return (
     <div className={styles.container}>
@@ -168,7 +158,7 @@ export default function CarrinhoCompras() {
             <button className={styles.backButton} onClick={() => navigate(-1)}><FaArrowLeft /></button>
             <div>
               <h1 className={styles.title}>Seu Carrinho</h1>
-              <p className={styles.subtitle}>Revise seus itens antes de continuar</p>
+              <p className={styles.subtitle1}>Revise seus itens antes de continuar</p>
             </div>
           </div>
           <div className={styles.badge}>

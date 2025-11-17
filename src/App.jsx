@@ -19,7 +19,16 @@ const DashboardCliente = lazy(() => import("./screens/Clients/DashboardCliente")
 
 function App() {
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const location = useLocation(); // Agora funciona sem erro
+  const location = useLocation(); 
+  const [showSpinner, setShowSpinner] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSpinner(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -29,7 +38,7 @@ function App() {
     initAuth();
   }, []);
 
-  if (loadingAuth) return <Spinner />;
+  if (loadingAuth || showSpinner) return <Spinner />;
 
   return (
     <>

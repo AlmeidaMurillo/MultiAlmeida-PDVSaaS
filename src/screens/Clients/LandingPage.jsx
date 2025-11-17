@@ -9,7 +9,10 @@ import {
   FaTwitter,
   FaShoppingCart,
   FaSignInAlt,
+  FaSignOutAlt,
   FaTachometerAlt,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import styles from "./LandingPage.module.css";
@@ -28,6 +31,7 @@ function LandingPage() {
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [showUserModal, setShowUserModal] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -68,6 +72,10 @@ function LandingPage() {
     setUserName("");
     setUserEmail("");
     setShowUserModal(false);
+  };
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
 
   const carregarPlanos = useCallback(async () => {
@@ -152,6 +160,9 @@ function LandingPage() {
                 {showUserModal && (
                   <div className={styles.userModalOverlay} onClick={() => setShowUserModal(false)}>
                     <div className={styles.userModal} onClick={(e) => e.stopPropagation()}>
+                      <button className={styles.modalCloseButton} onClick={() => setShowUserModal(false)}>
+                        <FaTimes />
+                      </button>
                       <div className={styles.modalHeader}>
                         <div className={styles.modalUserAvatar}>
                           {userName ? userName.charAt(0).toUpperCase() : "U"}
@@ -216,7 +227,67 @@ function LandingPage() {
             </button>
           )}
         </div>
+
+        <button className={styles.mobileMenuButton} onClick={toggleMobileSidebar}>
+          <FaBars />
+        </button>
       </header>
+
+      {isMobileSidebarOpen && (
+        <div className={styles.mobileSidebarOverlay} onClick={toggleMobileSidebar}>
+          <div className={styles.mobileSidebar} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.mobileSidebarHeader}>
+              {isLoggedIn ? (
+                <div className={styles.mobileUserInfo}>
+                  <div className={styles.mobileUserAvatar}>
+                    {userName ? userName.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <div className={styles.userInfoText}>
+                    <h3 className={styles.mobileUserName}>{userName}</h3>
+                    <p className={styles.mobileUserEmail}>{userEmail}</p>
+                  </div>
+                </div>
+              ) : (
+                <h3>Menu</h3>
+              )}
+              <button className={styles.closeButton} onClick={toggleMobileSidebar}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className={styles.mobileSidebarContent}>
+              <button className={styles.mobileSidebarItem} onClick={() => { toggleTheme(); toggleMobileSidebar(); }}>
+                {theme === "dark" ? <FaSun /> : <FaMoon />}
+                <span>Alternar Tema</span>
+              </button>
+              <button className={styles.mobileSidebarItem} onClick={() => { handleCarrinhoClick(); toggleMobileSidebar(); }}>
+                <FaShoppingCart />
+                <span>Carrinho</span>
+              </button>
+              {isLoggedIn ? (
+                <button className={styles.mobileSidebarItem} onClick={() => { handlePainelClick(); toggleMobileSidebar(); }}>
+                  <FaTachometerAlt />
+                  <span>Painel</span>
+                </button>
+              ) : (
+                <button className={styles.mobileSidebarItem} onClick={() => { navigate("/login"); toggleMobileSidebar(); }}>
+                  <FaSignInAlt />
+                  <span>Login</span>
+                </button>
+              )}
+            </div>
+
+            {isLoggedIn && (
+              <div className={styles.mobileSidebarFooter}>
+                <button className={styles.mobileSidebarItem} onClick={() => { handleLogout(); toggleMobileSidebar(); }}>
+                  <FaSignOutAlt />
+                  <span>Sair</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <main className={styles.mainContent}>
         <section className={styles.hero}>
@@ -230,7 +301,7 @@ function LandingPage() {
               integrada.
             </p>
             <button
-              className={styles.loginButton}
+              className={styles.loginButton2}
               onClick={() => navigate("/login")}
             >
               Comece Agora

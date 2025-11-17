@@ -1,10 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
-
-
 .landingPage {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--bg-color) 0%, var(--sidebar-bg) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--bg-color) 0%,
+    var(--sidebar-bg) 100%
+  );
   color: var(--text-color);
   overflow-x: hidden;
   font-family: "Inter", sans-serif;
@@ -18,6 +20,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -28,6 +31,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -38,6 +42,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -49,6 +54,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -69,7 +75,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 clamp(1rem, 3vw, 5rem);
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.15);
   flex-wrap: nowrap;
   transition: background-color 0.3s ease;
 }
@@ -92,7 +99,6 @@
   color: var(--text-color);
   font-weight: 500;
   opacity: 0.8;
-  margin-top: 2px;
 }
 
 .actionsContainer {
@@ -120,6 +126,27 @@
 
 .loginButton:hover,
 .painelButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.loginButton2 {
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+  border: none;
+  color: #fff;
+  padding: clamp(0.4rem, 1vh, 0.6rem) clamp(0.8rem, 2vw, 1.2rem);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loginButton2:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
@@ -176,7 +203,6 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   display: flex;
@@ -184,14 +210,14 @@
   justify-content: flex-end;
   z-index: 1000;
   padding: 1rem;
+  padding-top: clamp(5rem, 10vh, 6rem); /* Position below header */
   animation: fadeIn 0.3s ease-out;
 }
 
 .userModal {
-  position: absolute;
-  top: clamp(3.5rem, 9vh, 5rem);
-  right: clamp(1rem, 3vw, 5rem);
+  position: relative;
   width: clamp(280px, 22vw, 320px);
+  margin-right: clamp(1rem, 3vw, 5rem); /* Spacing from right edge */
   background: var(--sidebar-bg);
   border-radius: 0.75rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -200,6 +226,9 @@
   overflow: hidden;
   animation: slideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: top right;
+  max-width: calc(
+    100vw - 4rem
+  ); /* Ensure it doesn't overflow viewport, accounting for padding and margin */
 }
 
 .modalHeader {
@@ -297,6 +326,197 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+.modalCloseButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  line-height: 0;
+}
+
+.modalCloseButton:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* ===== MOBILE MENU BUTTON ===== */
+.mobileMenuButton {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.mobileMenuButton:hover {
+  background-color: var(--hover-bg);
+  transform: scale(1.1);
+}
+
+/* ===== MOBILE SIDEBAR ===== */
+.mobileSidebarOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100dvh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.mobileSidebar {
+  width: 280px;
+  height: 100%;
+  background: var(--sidebar-bg);
+  color: var(--text-color);
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+  animation: slideInRight 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.mobileSidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mobileSidebarHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mobileSidebarContent {
+  flex: 1;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.mobileSidebarItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.mobileSidebarItem:hover {
+  background-color: var(--hover-bg);
+}
+
+.mobileSidebarItem svg {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.mobileUserInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  overflow: hidden;
+  flex: 1;
+}
+
+.mobileUserAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--active-bg);
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.userInfoText {
+  overflow: hidden;
+}
+
+.mobileUserName {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobileUserEmail {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobileSidebarFooter {
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
 /* ===== MAIN CONTENT & SECTIONS ===== */
 .mainContent {
   padding: 0 clamp(1rem, 3vw, 5rem);
@@ -314,6 +534,7 @@
 .planos {
   animation-delay: 0.4s;
 }
+
 .contato {
   animation-delay: 0.6s;
 }
@@ -538,7 +759,8 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   background: var(--sidebar-bg);
   padding: clamp(4rem, 10vh, 6rem) 0;
-  text-align: center; /* Centraliza todo o conteúdo */
+  text-align: center;
+  /* Centraliza todo o conteúdo */
 }
 
 .contatoContent {
@@ -558,7 +780,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1.5rem 2.5rem; /* Espaçamento vertical e horizontal */
+  gap: 1.5rem 2.5rem;
+  cursor: pointer;
   margin-bottom: 2.5rem;
 }
 
@@ -620,100 +843,214 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-
 /* ===== RESPONSIVENESS ===== */
-@media (max-width: 900px) {
+
+/* Laptops */
+@media (max-width: 1024px) {
   .contatoContent {
-    grid-template-columns: 1fr; /* Coluna única em telas menores */
+    grid-template-columns: 1fr;
+    /* Coluna única em telas menores */
   }
 }
 
+/* Tablets e Mobile (Ponto de quebra principal para layout móvel) */
 @media (max-width: 768px) {
   .headerTop {
     padding: 0 1.5rem;
   }
+
   .mainContent {
     padding: 0 1.5rem;
   }
+
   .hero {
     text-align: center;
     justify-content: center;
     min-height: 70vh;
   }
+
   .heroSubtitle {
     margin-left: auto;
     margin-right: auto;
   }
+
   .heroImage {
     margin-top: 2rem;
   }
-}
 
-@media (max-width: 480px) {
-  .headerTop {
-    padding: 0 1rem;
-    height: auto;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    gap: 0.5rem;
-  }
-  .logoContainer {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 0.5rem;
-  }
-  .actionsContainer {
-    gap: 0.5rem;
-    justify-content: center;
-    width: 100%;
-  }
-  .mainContent {
-    padding: 0 1rem;
-  }
+  /* Centraliza o modal em telas de tablet para baixo */
   .userModalOverlay {
-    padding: 0;
     align-items: center;
     justify-content: center;
+    padding: 1rem;
   }
+
   .userModal {
-    position: relative;
+    position: static; /* Permite que o flexbox do overlay posicione o modal */
     top: auto;
     right: auto;
     width: 90vw;
-    max-width: 320px;
+    max-width: 340px;
+    margin-right: 0; /* Reseta a margem para o layout centralizado */
     animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
     transform-origin: bottom center;
   }
-  .planoButton {
-    width: 100%;
+
+  /* Exibe o botão de menu mobile e esconde as ações do desktop */
+  .mobileMenuButton {
+    display: block;
+  }
+
+  .actionsContainer {
+    display: none;
   }
 }
 
-@media (max-width: 240px) {
+/* Mobile (Ajustes finos para celulares) */
+@media (max-width: 480px) {
+  .mainContent {
+    padding: 0 1rem;
+  }
+
+  .userModal {
+    width: 95vw;
+    max-width: 320px;
+  }
+
+  .planoButton {
+    width: 100%;
+  }
+
+  .loginButton2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .headerTop {
+    padding: 0 0.75rem;
+  }
+
+  .logo {
+    font-size: 1rem;
+  }
+
+  .subtitle {
+    font-size: 0.6rem;
+  }
+
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+
+  .heroSubtitle {
+    font-size: 0.9rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.6rem;
+  }
+
+sectionSubtitle {
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+
+  .planosGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .planoCard {
+    padding: 1.25rem;
+  }
+
+  .planoCard h3 {
+    font-size: 1.2rem;
+  }
+
+  .valor {
+    font-size: 1.5rem;
+  }
+
+  .contatoDetalhes {
+    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .redeIcon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+  }
+}
+
+/* Telas muito pequenas (abaixo de 320px) */
+@media (max-width: 320px) {
+  .headerTop {
+    height: auto;
+    min-height: 3.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .heroTitle {
+    font-size: 1.5rem;
+  }
+
+  .heroSubtitle {
+    font-size: 0.8rem;
+  }
+
+  .planoCard {
+    padding: 1rem;
+  }
+
+  .beneficiosList li {
+    font-size: 0.8rem;
+    gap: 0.5rem;
+  }
+
+  .planoButton {
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+  }
+
   .userModal {
     width: 95vw;
   }
+
   .modalHeader {
     padding: 0.75rem;
     flex-direction: column;
     text-align: center;
   }
+
   .modalUserAvatar {
     margin-right: 0;
     margin-bottom: 0.5rem;
   }
+
   .modalBody {
     padding: 0.75rem;
   }
+
   .modalButton {
     font-size: 0.8rem;
     padding: 0.6rem;
     gap: 0.5rem;
   }
+
   .modalButton svg {
     width: 16px;
     height: 16px;
   }
+
+  .contatoDetalhes p {
+    font-size: 0.9rem;
+    flex-direction: column;
+  }
 }
+

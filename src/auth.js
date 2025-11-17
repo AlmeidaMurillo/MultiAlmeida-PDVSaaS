@@ -112,6 +112,10 @@ export const auth = {
 
   criarConta: async (nome, email, senha) => {
     const res = await api.post("/api/criar-conta", { nome, email, senha });
+    if (res.data.token) {
+      localStorage.setItem("jwt_token", res.data.token);
+      localStorage.setItem("user_type", "usuario");
+    }
     await auth.update();
     return res.data;
   },
