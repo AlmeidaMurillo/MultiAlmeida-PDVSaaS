@@ -112,7 +112,7 @@ function Registro() {
   return (
     <div className={styles.registroPage}>
       <header className={styles.headerTop}>
-        <div className={styles.logoContainer}>
+        <div className={styles.logoContainer} onClick={() => navigate("/")}>
           <div className={styles.logo}>MultiAlmeida</div>
           <h2 className={styles.subtitle}>ERP SaaS PDV</h2>
         </div>

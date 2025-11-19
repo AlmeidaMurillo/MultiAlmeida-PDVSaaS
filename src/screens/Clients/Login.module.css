@@ -37,6 +37,7 @@
   user-select: none;
   /* Adicionado para evitar que o logo quebre linha */
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .logo {

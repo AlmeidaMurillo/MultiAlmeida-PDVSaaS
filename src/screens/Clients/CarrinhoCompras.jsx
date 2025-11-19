@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaMoon, FaSun, FaArrowLeft, FaShoppingCart, FaTrash } from "react-icons/fa";
+import {
+  FaMoon,
+  FaSun,
+  FaArrowLeft,
+  FaShoppingCart,
+  FaTrash,
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaBars,
+  FaTimes,
+} from "react-icons/fa";
 import api from "../../auth";
 import { auth } from "../../auth";
 import styles from "./CarrinhoCompras.module.css";
@@ -18,6 +29,12 @@ export default function CarrinhoCompras() {
   const [cupom, setCupom] = useState("");
   const [cupomAplicado, setCupomAplicado] = useState(null);
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -27,14 +44,49 @@ export default function CarrinhoCompras() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  // Verificar autenticação e redirecionar se necessário
+  const handlePainelClick = () => {
+    if (isLoggedIn) {
+      navigate("/dashboard");
+    } else {
+      navigate("/login");
+    }
+  };
+
+  const handleCarrinhoClick = () => {
+    // Already on the cart page
+  };
+
+  const handleLogout = async () => {
+    await auth.logout();
+    setIsLoggedIn(false);
+    setUserName("");
+    setUserEmail("");
+    setShowUserModal(false);
+    navigate("/"); // Redirect to landing page after logout
+  };
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       await auth.update();
-      if (!auth.isLoggedInCliente()) {
-        // Se não está logado, redirecionar para login com state para voltar ao carrinho
+      const loggedIn = auth.isLoggedInCliente();
+      setIsLoggedIn(loggedIn);
+      if (loggedIn) {
+        try {
+          const userDetails = await auth.getUserDetails();
+          setUserName(userDetails.nome);
+          setUserEmail(userDetails.email);
+        } catch (err) {
+          console.error("Erro ao carregar detalhes do usuário:", err);
+          // Handle error, maybe logout
+          await auth.logout();
+          setIsLoggedIn(false);
+        }
+      } else {
         navigate("/login", { state: { from: "/carrinho", planId, periodo } });
-        return;
       }
     };
     checkAuth();
@@ -60,9 +112,8 @@ export default function CarrinhoCompras() {
     }
   }, []);
 
-  // Adicionar item ao carrinho se veio da landing page
   useEffect(() => {
-    if (auth.isLoggedInCliente() && planId && periodo) {
+    if (isLoggedIn && planId && periodo) {
       const adicionarAoCarrinho = async () => {
         try {
           await api.post("/api/carrinho", { planoId: planId, periodo });
@@ -73,14 +124,14 @@ export default function CarrinhoCompras() {
       };
       adicionarAoCarrinho();
     }
-  }, [planId, periodo, carregarCarrinho]);
+  }, [planId, periodo, carregarCarrinho, isLoggedIn]);
 
   useEffect(() => {
-    if (auth.isLoggedInCliente()) {
+    if (isLoggedIn) {
       carregarPlanos();
       carregarCarrinho();
     }
-  }, [carregarPlanos, carregarCarrinho]);
+  }, [carregarPlanos, carregarCarrinho, isLoggedIn]);
 
   const removerItem = async (itemId) => {
     try {
@@ -92,13 +143,9 @@ export default function CarrinhoCompras() {
     }
   };
 
-
-
   const alterarPlanoPeriodo = async (itemId, novoPlanoId, novoPeriodo) => {
     try {
-      // Remover item atual
       await api.delete(`/api/carrinho/${itemId}`);
-      // Adicionar novo item
       await api.post("/api/carrinho", { planoId: novoPlanoId, periodo: novoPeriodo });
       carregarCarrinho();
     } catch (err) {
@@ -108,7 +155,6 @@ export default function CarrinhoCompras() {
   };
 
   const aplicarCupom = () => {
-    // Por enquanto apenas simula aplicação do cupom
     if (cupom.trim()) {
       setCupomAplicado(cupom.trim());
       setCupom("");
@@ -133,13 +179,10 @@ export default function CarrinhoCompras() {
     }, 0);
   };
 
-
-
   return (
     <div className={styles.container}>
-      {/* HeaderTop */}
       <header className={styles.headerTop}>
-        <div className={styles.logoContainer}>
+        <div className={styles.logoContainer} onClick={() => navigate("/")}>
           <div className={styles.logo}>MultiAlmeida</div>
           <h2 className={styles.subtitle}>ERP SaaS PDV</h2>
         </div>
@@ -148,15 +191,157 @@ export default function CarrinhoCompras() {
           <button className={styles.iconButton} onClick={toggleTheme}>
             {theme === "dark" ? <FaSun /> : <FaMoon />}
           </button>
+          <button className={styles.iconButton} onClick={handleCarrinhoClick}>
+            <FaShoppingCart />
+          </button>
+          {isLoggedIn ? (
+            <>
+              <button className={styles.painelButton} onClick={handlePainelClick}>
+                <FaTachometerAlt /> Painel
+              </button>
+              <div className={styles.profileContainer}>
+                <div className={styles.profileCircle} onClick={() => setShowUserModal(!showUserModal)}>
+                  {userName ? userName.charAt(0).toUpperCase() : "U"}
+                </div>
+
+                {showUserModal && (
+                  <div className={styles.userModalOverlay} onClick={() => setShowUserModal(false)}>
+                    <div className={styles.userModal} onClick={(e) => e.stopPropagation()}>
+                      <button className={styles.modalCloseButton} onClick={() => setShowUserModal(false)}>
+                        <FaTimes />
+                      </button>
+                      <div className={styles.modalHeader}>
+                        <div className={styles.modalUserAvatar}>
+                          {userName ? userName.charAt(0).toUpperCase() : "U"}
+                        </div>
+                        <div className={styles.modalUserInfo}>
+                          <h3 className={styles.modalUserName}>{userName}</h3>
+                          <p className={styles.modalUserEmail}>{userEmail}</p>
+                        </div>
+                      </div>
+                      <div className={styles.modalBody}>
+                        <button
+                          className={`${styles.modalButton} ${styles.modalButtonPrimary}`}
+                          onClick={() => navigate("/dashboard")}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M12 20V10" />
+                            <path d="M18 20V4" />
+                            <path d="M6 20V16" />
+                          </svg>
+                          <span>Ver Painel</span>
+                        </button>
+                        <button
+                          className={`${styles.modalButton} ${styles.modalButtonSecondary}`}
+                          onClick={handleLogout}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                          </svg>
+                          <span>Sair</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <button className={styles.loginButton} onClick={() => navigate("/login")}>
+              <FaSignInAlt /> Login
+            </button>
+          )}
         </div>
+
+        <button className={styles.mobileMenuButton} onClick={toggleMobileSidebar}>
+          <FaBars />
+        </button>
       </header>
+
+      {isMobileSidebarOpen && (
+        <div className={styles.mobileSidebarOverlay} onClick={toggleMobileSidebar}>
+          <div className={styles.mobileSidebar} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.mobileSidebarHeader}>
+              {isLoggedIn ? (
+                <div className={styles.mobileUserInfo}>
+                  <div className={styles.mobileUserAvatar}>
+                    {userName ? userName.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <div className={styles.userInfoText}>
+                    <h3 className={styles.mobileUserName}>{userName}</h3>
+                    <p className={styles.mobileUserEmail}>{userEmail}</p>
+                  </div>
+                </div>
+              ) : (
+                <h3>Menu</h3>
+              )}
+              <button className={styles.closeButton} onClick={toggleMobileSidebar}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className={styles.mobileSidebarContent}>
+              <button className={styles.mobileSidebarItem} onClick={() => { toggleTheme(); toggleMobileSidebar(); }}>
+                {theme === "dark" ? <FaSun /> : <FaMoon />}
+                <span>Alternar Tema</span>
+              </button>
+              <button className={styles.mobileSidebarItem} onClick={() => { handleCarrinhoClick(); toggleMobileSidebar(); }}>
+                <FaShoppingCart />
+                <span>Carrinho</span>
+              </button>
+              {isLoggedIn ? (
+                <button className={styles.mobileSidebarItem} onClick={() => { handlePainelClick(); toggleMobileSidebar(); }}>
+                  <FaTachometerAlt />
+                  <span>Painel</span>
+                </button>
+              ) : (
+                <button className={styles.mobileSidebarItem} onClick={() => { navigate("/login"); toggleMobileSidebar(); }}>
+                  <FaSignInAlt />
+                  <span>Login</span>
+                </button>
+              )}
+            </div>
+
+            {isLoggedIn && (
+              <div className={styles.mobileSidebarFooter}>
+                <button className={styles.mobileSidebarItem} onClick={() => { handleLogout(); toggleMobileSidebar(); }}>
+                  <FaSignOutAlt />
+                  <span>Sair</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.headerLeft}>
-            <button className={styles.backButton} onClick={() => navigate(-1)}><FaArrowLeft /></button>
-            <div>
+            <button className={styles.backButton} onClick={() => navigate("/")}><FaArrowLeft /></button>
+            <div className={styles.titleContainer}>
               <h1 className={styles.title}>Seu Carrinho</h1>
               <p className={styles.subtitle1}>Revise seus itens antes de continuar</p>
             </div>

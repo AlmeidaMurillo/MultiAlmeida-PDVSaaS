@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_API_URL || "https://multialmeida-pdvsaas-backend-production.up.railway.app",
   withCredentials: true,
 });
 
@@ -72,6 +72,12 @@ export const auth = {
       authState.userType = userType;
     } catch (err) {
       console.error("Erro ao atualizar autenticação:", err);
+      // Se o token for inválido (erro 401), limpa o localStorage para evitar loops.
+      if (err.response?.status === 401) {
+        console.log("Token inválido detectado (401). Limpando o localStorage...");
+        localStorage.removeItem("jwt_token");
+        localStorage.removeItem("user_type");
+      }
       authState = {
         isAdmin: false,
         isCliente: false,

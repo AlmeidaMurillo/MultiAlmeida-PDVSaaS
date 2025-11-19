@@ -177,7 +177,7 @@ function Sidebar({ children }) {
           <FaBars />
         </button>
 
-        <div className={styles.logoContainer}>
+        <div className={styles.logoContainer} onClick={() => navigate("/")}>
           <div className={styles.logo}>MultiAlmeida</div>
           <h2 className={styles.subtitle}>PDV SaaS</h2>
         </div>
