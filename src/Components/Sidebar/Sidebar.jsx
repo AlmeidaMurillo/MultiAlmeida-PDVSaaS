@@ -182,7 +182,7 @@ function Sidebar({ children }) {
     { icon: <FaUser />, label: "Empresas", path: "/empresasadmin" },
     { icon: <FaDollarSign />, label: "Planos e Assinaturas", path: "/planosadmin" },
     { icon: <FaMoneyBillWave />, label: "Vendas/Transações", path: "/vendas" },
-    { icon: <FaFileInvoiceDollar />, label: "Faturamento Mensal",.path: "/faturamento" },
+    { icon: <FaFileInvoiceDollar />, label: "Faturamento Mensal", path: "/faturamento" },
     { icon: <FaClock />, label: "Pagamentos Pendentes", path: "/pendentes" },
     { icon: <FaCheckCircle />, label: "Pagamentos Recebidos", path: "/recebidos" },
     { icon: <FaChartBar />, label: "Relatórios", path: "/relatorios" },
