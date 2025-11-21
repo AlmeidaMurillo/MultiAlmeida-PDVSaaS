@@ -167,7 +167,12 @@ export default function CarrinhoCompras() {
 
   const handleContinuar = () => {
     if (itensCarrinho.length > 0) {
-      navigate("/payment", { state: { itensCarrinho } });
+      const firstItem = itensCarrinho[0];
+      const plano = planos.find(p => p.mensal?.id === firstItem.plano_id || p.trimestral?.id === firstItem.plano_id || p.semestral?.id === firstItem.plano_id || p.anual?.id === firstItem.plano_id);
+      const periodoInfo = plano ? plano[firstItem.periodo] : null;
+      if (periodoInfo) {
+        navigate("/payment", { state: { planId: periodoInfo.id, periodo: firstItem.periodo } });
+      }
     }
   };
 

@@ -17,6 +17,7 @@ import {
   FaBell,
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
+import { auth } from "../../auth";
 
 // ===== Componente de item do menu =====
 const MenuItem = memo(function MenuItem({
@@ -58,6 +59,19 @@ function Sidebar({ children }) {
   });
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("jwt_token"));
+  const [showUserModal, setShowUserModal] = useState(false);
+
+  const handleLogout = async () => {
+    await auth.logout();
+    setIsLoggedIn(false);
+    setUserName("");
+    setUserEmail("");
+    setShowUserModal(false);
+    navigate("/"); // Redirect to landing page after logout
+  };
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -73,6 +87,21 @@ function Sidebar({ children }) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const fetchUser = async () => {
+        try {
+          const user = await auth.getUserDetails();
+          setUserName(user.nome);
+          setUserEmail(user.email);
+        } catch (error) {
+          console.error('Erro ao buscar usuário:', error);
+        }
+      };
+      fetchUser();
+    }
+  }, [isLoggedIn]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -153,7 +182,7 @@ function Sidebar({ children }) {
     { icon: <FaUser />, label: "Empresas", path: "/empresasadmin" },
     { icon: <FaDollarSign />, label: "Planos e Assinaturas", path: "/planosadmin" },
     { icon: <FaMoneyBillWave />, label: "Vendas/Transações", path: "/vendas" },
-    { icon: <FaFileInvoiceDollar />, label: "Faturamento Mensal", path: "/faturamento" },
+    { icon: <FaFileInvoiceDollar />, label: "Faturamento Mensal",.path: "/faturamento" },
     { icon: <FaClock />, label: "Pagamentos Pendentes", path: "/pendentes" },
     { icon: <FaCheckCircle />, label: "Pagamentos Recebidos", path: "/recebidos" },
     { icon: <FaChartBar />, label: "Relatórios", path: "/relatorios" },
@@ -197,9 +226,36 @@ function Sidebar({ children }) {
             <span className={`${styles.badge} ${styles.black}`}>0</span>
           </div>
 
-          <div className={styles.profileCircle}>
-            <FaUser size={20} />
+          <div className={styles.profileCircle} onClick={() => setShowUserModal(!showUserModal)}>
+            {userName ? userName.charAt(0).toUpperCase() : <FaUser size={20} />}
           </div>
+          {showUserModal && (
+            <div className={styles.userModalOverlay} onClick={() => setShowUserModal(false)}>
+              <div className={styles.userModal} onClick={(e) => e.stopPropagation()}>
+                <button className={styles.modalCloseButton} onClick={() => setShowUserModal(false)}>
+                  <FaTimes />
+                </button>
+                <div className={styles.modalHeader}>
+                  <div className={styles.modalUserAvatar}>
+                    {userName ? userName.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <div className={styles.modalUserInfo}>
+                    <h3 className={styles.modalUserName}>{userName}</h3>
+                    <p className={styles.modalUserEmail}>{userEmail}</p>
+                  </div>
+                </div>
+                <div className={styles.modalBody}>
+                  <button
+                    className={`${styles.modalButton} ${styles.modalButtonSecondary}`}
+                    onClick={handleLogout}
+                  >
+                    <FaSignOutAlt />
+                    <span>Sair</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
