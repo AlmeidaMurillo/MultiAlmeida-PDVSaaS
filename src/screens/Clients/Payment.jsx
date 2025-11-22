@@ -1,5 +1,5 @@
- import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   FaMoon,
   FaSun,
@@ -17,9 +17,8 @@ import api from "../../auth";
 import styles from "./Payment.module.css";
 
 export default function Payment() {
-  const location = useLocation();
+  const { paymentId } = useParams();
   const navigate = useNavigate();
-  const { planId, periodo } = location.state || {};
 
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
@@ -29,15 +28,15 @@ export default function Payment() {
   const [showUserModal, setShowUserModal] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [paymentData, setPaymentData] = useState(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async () => {
-    if (paymentData && paymentData.pixCode) {
+    if (paymentData && paymentData.qrCodeText) {
       try {
-        await navigator.clipboard.writeText(paymentData.pixCode);
+        await navigator.clipboard.writeText(paymentData.qrCodeText);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (err) {
@@ -100,29 +99,47 @@ export default function Payment() {
           setIsLoggedIn(false);
         }
       } else {
-        navigate("/login", { state: { from: "/carrinho", planId, periodo } });
+        navigate("/login");
       }
     };
     checkAuth();
-  }, [navigate, planId, periodo]);
+  }, [navigate]);
 
   useEffect(() => {
-    if (isLoggedIn && planId && periodo) {
-      const initiatePayment = async () => {
+    if (isLoggedIn && paymentId) {
+      const fetchPaymentDetails = async () => {
         try {
           setLoading(true);
-          const response = await api.post("/api/payments/initiate", { planId, periodo });
+          const response = await api.get(`/api/payments/${paymentId}`);
           setPaymentData(response.data);
         } catch (err) {
-          console.error("Erro ao iniciar pagamento:", err);
-          setError("Erro ao iniciar pagamento");
+          console.error("Erro ao carregar detalhes do pagamento:", err);
+          setError("Erro ao carregar detalhes do pagamento");
         } finally {
           setLoading(false);
         }
       };
-      initiatePayment();
+      fetchPaymentDetails();
     }
-  }, [isLoggedIn, planId, periodo]);
+  }, [isLoggedIn, paymentId]);
+
+  useEffect(() => {
+    if (!paymentId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const response = await api.get(`/api/payments/status/${paymentId}`);
+        if (response.data.status === 'aprovado') {
+          clearInterval(interval);
+          navigate('/payment-success');
+        }
+      } catch (err) {
+        console.error("Erro ao verificar status do pagamento:", err);
+      }
+    }, 3000); // Poll every 3 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [paymentId, navigate]);
 
 
   return (
@@ -284,30 +301,20 @@ export default function Payment() {
 
       {/* Payment Content */}
       <div className={styles.content}>
-        {loading && <div className={styles.loading}>Iniciando pagamento...</div>}
+        {loading && <div className={styles.loading}>Carregando dados do pagamento...</div>}
         {error && <div className={styles.error}>{error}</div>}
         {paymentData && (
           <div className={styles.paymentContainer}>
             <h1 className={styles.title}>Pagamento PIX</h1>
             <div className={styles.paymentDetails}>
               <div className={styles.planInfo}>
-                <h2>Plano: {paymentData.plan.nome} - {paymentData.plan.periodo}</h2>
-                <p>Preço: R$ {paymentData.plan.preco.toFixed(2)}</p>
-                <p>Duração: {paymentData.plan.duracaoDias} dias</p>
-                <ul>
-                  {paymentData.plan.beneficios.map((beneficio, i) => (
-                    <li key={i}>{beneficio}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className={styles.userInfo}>
-                <h2>Usuário: {paymentData.user.nome}</h2>
-                <p>Email: {paymentData.user.email}</p>
-                <p>Data de Criação: {new Date(paymentData.dataCriacao).toLocaleString()}</p>
+                <h2>Plano: {paymentData.nomePlano} - {paymentData.periodoPlano}</h2>
+                <p>Preço: R$ {Number(paymentData.precoPlano).toFixed(2)}</p>
+                <p>Duração: {paymentData.duracaoDiasPlano} dias</p>
               </div>
               <div className={styles.qrSection}>
                 <h2>QR Code PIX</h2>
-                <img src={paymentData.qrCode} alt="QR Code PIX" className={styles.qrCode} />
+                <img src={`data:image/png;base64,${paymentData.qrCode}`} alt="QR Code PIX" className={styles.qrCode} />
                 <button className={styles.copyButton} onClick={copyToClipboard}>
                   {copied ? <FaCheck /> : <FaCopy />} {copied ? "Copiado!" : "Copiar Código PIX"}
                 </button>

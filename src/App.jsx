@@ -49,7 +49,7 @@ function App() {
           <Route path="/" element={<LandingPage key={location.key} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro key={location.key} />} />
-          <Route path="/payment" element={<Payment />} />
+          <Route path="/payment/:paymentId" element={<Payment />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/loginadmin" element={<LoginAdmin />} />
           <Route path="/carrinho" element={<CarrinhoCompras />} />
