@@ -55,10 +55,13 @@ export default function Payment() {
   };
 
   const handlePainelClick = () => {
-    if (isLoggedIn) {
+    if (auth.isCliente()) { // Usa a nova lógica que verifica se tem alguma assinatura
       navigate("/dashboard");
     } else {
-      navigate("/login");
+      // Exibe um alerta personalizado
+      alert("Você precisa ter uma assinatura ativa ou uma assinatura anterior associada à sua conta para acessar o painel. Por favor, verifique seus planos ou entre em contato com o suporte para mais informações.");
+      // Opcional: Redirecionar para uma página de planos ou de contato
+      // navigate("/planos");
     }
   };
 
@@ -185,7 +188,7 @@ export default function Payment() {
                       <div className={styles.modalBody}>
                         <button
                           className={`${styles.modalButton} ${styles.modalButtonPrimary}`}
-                          onClick={() => navigate("/dashboard")}
+                          onClick={handlePainelClick}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
