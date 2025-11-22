@@ -42,7 +42,7 @@ function LoginAdmin() {
       const response = await auth.loginAdmin(email, senha);
       navigate("/admin/dashboard");
     } catch (err) {
-      console.error("Erro no login:", err);
+      console.error("Erro detalhado no login do admin:", err);
       if (err && err.response) {
         if (err.response.status === 400 && err.response.data?.errors?.length > 0) {
           setError(err.response.data.errors[0].msg);
