@@ -8,7 +8,7 @@ export default function PaymentSuccess() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate("/login");
+      navigate("/");
     }, 5000);
 
     return () => clearTimeout(timer);
@@ -25,7 +25,7 @@ export default function PaymentSuccess() {
             Você receberá um email de confirmação em breve e poderá acessar o
             painel da sua empresa.
           </p>
-          <p>Você será redirecionado para a tela de login em alguns instantes.</p>
+          <p>Você será redirecionado para a página inicial em alguns instantes.</p>
         </div>
       </div>
     </div>

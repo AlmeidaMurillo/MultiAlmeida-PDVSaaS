@@ -28,6 +28,7 @@ export default function CarrinhoCompras() {
   const [error, setError] = useState("");
   const [cupom, setCupom] = useState("");
   const [cupomAplicado, setCupomAplicado] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
@@ -165,14 +166,28 @@ export default function CarrinhoCompras() {
     setCupomAplicado(null);
   };
 
-  const handleContinuar = () => {
-    if (itensCarrinho.length > 0) {
-      const firstItem = itensCarrinho[0];
-      const plano = planos.find(p => p.mensal?.id === firstItem.plano_id || p.trimestral?.id === firstItem.plano_id || p.semestral?.id === firstItem.plano_id || p.anual?.id === firstItem.plano_id);
-      const periodoInfo = plano ? plano[firstItem.periodo] : null;
-      if (periodoInfo) {
-        navigate("/payment", { state: { planId: periodoInfo.id, periodo: firstItem.periodo } });
+  const handleContinuar = async () => {
+    if (itensCarrinho.length === 0) return;
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // O backend agora lê o carrinho, então não precisamos enviar dados
+      const response = await api.post("/api/payments/initiate");
+      const { paymentId } = response.data;
+      if (paymentId) {
+        navigate(`/payment/${paymentId}`);
+      } else {
+        setError("Não foi possível iniciar o pagamento. Tente novamente.");
       }
+    } catch (err) {
+      console.error("Erro ao iniciar pagamento:", err);
+      setError(
+        err.response?.data?.message ||
+          "Erro ao iniciar pagamento. Verifique seu carrinho e tente novamente."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -524,8 +539,12 @@ export default function CarrinhoCompras() {
 
                   <div className={styles.totalFinal}>Total: R${calcularTotal().toFixed(2)}</div>
 
-                  <button className={styles.checkoutButton} onClick={handleContinuar}>
-                    Continuar para Pagamento
+                  <button
+                    className={styles.checkoutButton}
+                    onClick={handleContinuar}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Processando..." : "Continuar para Pagamento"}
                   </button>
                   <div className={styles.garantia}>30 dias para pedir reembolso</div>
                 </div>
