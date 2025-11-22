@@ -39,20 +39,8 @@ function LoginAdmin() {
     setError("");
 
     try {
-      const response = await auth.loginUsuario(email, senha);
-      if (response.tipo === "admin") {
-        setError("Use a página de login do administrador para acessar como admin.");
-        localStorage.removeItem("jwt_token");
-        localStorage.removeItem("empresas");
-        localStorage.removeItem("empresaAtual");
-        return;
-      }
-      const locationState = location.state;
-      if (locationState?.from === "/carrinho" || locationState?.planId) {
-        navigate("/carrinho", { state: locationState });
-      } else {
-        navigate("/");
-      }
+      const response = await auth.loginAdmin(email, senha);
+      navigate("/admin/dashboard");
     } catch (err) {
       console.error("Erro no login:", err);
       if (err && err.response) {
