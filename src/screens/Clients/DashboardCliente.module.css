@@ -3,6 +3,8 @@
   padding: 1.5rem;
   background-color: var(--bg-color);
   min-height: 100%;
+  margin-left: 0 !important; /* Remove extra margin for sidebar spacing to avoid duplicated scrollbar */
+  overflow-y: visible !important; /* Avoid double scroll */
 }
 
 
