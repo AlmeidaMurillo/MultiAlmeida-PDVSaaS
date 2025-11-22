@@ -64,12 +64,15 @@ function Sidebar({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("jwt_token"));
   const [showUserModal, setShowUserModal] = useState(false);
 
+  const [userType, setUserType] = useState(null); // 'admin' or 'usuario'
+
   const handleLogout = async () => {
     await auth.logout();
     setIsLoggedIn(false);
     setUserName("");
     setUserEmail("");
     setShowUserModal(false);
+    setUserType(null);
     navigate("/"); // Redirect to landing page after logout
   };
 
@@ -89,18 +92,23 @@ function Sidebar({ children }) {
   }, [theme]);
 
   useEffect(() => {
-    if (isLoggedIn) {
-      const fetchUser = async () => {
+    async function fetchUser() {
+      if (isLoggedIn) {
         try {
-          const user = await auth.getUserDetails();
-          setUserName(user.nome);
-          setUserEmail(user.email);
+          const userDetails = await auth.getUserDetails();
+          setUserName(userDetails.nome);
+          setUserEmail(userDetails.email);
+          setUserType(localStorage.getItem("user_type"));
         } catch (error) {
           console.error('Erro ao buscar usuário:', error);
         }
-      };
-      fetchUser();
+      } else {
+        setUserName("");
+        setUserEmail("");
+        setUserType(null);
+      }
     }
+    fetchUser();
   }, [isLoggedIn]);
 
   const toggleTheme = () => {
@@ -177,7 +185,8 @@ function Sidebar({ children }) {
     [navigate]
   );
 
-  const menuItems = [
+  // Menu definitions for admin and usuario (client)
+  const adminMenuItems = [
     { icon: <FaHome />, label: "Dashboard", path: "/dashboardadmin" },
     { icon: <FaUser />, label: "Empresas", path: "/empresasadmin" },
     { icon: <FaDollarSign />, label: "Planos e Assinaturas", path: "/planosadmin" },
@@ -192,6 +201,17 @@ function Sidebar({ children }) {
     { icon: <FaBars />, label: "Logs do Sistema", path: "/logs" },
     { icon: <FaChartBar />, label: "Configurações Avançadas", path: "/configuracoes" },
   ];
+
+  const usuarioMenuItems = [
+    { icon: <FaHome />, label: "Dashboard", path: "/dashboardcliente" },
+    { icon: <FaUser />, label: "Meu Perfil", path: "/perfilcliente" },
+    { icon: <FaMoneyBillWave />, label: "Meus Pedidos", path: "/meuspedidos" },
+    { icon: <FaBell />, label: "Notificações", path: "/notificacoes" },
+    { icon: <FaHeadset />, label: "Suporte", path: "/suporte" },
+    { icon: <FaChartBar />, label: "Faturamento", path: "/faturamentocliente" },
+  ];
+
+  const menuItems = userType === 'admin' ? adminMenuItems : usuarioMenuItems;
 
   return (
     <>
@@ -288,9 +308,8 @@ function Sidebar({ children }) {
         </aside>
 
         <main
-          className={`${styles.pageContent} ${
-            !isMobile && isCollapsed ? styles.collapsed : ""
-          }`}
+          className={`${styles.pageContent} ${!isMobile && isCollapsed ? styles.collapsed : ""
+            }`}
         >
           {children}
         </main>
