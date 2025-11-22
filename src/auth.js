@@ -23,6 +23,7 @@ let authState = {
   isAdmin: false,
   isCliente: false,
   isSubscriptionActive: false,
+  hasAnySubscription: false, // Novo campo para verificar qualquer assinatura
   userType: null, // 'admin' or 'usuario'
 };
 
@@ -35,6 +36,7 @@ export const auth = {
         isAdmin: false,
         isCliente: false,
         isSubscriptionActive: false,
+        hasAnySubscription: false, // Resetar também
         userType: null,
       };
       return;
@@ -44,6 +46,7 @@ export const auth = {
       let isAdmin = false;
       let isCliente = false;
       let isSubscriptionActive = false;
+      let hasAnySubscription = false; // Inicializar
 
       // Only check admin status if user is admin
       if (userType === 'admin') {
@@ -64,11 +67,13 @@ export const auth = {
         const clienteRes = await api.get("/api/auth/status");
         isCliente = clienteRes.data.isAuthenticated ?? false;
         isSubscriptionActive = clienteRes.data.isSubscriptionActive ?? false;
+        hasAnySubscription = clienteRes.data.hasAnySubscription ?? false; // Capturar o novo campo
       }
 
       authState.isAdmin = isAdmin;
       authState.isCliente = isCliente;
       authState.isSubscriptionActive = isSubscriptionActive;
+      authState.hasAnySubscription = hasAnySubscription; // Atualizar
       authState.userType = userType;
     } catch (err) {
       console.error("Erro ao atualizar autenticação:", err);
@@ -82,6 +87,7 @@ export const auth = {
         isAdmin: false,
         isCliente: false,
         isSubscriptionActive: false,
+        hasAnySubscription: false, // Resetar também
         userType: null,
       };
     }
@@ -89,8 +95,10 @@ export const auth = {
 
   isAdmin: () => authState.isAdmin,
 
-  isCliente: () => authState.isCliente && authState.isSubscriptionActive,
+  // Agora, isCliente verifica se o usuário é um cliente E se ele tem *alguma* assinatura
+  isCliente: () => authState.isCliente && authState.hasAnySubscription,
 
+  // isLoggedInCliente permanece como estava para verificar apenas o login do cliente
   isLoggedInCliente: () => authState.isCliente,
 
   loginAdmin: async (email, senha) => {
