@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   FaUser,
   FaLock,
@@ -13,7 +13,6 @@ import styles from "./LoginAdmin.module.css";
 
 function LoginAdmin() {
   const navigate = useNavigate();
-  const location = useLocation();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -39,8 +38,8 @@ function LoginAdmin() {
     setError("");
 
     try {
-      const response = await auth.loginAdmin(email, senha);
-      navigate("/admin/dashboard");
+      await auth.loginAdmin(email, senha);
+      navigate("/dashboardadmin");
     } catch (err) {
       console.error("Erro detalhado no login do admin:", err);
       if (err && err.response) {
