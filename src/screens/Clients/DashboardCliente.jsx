@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import SidebarCliente from "../../Components/Sidebar/SidebarCliente";
+import Sidebar from "../../Components/Sidebar/Sidebar";
 import {
   ResponsiveContainer,
   BarChart,
@@ -36,7 +36,7 @@ function DashboardCliente() {
   const COLORS = ["#FF8042", "#00C49F"];
 
   return (
-    <SidebarCliente>
+    <Sidebar>
       <div className="dashboardContent">
         <h1>Dashboard Cliente</h1>
 
@@ -88,7 +88,7 @@ function DashboardCliente() {
           </div>
         </div>
       </div>
-    </SidebarCliente>
+    </Sidebar>
   );
 }
 
