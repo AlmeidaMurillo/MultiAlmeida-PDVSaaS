@@ -31,6 +31,40 @@ function App() {
   }, []);
 
   useEffect(() => {
+    // On app start: check token expiration and clear if expired to avoid 401 errors before login
+    const clearExpiredToken = () => {
+      const token = localStorage.getItem("jwt_token");
+      const userType = localStorage.getItem("user_type");
+      if (token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          const decoded = JSON.parse(jsonPayload);
+          if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+            // Token expired - clear localStorage tokens
+            localStorage.removeItem("jwt_token");
+            localStorage.removeItem("user_type");
+          }
+        } catch (e) {
+          // Malformed token - clear localStorage tokens
+          console.error("Malformed token:", e);
+          localStorage.removeItem("jwt_token");
+          localStorage.removeItem("user_type");
+        }
+      }
+      if (!userType) {
+        localStorage.removeItem("user_type");
+      }
+    };
+
+    clearExpiredToken();
+
     const initAuth = async () => {
       await auth.update();
       setLoadingAuth(false);

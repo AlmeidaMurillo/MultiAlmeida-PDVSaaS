@@ -1,11 +1,10 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://multialmeida-pdvsaas-backend-production.up.railway.app",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
   withCredentials: true,
 });
 
-// Interceptor para adicionar o token JWT em cada requisição
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("jwt_token");
@@ -23,7 +22,7 @@ let authState = {
   isAdmin: false,
   isCliente: false,
   isSubscriptionActive: false,
-  hasAnySubscription: false, // Novo campo para verificar qualquer assinatura
+  hasAnySubscription: false, 
   userType: null, // 'admin' or 'usuario'
 };
 

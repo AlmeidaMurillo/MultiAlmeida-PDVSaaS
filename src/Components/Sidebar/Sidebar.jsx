@@ -64,7 +64,7 @@ function Sidebar({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("jwt_token"));
   const [showUserModal, setShowUserModal] = useState(false);
 
-  const [userType, setUserType] = useState(null); // 'admin' or 'usuario'
+  const [userType, setUserType] = useState(null);
 
   const handleLogout = async () => {
     await auth.logout();
@@ -73,7 +73,7 @@ function Sidebar({ children }) {
     setUserEmail("");
     setShowUserModal(false);
     setUserType(null);
-    navigate("/"); // Redirect to landing page after logout
+    navigate("/");
   };
 
   useEffect(() => {
