@@ -1142,22 +1142,16 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  z-index: 1000;
-  padding: 1rem;
-  padding-top: clamp(5rem, 10vh, 6rem);
-  animation: fadeIn 0.3s ease-out;
 }
 .userModal {
   position: relative;
-  width: clamp(280px, 22vw, 320px);
-  margin-right: clamp(1rem, 3vw, 5rem);
+  width: 100%;
+  max-width: clamp(280px, 22vw, 320px);
   background: var(--sidebar-bg);
   border-radius: 0.75rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -1166,7 +1160,6 @@
   overflow: hidden;
   animation: slideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: top right;
-  max-width: calc(100vw - 4rem);
 }
 .modalHeader {
   display: flex;

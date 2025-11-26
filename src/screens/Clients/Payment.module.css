@@ -297,6 +297,126 @@
     padding: 0.6rem;
     font-size: 0.9rem;
   }
+
+  /* User Sidebar */
+  .userSidebarOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .userSidebar {
+    width: 300px;
+    height: 100%;
+    background: var(--sidebar-bg);
+    color: var(--text-color);
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    animation: slideInRight 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .userSidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .userSidebarUserInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .userSidebarAvatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--active-bg);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .userSidebarText {
+    overflow: hidden;
+  }
+
+  .userSidebarName {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+  }
+
+  .userSidebarEmail {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+  }
+
+  .userSidebarContent {
+    flex: 1;
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .userSidebarItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: left;
+    width: 100%;
+  }
+
+  .userSidebarItem:hover {
+    background-color: var(--hover-bg);
+  }
+
+  .userSidebarItem svg {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
 }
 
 /* ===== KEYFRAME ANIMATIONS ===== */
@@ -388,22 +508,24 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
   z-index: 1000;
   padding: 1rem;
-  padding-top: clamp(5rem, 10vh, 6rem);
   animation: fadeIn 0.3s ease-out;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .userModal {
   position: relative;
-  width: clamp(280px, 22vw, 320px);
-  margin-right: clamp(1rem, 3vw, 5rem);
+  width: 100%;
+  max-width: clamp(280px, 22vw, 320px);
   background: var(--sidebar-bg);
   border-radius: 0.75rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -412,7 +534,6 @@
   overflow: hidden;
   animation: slideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   transform-origin: top right;
-  max-width: calc(100vw - 4rem);
 }
 .modalHeader {
   display: flex;

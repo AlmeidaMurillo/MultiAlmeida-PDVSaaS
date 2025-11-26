@@ -30,13 +30,24 @@ function LandingPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
-  const [showUserModal, setShowUserModal] = useState(false);
+
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (isMobileSidebarOpen) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [isMobileSidebarOpen]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -77,7 +88,6 @@ function LandingPage() {
     setIsLoggedIn(false);
     setUserName("");
     setUserEmail("");
-    setShowUserModal(false);
   };
 
   const toggleMobileSidebar = () => {
@@ -160,72 +170,9 @@ function LandingPage() {
                 <FaTachometerAlt /> Painel
               </button>
               <div className={styles.profileContainer}>
-                <div className={styles.profileCircle} onClick={() => setShowUserModal(!showUserModal)}>
+                <div className={styles.profileCircle} onClick={toggleMobileSidebar}>
                   {userName ? userName.charAt(0).toUpperCase() : "U"}
                 </div>
-
-                {showUserModal && (
-                  <div className={styles.userModalOverlay} onClick={() => setShowUserModal(false)}>
-                    <div className={styles.userModal} onClick={(e) => e.stopPropagation()}>
-                      <button className={styles.modalCloseButton} onClick={() => setShowUserModal(false)}>
-                        <FaTimes />
-                      </button>
-                      <div className={styles.modalHeader}>
-                        <div className={styles.modalUserAvatar}>
-                          {userName ? userName.charAt(0).toUpperCase() : "U"}
-                        </div>
-                        <div className={styles.modalUserInfo}>
-                          <h3 className={styles.modalUserName}>{userName}</h3>
-                          <p className={styles.modalUserEmail}>{userEmail}</p>
-                        </div>
-                      </div>
-                      <div className={styles.modalBody}>
-                        <button
-                          className={`${styles.modalButton} ${styles.modalButtonPrimary}`}
-                          onClick={handlePainelClick} 
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M12 20V10" />
-                            <path d="M18 20V4" />
-                            <path d="M6 20V16" />
-                          </svg>
-                          <span>Ver Painel</span>
-                        </button>
-                        <button
-                          className={`${styles.modalButton} ${styles.modalButtonSecondary}`}
-                          onClick={handleLogout}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                            <polyline points="16 17 21 12 16 7" />
-                            <line x1="21" y1="12" x2="9" y2="12" />
-                          </svg>
-                          <span>Sair</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </>
           ) : (
@@ -239,6 +186,8 @@ function LandingPage() {
           <FaBars />
         </button>
       </header>
+
+
 
       {isMobileSidebarOpen && (
         <div className={styles.mobileSidebarOverlay} onClick={toggleMobileSidebar}>

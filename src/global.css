@@ -64,6 +64,10 @@ body,
   -webkit-tap-highlight-color: transparent;
 }
 
+.modal-open {
+  overflow: hidden; /* Prevent scrolling when modal is open */
+}
+
 *,
 *::before,
 *::after {
