@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { auth } from "../../auth";
 import styles from "./Login.module.css";
+import Spinner from "../../Components/Spinner/Spinner"; // Importar o Spinner
 
 function Login() {
   const navigate = useNavigate();
@@ -17,10 +18,26 @@ function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
-
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // Estado de verificação
+
+  useEffect(() => {
+    // Redireciona usuários logados (não-admins) para a página inicial.
+    const checkAndRedirect = async () => {
+      await auth.update(); // Garante que o estado de autenticação está atualizado
+      const papel = auth.getPapel();
+      if (papel && papel !== 'admin') {
+        navigate('/');
+        // A navegação já desmonta o componente, não precisa mudar o estado.
+      } else {
+        // Se não houver redirecionamento, permite a renderização da página.
+        setIsCheckingAuth(false);
+      }
+    };
+    checkAndRedirect();
+  }, [navigate]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -39,14 +56,8 @@ function Login() {
     setError("");
 
     try {
-      const response = await auth.loginUsuario(email, senha);
-      if (response.tipo === "admin") {
-        setError("Use a página de login do administrador para acessar como admin.");
-        localStorage.removeItem("jwt_token");
-        localStorage.removeItem("empresas");
-        localStorage.removeItem("empresaAtual");
-        return;
-      }
+      await auth.login(email, senha);
+      
       const locationState = location.state;
       if (locationState?.from === "/carrinho" || locationState?.planId) {
         navigate("/carrinho", { state: locationState });
@@ -66,9 +77,6 @@ function Login() {
       } else {
         setError("Erro ao fazer login");
       }
-      localStorage.removeItem("jwt_token");
-      localStorage.removeItem("empresas");
-      localStorage.removeItem("empresaAtual");
     } finally {
       setLoading(false);
     }
@@ -84,6 +92,11 @@ function Login() {
       navigate('/registro');
     }
   };
+
+  // Enquanto a verificação estiver ocorrendo, exibe o spinner.
+  if (isCheckingAuth) {
+    return <Spinner />;
+  }
 
   return (
     <div className={styles.loginPage}>

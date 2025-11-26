@@ -39,7 +39,8 @@ function LoginAdmin() {
 
     try {
       await auth.loginAdmin(email, senha);
-      navigate("/dashboardadmin");
+      console.log("Login de Admin bem-sucedido. Redirecionando...");
+      navigate("/dashboardadmin"); 
     } catch (err) {
       console.error("Erro detalhado no login do admin:", err);
       if (err && err.response) {
@@ -53,7 +54,6 @@ function LoginAdmin() {
       } else {
         setError("Erro ao fazer login");
       }
-      localStorage.removeItem("jwt_token");
       localStorage.removeItem("empresas");
       localStorage.removeItem("empresaAtual");
     } finally {

@@ -15,6 +15,8 @@ import {
   FaSun,
   FaDollarSign,
   FaBell,
+  FaTimes,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import { auth } from "../../auth";
@@ -61,14 +63,13 @@ function Sidebar({ children }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("jwt_token"));
+  // Removed unused isLoggedIn state to fix ESLint warning
   const [showUserModal, setShowUserModal] = useState(false);
 
   const [userType, setUserType] = useState(null);
 
   const handleLogout = async () => {
     await auth.logout();
-    setIsLoggedIn(false);
     setUserName("");
     setUserEmail("");
     setShowUserModal(false);
@@ -93,12 +94,14 @@ function Sidebar({ children }) {
 
   useEffect(() => {
     async function fetchUser() {
-      if (isLoggedIn) {
+      // Atualiza o estado de autenticação a partir do auth atualizado
+      await auth.update();
+      if (auth.isLoggedInCliente() || auth.isAdmin()) {
         try {
           const userDetails = await auth.getUserDetails();
           setUserName(userDetails.nome);
           setUserEmail(userDetails.email);
-          setUserType(localStorage.getItem("user_type"));
+          setUserType(auth.getPapel());
         } catch (error) {
           console.error('Erro ao buscar usuário:', error);
         }
@@ -109,7 +112,9 @@ function Sidebar({ children }) {
       }
     }
     fetchUser();
-  }, [isLoggedIn]);
+  }, []);
+  
+  // Removed sync useEffect related to isLoggedIn state
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));

@@ -78,9 +78,6 @@ function Registro() {
     try {
       await auth.criarConta(nome, email, senha);
 
-      // Após criar a conta, faz login automaticamente
-      await auth.loginUsuario(email, senha);
-
       if (planIdFromUrl && periodoFromUrl) {
         navigate("/carrinho", {
           state: {

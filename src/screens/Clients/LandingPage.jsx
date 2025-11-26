@@ -43,13 +43,16 @@ function LandingPage() {
   };
 
   const handlePainelClick = () => {
-    if (auth.isCliente()) { // Usa a nova lógica que verifica se tem alguma assinatura
+    // auth.update() foi chamado no useEffect, então o estado está atualizado.
+    if (auth.isAdmin()) {
+      navigate("/dashboardadmin");
+    } else if (auth.isCliente()) { // isCliente verifica se é usuário E tem assinatura
       navigate("/dashboard");
+    } else if (auth.isLoggedInCliente()) { // É usuário mas não tem assinatura
+      alert("Você precisa ter uma assinatura ativa para acessar o painel de cliente.");
     } else {
-      // Exibe um alerta personalizado
-      alert("Você precisa ter uma assinatura ativa ou uma assinatura anterior associada à sua conta para acessar o painel. Por favor, verifique seus planos ou entre em contato com o suporte para mais informações.");
-      // Opcional: Redirecionar para uma página de planos ou de contato
-      // navigate("/planos");
+      // Fallback para caso o botão seja exibido para um usuário não logado.
+      navigate('/login');
     }
   };
 
@@ -121,8 +124,9 @@ function LandingPage() {
   useEffect(() => {
     const checkAuth = async () => {
       await auth.update();
-      setIsLoggedIn(auth.isLoggedInCliente());
-      if (auth.isLoggedInCliente()) {
+      const userIsLoggedIn = auth.isLoggedInCliente() || auth.isAdmin();
+      setIsLoggedIn(userIsLoggedIn);
+      if (userIsLoggedIn) {
         try {
           const userDetails = await auth.getUserDetails();
           setUserName(userDetails.nome);

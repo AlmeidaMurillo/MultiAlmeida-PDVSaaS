@@ -1,15 +1,26 @@
+
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://multialmeida-pdvsaas-backend-production.up.railway.app",
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
+  withCredentials: true, 
 });
 
+// Estado de autenticação em memória, inicializado com o token do sessionStorage se existir
+let authState = {
+  isAdmin: false,
+  isCliente: false,
+  isSubscriptionActive: false,
+  hasAnySubscription: false,
+  userType: null,
+  token: sessionStorage.getItem("jwt_token") || null,
+};
+
+// Interceptor para adicionar o token de autorização a cada requisição
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("jwt_token");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+    if (authState.token) {
+      config.headers.Authorization = `Bearer ${authState.token}`;
     }
     return config;
   },
@@ -18,118 +29,137 @@ api.interceptors.request.use(
   }
 );
 
-let authState = {
-  isAdmin: false,
-  isCliente: false,
-  isSubscriptionActive: false,
-  hasAnySubscription: false, 
-  userType: null, // 'admin' or 'usuario'
-};
 
 export const auth = {
-  update: async () => {
-    const token = localStorage.getItem("jwt_token");
-    const userType = localStorage.getItem("user_type");
-    if (!token) {
-      authState = {
-        isAdmin: false,
-        isCliente: false,
-        isSubscriptionActive: false,
-        hasAnySubscription: false, // Resetar também
-        userType: null,
-      };
-      return;
-    }
-
+  getTokens: async () => {
     try {
-      let isAdmin = false;
-      let isCliente = false;
-      let isSubscriptionActive = false;
-      let hasAnySubscription = false; // Inicializar
-
-      // Only check admin status if user is admin
-      if (userType === 'admin') {
-        try {
-          const adminRes = await api.get("/api/admin/auth/status");
-          isAdmin = adminRes.data.isAuthenticated ?? false;
-        } catch (adminErr) {
-          // 401 is expected for non-admin users, don't log as error
-          if (adminErr.response?.status !== 401) {
-            console.error("Erro ao verificar status admin:", adminErr);
-          }
-          isAdmin = false;
-        }
-      }
-
-      // Check client status if user is usuario
-      if (userType === 'usuario') {
-        const clienteRes = await api.get("/api/auth/status");
-        isCliente = clienteRes.data.isAuthenticated ?? false;
-        isSubscriptionActive = clienteRes.data.isSubscriptionActive ?? false;
-        hasAnySubscription = clienteRes.data.hasAnySubscription ?? false; // Capturar o novo campo
-      }
-
-      authState.isAdmin = isAdmin;
-      authState.isCliente = isCliente;
-      authState.isSubscriptionActive = isSubscriptionActive;
-      authState.hasAnySubscription = hasAnySubscription; // Atualizar
-      authState.userType = userType;
+      const res = await api.get("/api/tokens");
+      return res.data.sessions || [];
     } catch (err) {
-      console.error("Erro ao atualizar autenticação:", err);
-      // Se o token for inválido (erro 401), limpa o localStorage para evitar loops.
-      if (err.response?.status === 401) {
-        console.log("Token inválido detectado (401). Limpando o localStorage...");
-        localStorage.removeItem("jwt_token");
-        localStorage.removeItem("user_type");
-      }
-      authState = {
-        isAdmin: false,
-        isCliente: false,
-        isSubscriptionActive: false,
-        hasAnySubscription: false, // Resetar também
-        userType: null,
-      };
+      console.error("Erro ao buscar tokens:", err);
+      return [];
     }
+  },
+
+  createToken: async () => {
+    try {
+      const res = await api.post("/api/tokens");
+      if (res.data.token) {
+        authState.token = res.data.token;
+        sessionStorage.setItem("jwt_token", res.data.token);
+      }
+      return res.data.token || null;
+    } catch (err) {
+      console.error("Erro ao criar token:", err);
+      return null;
+    }
+  },
+
+  update: async () => {
+    try {
+      if (!authState.token) {
+        auth.clearSession();
+        return;
+      }
+      
+      const res = await api.get("/api/auth/status");
+      const { 
+        isAuthenticated, 
+        isSubscriptionActive, 
+        hasAnySubscription, 
+        papel 
+      } = res.data;
+
+      if (!isAuthenticated) {
+        auth.clearSession();
+        return;
+      }
+
+      authState.isAdmin = papel === 'admin';
+      authState.isCliente = papel === 'usuario';
+      authState.isSubscriptionActive = isSubscriptionActive ?? false;
+      authState.hasAnySubscription = hasAnySubscription ?? false;
+      authState.userType = papel;
+
+    } catch (err) {
+      if (err.response?.status === 401) {
+        console.log("Sessão inválida ou expirada, limpando sessão local.");
+        auth.clearSession();
+      } else {
+        console.error("Erro ao atualizar autenticação:", err);
+        auth.clearSession();
+      }
+    }
+  },
+
+  clearSession: () => {
+    sessionStorage.removeItem("jwt_token");
+    authState = {
+      isAdmin: false,
+      isCliente: false,
+      isSubscriptionActive: false,
+      hasAnySubscription: false,
+      userType: null,
+      token: null,
+    };
+    console.log("Sessão local limpa.");
   },
 
   isAdmin: () => authState.isAdmin,
 
-  // Agora, isCliente verifica se o usuário é um cliente E se ele tem *alguma* assinatura
   isCliente: () => authState.isCliente && authState.hasAnySubscription,
 
-  // isLoggedInCliente permanece como estava para verificar apenas o login do cliente
   isLoggedInCliente: () => authState.isCliente,
 
-  loginAdmin: async (email, senha) => {
-    const res = await api.post("/api/admin/login", { email, senha });
-    if (!res.data.user) throw new Error("Erro no login admin");
-    if (res.data.token) {
-      localStorage.setItem("jwt_token", res.data.token);
-      localStorage.setItem("user_type", "admin");
-    }
-    await auth.update();
-    return res.data;
-  },
+  getPapel: () => authState.userType,
 
-  loginUsuario: async (email, senha) => {
-    const res = await api.post("/api/login", { email, senha });
-    if (res.data.token) {
-      localStorage.setItem("jwt_token", res.data.token);
-      localStorage.setItem("user_type", "usuario");
+  login: async (email, senha) => {
+    // Se um usuário já estiver logado, invalida a sessão antiga no backend primeiro.
+    if (authState.token) {
+      try {
+        await api.post("/api/logout");
+      } catch (err) {
+        console.error("Falha ao deslogar sessão anterior antes de novo login:", err);
+      }
     }
-    localStorage.removeItem("empresas");
-    localStorage.removeItem("empresaAtual");
+    
+    // Limpa o estado do frontend para preparar para a nova sessão.
+    auth.clearSession();
+    
+    // Prossegue com a tentativa de login.
+    const res = await api.post("/api/login", { email, senha });
+    if (!res.data.user) throw new Error("Erro no login");
+
+    // Armazena o novo estado de autenticação.
+    authState.token = res.data.token;
+    sessionStorage.setItem("jwt_token", res.data.token);
     await auth.update();
+
     return res.data;
   },
 
   criarConta: async (nome, email, senha) => {
-    const res = await api.post("/api/criar-conta", { nome, email, senha });
-    if (res.data.token) {
-      localStorage.setItem("jwt_token", res.data.token);
-      localStorage.setItem("user_type", "usuario");
+    // Se um usuário já estiver logado, invalida a sessão antiga no backend primeiro.
+    if (authState.token) {
+      try {
+        await api.post("/api/logout");
+      } catch (err) {
+        console.error("Falha ao deslogar sessão anterior antes de criar nova conta:", err);
+      }
     }
+
+    // Limpa o estado do frontend para preparar para a nova sessão.
+    auth.clearSession();
+    
+    // Prossegue com a tentativa de criar a conta.
+    const res = await api.post("/api/criar-conta", { nome, email, senha });
+    if (!res.data.user) throw new Error("Erro ao criar conta");
+
+    // Armazena o novo estado de autenticação.
+    authState.token = res.data.token;
+    sessionStorage.setItem("jwt_token", res.data.token);
     await auth.update();
+
     return res.data;
   },
 
@@ -137,18 +167,9 @@ export const auth = {
     try {
       await api.post("/api/logout");
     } catch (err) {
-      console.error("Erro ao logout:", err);
+      console.error("Erro ao fazer logout na API:", err);
     }
-    localStorage.removeItem("jwt_token"); // Limpa o token
-    localStorage.removeItem("user_type");
-    localStorage.removeItem("empresas");
-    localStorage.removeItem("empresaAtual");
-    authState = {
-      isAdmin: false,
-      isCliente: false,
-      isSubscriptionActive: false,
-      userType: null,
-    };
+    auth.clearSession();
     window.location.href = "/";
   },
 
