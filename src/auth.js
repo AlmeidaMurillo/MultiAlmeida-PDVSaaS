@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://multi-almeida-pdv-saa-s.vercel.app",
+  baseURL: import.meta.env.VITE_API_URL || "https://multialmeida-pdvsaas-backend-production.up.railway.app",
   withCredentials: true, 
 });
 
