@@ -13,7 +13,6 @@ export default function Payment() {
   const { paymentId } = useParams();
   const navigate = useNavigate();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [paymentData, setPaymentData] = useState(null);
   const [error, setError] = useState("");
@@ -32,19 +31,12 @@ export default function Payment() {
   };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      await auth.update();
-      const loggedIn = auth.isLoggedInCliente();
-      setIsLoggedIn(loggedIn);
-      if (!loggedIn) {
-        navigate("/login");
-      }
-    };
-    checkAuth();
-  }, [navigate]);
-
-  useEffect(() => {
-    if (isLoggedIn && paymentId) {
+    if (!auth.isAuthenticated()) {
+      navigate("/login");
+      return;
+    }
+    
+    if (paymentId) {
       const fetchPaymentDetails = async () => {
         try {
           setLoading(true);
@@ -59,7 +51,7 @@ export default function Payment() {
       };
       fetchPaymentDetails();
     }
-  }, [isLoggedIn, paymentId]);
+  }, [navigate, paymentId]);
 
   useEffect(() => {
     if (!paymentId) return;

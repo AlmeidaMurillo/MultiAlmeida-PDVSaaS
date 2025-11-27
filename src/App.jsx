@@ -17,29 +17,24 @@ const PaymentSuccess = lazy(() => import("./screens/Clients/PaymentSuccess"));
 const DashboardCliente = lazy(() => import("./screens/Clients/DashboardCliente"));
 
 function App() {
-  const [loadingAuth, setLoadingAuth] = useState(true);
   const location = useLocation(); 
-  const [showSpinner, setShowSpinner] = useState(true);
+  const [isAuthReady, setIsAuthReady] = useState(false); // Novo estado para controle do spinner
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSpinner(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
+    // Verifica se o módulo de autenticação já está inicializado
+    if (auth.isInitialized()) {
+      setIsAuthReady(true);
+    } else {
+      // Se não estiver, pode-se adicionar um mecanismo de escuta se o 'auth' tivesse um
+      // Por enquanto, uma verificação única após a montagem é suficiente
+      // dado que auth.init() é chamado no carregamento do módulo.
+      // Poderíamos adicionar um pequeno delay aqui para garantir que o init() em auth.js
+      // tenha tido tempo de executar, embora ele seja síncrono.
+      setIsAuthReady(true); // Assumimos que auth.init() já rodou ao carregar o módulo
+    }
   }, []);
 
-  useEffect(() => {
-    // Removed localStorage token expiration check - now rely on backend session management
-
-    const initAuth = async () => {
-      await auth.update();
-      setLoadingAuth(false);
-    };
-    initAuth();
-  }, []);
-
-  if (loadingAuth || showSpinner) return <Spinner />;
+  if (!isAuthReady) return <Spinner />;
 
   return (
     <>
@@ -52,7 +47,10 @@ function App() {
           <Route path="/registro" element={<Registro key={location.key} />} />
           <Route path="/payment/:paymentId" element={<Payment />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/carrinho" element={<CarrinhoCompras />} />
+          <Route 
+            path="/carrinho" 
+            element={<CarrinhoCompras />} 
+          />
 
           {/* Rotas protegidas de admin */}
           <Route
@@ -70,7 +68,7 @@ function App() {
 
           {/* Rotas protegidas de cliente */}
           <Route
-            path="/dashboard"
+            path="/dashboardcliente" // Rota corrigida
             element={auth.isLoggedInCliente() ? <DashboardCliente /> : <Navigate to="/login" />}
           />
         </Routes>
@@ -78,5 +76,4 @@ function App() {
     </>
   );
 }
-
 export default App;

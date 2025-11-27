@@ -12,16 +12,23 @@ import {
 } from "react-icons/fa";
 import styles from "./Header.module.css";
 import { auth } from "../../auth";
+import api from "../../auth"; // Importa a instância do axios
 
 function Header() {
   const navigate = useNavigate();
 
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
+  // O estado agora é um reflexo do estado do serviço `auth`
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+  const [isLoggedIn, setIsLoggedIn] = useState(() => auth.isAuthenticated());
+  const [user, setUser] = useState(() => auth.getUser());
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+  useEffect(() => {
+    // Sincroniza o estado no mount (o `auth.init` já rodou)
+    setIsLoggedIn(auth.isAuthenticated());
+    setUser(auth.getUser());
+  }, []);
+  
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -33,67 +40,61 @@ function Header() {
     } else {
       document.body.classList.remove("modal-open");
     }
-    return () => {
-      document.body.classList.remove("modal-open");
-    };
   }, [isMobileSidebarOpen]);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      await auth.update();
-      const userIsLoggedIn = auth.isLoggedInCliente() || auth.isAdmin();
-      setIsLoggedIn(userIsLoggedIn);
-      if (userIsLoggedIn) {
-        try {
-          const userDetails = await auth.getUserDetails();
-          setUserName(userDetails.nome);
-          setUserEmail(userDetails.email);
-        } catch (err) {
-          console.error("Erro ao carregar detalhes do usuário:", err);
-        }
-      }
-    };
-    checkAuth();
-  }, []);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   const handlePainelClick = async () => {
-    await auth.update();
+    if (!auth.isAuthenticated()) {
+      navigate('/login');
+      return;
+    }
 
     if (auth.isAdmin()) {
       navigate("/dashboardadmin");
-    } else if (auth.isLoggedInCliente()) {
-      if (auth.hasActiveOrExpiredSubscription()) {
-        navigate("/dashboardcliente");
-      } else {
-        alert("Você precisa ter uma assinatura ativa ou vencida para acessar o painel.");
+      return;
+    }
+    
+    if (auth.isLoggedInCliente()) {
+      try {
+        const { data } = await api.get('/api/auth/status');
+        if (data.isSubscriptionActive || data.isSubscriptionExpired) {
+          navigate("/dashboardcliente");
+        } else {
+          alert("Você precisa ter uma assinatura ativa ou vencida para acessar o painel.");
+        }
+      } catch (error) {
+        console.error("Erro ao verificar status da assinatura:", error);
+        alert("Não foi possível verificar o status da sua assinatura. Tente novamente.");
       }
-    } else {
-      navigate('/login');
     }
   };
 
   const handleCarrinhoClick = () => {
-    if (auth.isLoggedInCliente()) {
-      navigate("/carrinho");
+    if (auth.isAdmin()) {
+      // Se for admin, redireciona diretamente para /login para que possa logar como usuário
+      navigate("/login", { replace: false }); 
+    } else if (auth.isAuthenticated()) {
+      // Se for um cliente autenticado, vai para o carrinho
+      navigate("/carrinho", { replace: false });
     } else {
-      navigate("/login", { state: { from: "/carrinho" } });
+      // Se não estiver autenticado, vai para o login
+      navigate("/login", { replace: false });
     }
   };
 
-  const handleLogout = async () => {
-    await auth.logout();
-    setIsLoggedIn(false);
-    setUserName("");
-    setUserEmail("");
+  const handleLogout = () => {
+    auth.logout(); // O logout agora lida com o redirecionamento
   };
 
   const toggleMobileSidebar = () => {
     setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
+
+  const userName = user?.nome || "";
+  const userEmail = user?.email || "";
 
   return (
     <>
@@ -179,7 +180,7 @@ function Header() {
 
             {isLoggedIn && (
               <div className={styles.mobileSidebarFooter}>
-                <button className={styles.mobileSidebarItem} onClick={() => { handleLogout(); toggleMobileSidebar(); }}>
+                <button className={styles.mobileSidebarItem} onClick={handleLogout}>
                   <FaSignOutAlt />
                   <span>Sair</span>
                 </button>

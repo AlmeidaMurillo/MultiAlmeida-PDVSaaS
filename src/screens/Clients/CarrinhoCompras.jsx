@@ -22,18 +22,29 @@ export default function CarrinhoCompras() {
   const [cupom, setCupom] = useState("");
   const [cupomAplicado, setCupomAplicado] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      await auth.update();
-      const loggedIn = auth.isLoggedInCliente();
-      setIsLoggedIn(loggedIn);
-      if (!loggedIn) {
-        navigate("/login", { state: { from: "/carrinho", planId, periodo } });
-      }
-    };
-    checkAuth();
+    // A verificação agora é síncrona. Se não estiver autenticado, redireciona para o login.
+    if (!auth.isAuthenticated()) {
+      navigate("/login", { state: { from: "/carrinho", planId, periodo } });
+      return; // Interrompe a execução do hook
+    }
+
+    // Se autenticado, carrega os dados.
+    carregarPlanos();
+    carregarCarrinho();
+
+    if (planId && periodo) {
+      const adicionarAoCarrinho = async () => {
+        try {
+          await api.post("/api/carrinho", { planoId: planId, periodo });
+          carregarCarrinho(); // Recarrega o carrinho após adicionar o item
+        } catch (err) {
+          console.error("Erro ao adicionar ao carrinho:", err);
+        }
+      };
+      adicionarAoCarrinho();
+    }
   }, [navigate, planId, periodo]);
 
   const carregarPlanos = useCallback(async () => {
@@ -55,27 +66,6 @@ export default function CarrinhoCompras() {
       setError("Erro ao carregar carrinho");
     }
   }, []);
-
-  useEffect(() => {
-    if (isLoggedIn && planId && periodo) {
-      const adicionarAoCarrinho = async () => {
-        try {
-          await api.post("/api/carrinho", { planoId: planId, periodo });
-          carregarCarrinho();
-        } catch (err) {
-          console.error("Erro ao adicionar ao carrinho:", err);
-        }
-      };
-      adicionarAoCarrinho();
-    }
-  }, [planId, periodo, carregarCarrinho, isLoggedIn]);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      carregarPlanos();
-      carregarCarrinho();
-    }
-  }, [carregarPlanos, carregarCarrinho, isLoggedIn]);
 
   const removerItem = async (itemId) => {
     try {

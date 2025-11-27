@@ -21,22 +21,13 @@ function Login() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true); // Estado de verificação
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false); // A verificação agora é síncrona
 
   useEffect(() => {
-    // Redireciona usuários logados (não-admins) para a página inicial.
-    const checkAndRedirect = async () => {
-      await auth.update(); // Garante que o estado de autenticação está atualizado
-      const papel = auth.getPapel();
-      if (papel && papel !== 'admin') {
-        navigate('/');
-        // A navegação já desmonta o componente, não precisa mudar o estado.
-      } else {
-        // Se não houver redirecionamento, permite a renderização da página.
-        setIsCheckingAuth(false);
-      }
-    };
-    checkAndRedirect();
+    // Se o usuário já está logado, redireciona.
+    if (auth.isAuthenticated() && auth.getPapel() !== 'admin') {
+      navigate('/');
+    }
   }, [navigate]);
 
   useEffect(() => {
@@ -66,17 +57,8 @@ function Login() {
       }
     } catch (err) {
       console.error("Erro no login:", err);
-      if (err && err.response) {
-        if (err.response.status === 400 && err.response.data?.errors?.length > 0) {
-          setError(err.response.data.errors[0].msg);
-        } else if (err.response.status === 401 && err.response.data?.error) {
-          setError(err.response.data.error);
-        } else {
-          setError("Erro ao fazer login");
-        }
-      } else {
-        setError("Erro ao fazer login");
-      }
+      const errorMessage = err.response?.data?.error || "Erro ao fazer login. Verifique suas credenciais.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -93,7 +75,6 @@ function Login() {
     }
   };
 
-  // Enquanto a verificação estiver ocorrendo, exibe o spinner.
   if (isCheckingAuth) {
     return <Spinner />;
   }
