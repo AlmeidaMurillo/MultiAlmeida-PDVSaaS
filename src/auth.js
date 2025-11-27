@@ -198,8 +198,8 @@ export default api;
 window.addEventListener('beforeunload', () => {
   const token = sessionStorage.getItem("jwt_token");
   if (token) {
-    const data = JSON.stringify({ onClose: true });
-    // Use sendBeacon for more reliable data transmission during page unload
-    navigator.sendBeacon(`${api.defaults.baseURL}/api/logout`, data);
+    const data = JSON.stringify({ onClose: true, token: token });
+    const blob = new Blob([data], { type: 'application/json' });
+    navigator.sendBeacon(`${api.defaults.baseURL}/api/logout`, blob);
   }
 });
