@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://multialmeida-pdvsaas-backend-production.up.railway.app",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
   withCredentials: true, 
 });
 
@@ -11,6 +11,8 @@ let authState = {
   isAdmin: false,
   isCliente: false,
   isSubscriptionActive: false,
+  isSubscriptionExpired: false, // Adicionado
+  hasActiveOrExpiredSubscription: false, // Adicionado
   hasAnySubscription: false,
   userType: null,
   token: sessionStorage.getItem("jwt_token") || null,
@@ -65,7 +67,8 @@ export const auth = {
       const res = await api.get("/api/auth/status");
       const { 
         isAuthenticated, 
-        isSubscriptionActive, 
+        isSubscriptionActive,
+        isSubscriptionExpired, // Adicionado
         hasAnySubscription, 
         papel 
       } = res.data;
@@ -78,8 +81,11 @@ export const auth = {
       authState.isAdmin = papel === 'admin';
       authState.isCliente = papel === 'usuario';
       authState.isSubscriptionActive = isSubscriptionActive ?? false;
+      authState.isSubscriptionExpired = isSubscriptionExpired ?? false; // Adicionado
       authState.hasAnySubscription = hasAnySubscription ?? false;
       authState.userType = papel;
+      // Adicionado
+      authState.hasActiveOrExpiredSubscription = (isSubscriptionActive || isSubscriptionExpired) ?? false;
 
     } catch (err) {
       if (err.response?.status === 401) {
@@ -98,6 +104,8 @@ export const auth = {
       isAdmin: false,
       isCliente: false,
       isSubscriptionActive: false,
+      isSubscriptionExpired: false, // Adicionado
+      hasActiveOrExpiredSubscription: false, // Adicionado
       hasAnySubscription: false,
       userType: null,
       token: null,
@@ -107,7 +115,7 @@ export const auth = {
 
   isAdmin: () => authState.isAdmin,
 
-  isCliente: () => authState.isCliente && authState.hasAnySubscription,
+  hasActiveOrExpiredSubscription: () => authState.hasActiveOrExpiredSubscription, // Adicionado
 
   isLoggedInCliente: () => authState.isCliente,
 
@@ -186,3 +194,12 @@ export const auth = {
 
 export const axiosInstance = api;
 export default api;
+
+window.addEventListener('beforeunload', () => {
+  const token = sessionStorage.getItem("jwt_token");
+  if (token) {
+    const data = JSON.stringify({ onClose: true });
+    // Use sendBeacon for more reliable data transmission during page unload
+    navigator.sendBeacon(`${api.defaults.baseURL}/api/logout`, data);
+  }
+});
