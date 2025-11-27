@@ -10,7 +10,7 @@ const api = axios.create({
 let authState = {
   user: null,
   isAuthenticated: false,
-  accessToken: sessionStorage.getItem('accessToken') || null,
+  accessToken: localStorage.getItem('accessToken') || null,
   _isInitialized: false, // Adicionar esta flag
 };
 
@@ -40,7 +40,7 @@ function updateAuthState(accessToken) {
       authState.user = decodedUser;
       authState.isAuthenticated = true;
       authState.accessToken = accessToken;
-      sessionStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('accessToken', accessToken);
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     } else {
       // Token inválido ou expirado
@@ -50,7 +50,7 @@ function updateAuthState(accessToken) {
     authState.user = null;
     authState.isAuthenticated = false;
     authState.accessToken = null;
-    sessionStorage.removeItem('accessToken');
+    localStorage.removeItem('accessToken');
     delete api.defaults.headers.common['Authorization'];
   }
 }
@@ -127,7 +127,7 @@ api.interceptors.request.use(config => {
 
 export const auth = {
   init() {
-    const token = sessionStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       updateAuthState(token);
     }
