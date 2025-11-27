@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import styles from "./PlanosAdmin.module.css";
 import { Edit, Trash2, Plus, Users } from "lucide-react";
-import { axiosInstance } from "../../auth";
+import axiosInstance from "../../auth";
 
 function PlanosAdmin() {
   const [planos, setPlanos] = useState([]);
