@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // --- Configuração da Instância Axios ---
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  baseURL: import.meta.env.VITE_API_URL || 'https://multialmeida-pdvsaas-backend-production.up.railway.app',
   withCredentials: true, // Essencial para enviar cookies (como o refresh token)
 });
 
