@@ -141,8 +141,14 @@ export const auth = {
 
 
   async login(email, senha) {
-    // Limpa sessão antiga antes de um novo login
-    updateAuthState(null); 
+    // Se um administrador estiver logado e tentar um novo login, encerre a sessão do administrador primeiro.
+    if (this.isAuthenticated() && this.isAdmin()) {
+      console.log("Admin logado. Realizando logout antes de um novo login.");
+      await this.logout(); // Isso limpa o estado local e notifica o servidor
+    } else {
+      // Se não for admin ou não houver ninguém logado, apenas limpa o estado local antes de um novo login
+      updateAuthState(null); 
+    }
     
     const { data } = await api.post('/api/auth/login', { email, senha });
     updateAuthState(data.accessToken);
