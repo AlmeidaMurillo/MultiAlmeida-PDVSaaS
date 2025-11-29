@@ -110,13 +110,17 @@
   }
 
   .menuButton:hover {
-    color: var(--hover-bg);
     outline: none;
   }
 
-  .iconButton:hover,
+  .iconButton:hover {
+    background-color: var(--hover-bg);
+    transform: scale(1.1);
+    color: var(--text-color); /* Garante que o ícone tenha contraste com o fundo de hover */
+  }
+
   .iconWrapper:hover {
-    color: var(--hover-bg);
+    color: var(--text-color); /* Garante que o ícone tenha contraste com o fundo de hover */
   }
 
   .active:hover {
@@ -220,6 +224,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative; /* Adicionado para posicionamento correto do badge */
 }
 
 .iconButton:hover {

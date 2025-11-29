@@ -5,7 +5,6 @@
 
 ARRUMAR QUESTAO DE ESTILIZAÇÃO DA INPUT SELECT DA LANDINGPAGE BUGADA, E DAS INPUTS SENHA DA TELA REGISTRO
 
-ARRUMAR QUESTAO DE O LOGIN DE ADMIN PARA FUNCIONAR CORRETAMENTE QUE NAO ESTA LOGANDO.
 
 ARRUMAR QUESTAO DO TEMPO EXPIRAÇÃO PAGAMENTO QUE AS VEZES QUANDO EU RECARREGO A PAGINA ELE EM VEZ DE CONTINUAR O TEMPO CERTO ELE JA DIMINUI -1MINUTO
 
@@ -64,6 +63,10 @@ body,
   -webkit-tap-highlight-color: transparent;
 }
 
+html.sidebar-active-page { /* Added this rule */
+  overflow: hidden;
+}
+
 .modal-open {
   overflow: hidden; /* Prevent scrolling when modal is open */
 }
@@ -101,4 +104,3 @@ body,
     display: none;
   }
 }
-

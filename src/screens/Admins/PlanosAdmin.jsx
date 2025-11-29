@@ -165,7 +165,7 @@ function PlanosAdmin() {
                           <Edit size={16} />
                         </button>
                         <button
-                          onClick={() => excluir(plano.id, periodo.key)}
+                          onClick={() => excluir(pData.id, periodo.key)}
                           disabled={loading}
                         >
                           <Trash2 size={16} />

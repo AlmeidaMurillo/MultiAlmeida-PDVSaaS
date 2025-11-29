@@ -111,6 +111,7 @@
 .iconButton:hover {
   background-color: var(--hover-bg);
   transform: scale(1.1);
+  color: var(--text-color); /* Garante que o ícone tenha contraste com o fundo de hover */
 }
 
 /* ===== MOBILE MENU BUTTON ===== */

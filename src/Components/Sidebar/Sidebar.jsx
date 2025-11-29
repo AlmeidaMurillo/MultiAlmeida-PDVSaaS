@@ -181,6 +181,16 @@ function Sidebar({ children }) {
     [navigate]
   );
 
+  const handleDollarClick = () => {
+    // Implementar lógica para o clique no ícone de dólar
+    console.log("Ícone de dólar clicado!");
+  };
+
+  const handleBellClick = () => {
+    // Implementar lógica para o clique no ícone de sino
+    console.log("Ícone de sino clicado!");
+  };
+
   // Menu definitions for admin and usuario (client)
   const adminMenuItems = [
     { icon: <FaHome />, label: "Dashboard", path: "/dashboardadmin" },
@@ -209,6 +219,13 @@ function Sidebar({ children }) {
 
   const menuItems = userType === 'admin' ? adminMenuItems : usuarioMenuItems;
 
+  useEffect(() => {
+    document.documentElement.classList.add('sidebar-active-page');
+    return () => {
+      document.documentElement.classList.remove('sidebar-active-page');
+    };
+  }, []);
+
   return (
     <>
       <header className={styles.headerTop}>
@@ -232,15 +249,15 @@ function Sidebar({ children }) {
             {theme === "dark" ? <FaSun /> : <FaMoon />}
           </button>
 
-          <div className={styles.iconWrapper}>
+          <button className={styles.iconButton} onClick={handleDollarClick}>
             <FaDollarSign />
             <span className={`${styles.badge} ${styles.red}`}>0</span>
-          </div>
+          </button>
 
-          <div className={styles.iconWrapper}>
+          <button className={styles.iconButton} onClick={handleBellClick}>
             <FaBell />
             <span className={`${styles.badge} ${styles.black}`}>0</span>
-          </div>
+          </button>
 
           <div className={styles.profileCircle} onClick={() => setShowUserModal(!showUserModal)}>
             {userName ? userName.charAt(0).toUpperCase() : <FaUser size={20} />}
