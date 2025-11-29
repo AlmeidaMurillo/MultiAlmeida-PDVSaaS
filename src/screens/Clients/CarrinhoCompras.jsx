@@ -23,6 +23,26 @@ export default function CarrinhoCompras() {
   const [cupomAplicado, setCupomAplicado] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const carregarPlanos = useCallback(async () => {
+    try {
+      const response = await api.get("/api/planos");
+      setPlanos(response.data.planos || []);
+    } catch (err) {
+      console.error("Erro ao carregar planos:", err);
+    }
+  }, []);
+
+  const carregarCarrinho = useCallback(async () => {
+    try {
+      setError("");
+      const response = await api.get("/api/carrinho");
+      setItensCarrinho(response.data.itens || []);
+    } catch (err) {
+      console.error("Erro ao carregar carrinho:", err);
+      setError("Erro ao carregar carrinho");
+    }
+  }, []);
+
   useEffect(() => {
     // A verificação agora é síncrona. Se não estiver autenticado, redireciona para o login.
     if (!auth.isAuthenticated()) {
@@ -45,27 +65,7 @@ export default function CarrinhoCompras() {
       };
       adicionarAoCarrinho();
     }
-  }, [navigate, planId, periodo]);
-
-  const carregarPlanos = useCallback(async () => {
-    try {
-      const response = await api.get("/api/planos");
-      setPlanos(response.data.planos || []);
-    } catch (err) {
-      console.error("Erro ao carregar planos:", err);
-    }
-  }, []);
-
-  const carregarCarrinho = useCallback(async () => {
-    try {
-      setError("");
-      const response = await api.get("/api/carrinho");
-      setItensCarrinho(response.data.itens || []);
-    } catch (err) {
-      console.error("Erro ao carregar carrinho:", err);
-      setError("Erro ao carregar carrinho");
-    }
-  }, []);
+  }, [navigate, planId, periodo, carregarCarrinho, carregarPlanos]);
 
   const removerItem = async (itemId) => {
     try {

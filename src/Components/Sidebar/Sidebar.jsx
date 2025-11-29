@@ -93,25 +93,16 @@ function Sidebar({ children }) {
   }, [theme]);
 
   useEffect(() => {
-    async function fetchUser() {
-      // Atualiza o estado de autenticação a partir do auth atualizado
-      await auth.update();
-      if (auth.isLoggedInCliente() || auth.isAdmin()) {
-        try {
-          const userDetails = await auth.getUserDetails();
-          setUserName(userDetails.nome);
-          setUserEmail(userDetails.email);
-          setUserType(auth.getPapel());
-        } catch (error) {
-          console.error('Erro ao buscar usuário:', error);
-        }
-      } else {
-        setUserName("");
-        setUserEmail("");
-        setUserType(null);
-      }
+    const user = auth.getUser();
+    if (user) {
+      setUserName(user.nome);
+      setUserEmail(user.email);
+      setUserType(user.papel);
+    } else {
+      setUserName("");
+      setUserEmail("");
+      setUserType(null);
     }
-    fetchUser();
   }, []);
   
   // Removed sync useEffect related to isLoggedIn state

@@ -48,6 +48,12 @@ function Login() {
 
     try {
       await auth.login(email, senha);
+
+      // Se o usuário for admin, redireciona para a home e para a execução.
+      if (auth.isAdmin()) {
+        navigate("/");
+        return;
+      }
       
       const locationState = location.state;
       if (locationState?.from === "/carrinho" || locationState?.planId) {

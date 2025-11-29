@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 import styles from "./Header.module.css";
 import { auth } from "../../auth";
-import api from "../../auth"; // Importa a instância do axios
+import api from "../../auth";
 
 function Header() {
   const navigate = useNavigate();
@@ -22,13 +22,31 @@ function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => auth.isAuthenticated());
   const [user, setUser] = useState(() => auth.getUser());
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
+  const [isSubscriptionExpired, setIsSubscriptionExpired] = useState(false);
 
   useEffect(() => {
     // Sincroniza o estado no mount (o `auth.init` já rodou)
     setIsLoggedIn(auth.isAuthenticated());
     setUser(auth.getUser());
   }, []);
-  
+
+  useEffect(() => {
+    async function checkSubscription() {
+      if (auth.isLoggedInCliente()) {
+        try {
+          const { data } = await api.get('/api/auth/status');
+          setIsSubscriptionActive(data.isSubscriptionActive);
+          setIsSubscriptionExpired(data.isSubscriptionExpired);
+        } catch (error) {
+          console.error("Erro ao verificar assinatura:", error);
+        }
+      }
+    }
+
+    checkSubscription();
+  }, [isLoggedIn]);
+
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -56,7 +74,7 @@ function Header() {
       navigate("/dashboardadmin");
       return;
     }
-    
+
     if (auth.isLoggedInCliente()) {
       try {
         const { data } = await api.get('/api/auth/status');
@@ -75,7 +93,7 @@ function Header() {
   const handleCarrinhoClick = () => {
     if (auth.isAdmin()) {
       // Se for admin, redireciona diretamente para /login para que possa logar como usuário
-      navigate("/login", { replace: false }); 
+      navigate("/login", { replace: false });
     } else if (auth.isAuthenticated()) {
       // Se for um cliente autenticado, vai para o carrinho
       navigate("/carrinho", { replace: false });
@@ -111,11 +129,14 @@ function Header() {
           <button className={styles.iconButton} onClick={handleCarrinhoClick}>
             <FaShoppingCart />
           </button>
+
           {isLoggedIn ? (
             <>
-              <button className={styles.painelButton} onClick={handlePainelClick}>
-                <FaTachometerAlt /> Painel
-              </button>
+              {(isSubscriptionActive || isSubscriptionExpired || auth.isAdmin()) && (
+                <button className={styles.painelButton} onClick={handlePainelClick}>
+                  <FaTachometerAlt /> Painel
+                </button>
+              )}
               <div className={styles.profileContainer}>
                 <div className={styles.profileCircle} onClick={toggleMobileSidebar}>
                   {userName ? userName.charAt(0).toUpperCase() : "U"}
@@ -166,10 +187,12 @@ function Header() {
                 <span>Carrinho</span>
               </button>
               {isLoggedIn ? (
-                <button className={styles.mobileSidebarItem} onClick={() => { handlePainelClick(); toggleMobileSidebar(); }}>
-                  <FaTachometerAlt />
-                  <span>Painel</span>
-                </button>
+                (isSubscriptionActive || isSubscriptionExpired) && (
+                  <button className={styles.mobileSidebarItem} onClick={() => { handlePainelClick(); toggleMobileSidebar(); }}>
+                    <FaTachometerAlt />
+                    <span>Painel</span>
+                  </button>
+                )
               ) : (
                 <button className={styles.mobileSidebarItem} onClick={() => { navigate("/login"); toggleMobileSidebar(); }}>
                   <FaSignInAlt />

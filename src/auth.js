@@ -76,6 +76,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Correção: Não interceptar erros em rotas de autenticação sensíveis
+    if (originalRequest.url.includes('/api/auth/login') || originalRequest.url.includes('/api/auth/refresh')) {
+      return Promise.reject(error);
+    }
+
     // Se o erro não for 401 ou já estamos tentando renovar o token, rejeita
     if (error.response?.status !== 401 || originalRequest._retry) {
       return Promise.reject(error);
@@ -134,20 +139,25 @@ export const auth = {
     authState._isInitialized = true; // Definir como true após a inicialização
   },
 
-  // ... (outros métodos)
-
   // Getter para o estado de inicialização
   isInitialized: () => authState._isInitialized,
 
+  // Função interna para limpar a sessão sem redirecionar
+  async _silentLogout() {
+    try {
+      // Notifica o backend para invalidar o refresh token, se houver
+      await api.post('/api/auth/logout');
+    } catch (error) {
+      console.error("Erro no logout do servidor, mas o cliente será deslogado:", error);
+    } finally {
+      // Limpa o estado de autenticação local
+      updateAuthState(null);
+    }
+  },
 
   async login(email, senha) {
-    // Se um administrador estiver logado e tentar um novo login, encerre a sessão do administrador primeiro.
-    if (this.isAuthenticated() && this.isAdmin()) {
-      console.log("Admin logado. Realizando logout antes de um novo login.");
-      await this.logout(); // Isso limpa o estado local e notifica o servidor
-    } else {
-      // Se não for admin ou não houver ninguém logado, apenas limpa o estado local antes de um novo login
-      updateAuthState(null); 
+    if (this.isAuthenticated()) {
+      await this._silentLogout(); 
     }
     
     const { data } = await api.post('/api/auth/login', { email, senha });
@@ -156,15 +166,9 @@ export const auth = {
   },
 
   async logout() {
-    try {
-      await api.post('/api/auth/logout');
-    } catch (error) {
-      console.error("Erro no logout do servidor, mas o cliente será deslogado:", error);
-    } finally {
-      updateAuthState(null);
-      // Redireciona para a home para garantir que o estado da UI seja reiniciado
-      window.location.href = '/'; 
-    }
+    await this._silentLogout();
+    // Redireciona para a home para garantir que o estado da UI seja reiniciado
+    window.location.href = '/'; 
   },
   
   // Getters para acessar o estado de forma segura

@@ -4,6 +4,14 @@ import ScrollToTop from "./Components/Scroll/ScrollToTop";
 import { auth } from "./auth";
 import Spinner from "./Components/Spinner/Spinner";
 
+/* FAZER FUNCIONAR A CRIAÇÃO DE PLANOS NO SISTEMA DE ADMIN, 
+ARRUMAR AS BARRA DE ROLAGENS DUPLICADAS VER O PORQUE AS VEZES NAO ESTA APARECENDO A BARRA DE ROLAGEM DA SIDEBAR E 
+ARRUMAR A RESPONSIVIDADE DAS TELAS DE ADMIN E CLIENTE.
+
+FAZER UMA TELA DE PAGAMENTO RECUSADO OU CANCELADO PARA QUANDO UM PAGAMENTO FOR RECUSADO PELO SISTEMA DE PAGAMENTO OU ALGO ASSIM..
+
+*/
+
 // Lazy loading das páginas
 const LandingPage = lazy(() => import("./screens/Clients/LandingPage"));
 const Registro = lazy(() => import("./screens/Clients/Registro"));
