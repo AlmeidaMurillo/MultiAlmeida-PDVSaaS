@@ -208,7 +208,7 @@
 .iconsContainer {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
   margin-left: auto;
 }
 
