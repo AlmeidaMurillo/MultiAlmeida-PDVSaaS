@@ -111,26 +111,7 @@ function Sidebar({ children }) {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  useEffect(() => {
-    const sidebar = sidebarRef.current;
-    if (!sidebar) return;
 
-    const updateOverflow = () => {
-      const needsScroll = sidebar.scrollHeight > sidebar.clientHeight;
-      sidebar.style.overflowY = needsScroll ? "auto" : "hidden";
-    };
-
-    const resizeObserver = new ResizeObserver(updateOverflow);
-    resizeObserver.observe(sidebar);
-
-    window.addEventListener("resize", updateOverflow);
-    updateOverflow();
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", updateOverflow);
-    };
-  }, []);
 
   useEffect(() => {
     function handleResize() {
@@ -241,7 +222,7 @@ function Sidebar({ children }) {
 
         <div className={styles.logoContainer} onClick={() => navigate("/")}>
           <div className={styles.logo}>MultiAlmeida</div>
-          <h2 className={styles.subtitle}>PDV SaaS</h2>
+          <h2 className={styles.subtitle}>ERP PDV SaaS</h2>
         </div>
 
         <div className={styles.iconsContainer}>
@@ -274,6 +255,7 @@ function Sidebar({ children }) {
                   </div>
                   <div className={styles.modalUserInfo}>
                     <h3 className={styles.modalUserName}>{userName}</h3>
+                    <p className={styles.modalUserPapel}>{userType}</p>
                     <p className={styles.modalUserEmail}>{userEmail}</p>
                   </div>
                 </div>
@@ -301,7 +283,7 @@ function Sidebar({ children }) {
           `}
           ref={sidebarRef}
         >
-          <nav>
+          <nav className={styles.nav}>
             <ul className={styles.menuUl}>
               {menuItems.map(({ icon, label, path }) => (
                 <MenuItem

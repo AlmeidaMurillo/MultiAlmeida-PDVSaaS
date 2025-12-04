@@ -68,6 +68,11 @@
   z-index: 1000;
 }
 
+.nav {
+  flex-grow: 1;
+  overflow-y: auto; /* Deixa a navegação rolar */
+}
+
 .collapsed .sidebar {
   width: 100px;
 }
@@ -76,8 +81,7 @@
   list-style: none;
   padding: 1rem 0;
   margin: 0;
-  flex-grow: 1;        
-  overflow-y: auto;   
+  overflow-x: hidden;
 }
 
 .menuLi {
@@ -91,7 +95,6 @@
   font-weight: 500;
   user-select: none;
   transition: all 0.3s ease, transform 0.2s ease;
-  white-space: nowrap;
 }
 
 .sidebar:not(.collapsed) .menuLi {
@@ -160,6 +163,9 @@
   flex-grow: 1;
   font-size: 0.9rem;
   color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .active {
@@ -280,11 +286,11 @@
   .sidebar {
     width: 260px;
     position: fixed;
-    height: 100vh;
+    top: 4.5rem; /* Posiciona abaixo do header */
+    height: calc(100vh - 4.5rem); /* Respeita a altura do header */
     background-color: var(--bg-color);
     color: var(--text-color);
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     transform: translateX(-100%);
@@ -303,50 +309,337 @@
   }
 }
 
-@media (max-height: 750px) {
-  .sidebar {
-    overflow-y: auto;
+
+
+@media (max-width: 480px) {
+  .headerTop {
+    padding: 0 0.75rem; /* A little more space */
+  }
+  .iconsContainer {
+    gap: 0.5rem; /* Adjust gap for medium-small screens */
+  }
+  .logoContainer {
+    margin-left: 0.5rem;
   }
 }
 
 @media (max-width: 400px) {
   .menuButton {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+  }
+  .logo {
     font-size: 1.2rem;
   }
-
-  .logoContainer {
-    margin-left: 0px;
-  }
-
-  .logo {
-    font-size: 1rem;
-  }
-
-  .subtitle {
-    font-size: 0.5rem;
+  .iconButton {
+    font-size: 1.2rem;
+    padding: 0.4rem;
   }
 }
 
-@media (max-width: 310px) {
-  .menuButton {
-    font-size: 1.2rem;
+/* Drastic change for very small screens */
+@media (max-width: 340px) {
+  .headerTop {
+    height: auto; /* Allow header to grow */
+    flex-wrap: wrap; /* Allow items to wrap */
+    padding: 0.5rem 0.75rem;
   }
 
   .logoContainer {
-    margin-left: 0px;
+    order: 1; /* Place after menu button */
   }
 
+  .iconsContainer {
+    order: 2; /* Force to the next line */
+    width: 100%; /* Take full width */
+    margin-top: 0.5rem; /* Space between rows */
+    margin-left: 0;
+    justify-content: space-between; /* Evenly space the icons */
+    gap: 0; /* Override previous gap */
+  }
+
+  /* Reduce profile circle size on the smallest screens */
+  .profileCircle {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 240px) {
   .logo {
-    font-size: 1rem;
+    font-size: 1rem; /* Final shrink for the logo */
   }
 
-  .subtitle {
-    font-size: 0.5rem;
+  .iconButton {
+    font-size: 1rem;
+    padding: 0.3rem; /* Make icon buttons smaller */
   }
 }
 
 @media (min-width: 2560px) {
   html {
     font-size: 18px;
+  }
+}
+
+/* ===== User Modal ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.userModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1050;
+  display: flex;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.userModal {
+  position: absolute;
+  top: 5rem; /* Abaixo do header */
+  right: 1.5rem;
+  width: 320px;
+  background: var(--sidebar-bg);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--hover-bg);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+
+  /* Adicionado para controle de altura e rolagem */
+  max-height: calc(100vh - 6rem); /* (5rem do topo + 1rem de margem inferior) */
+  overflow-y: auto;
+}
+
+/* Estilização da barra de rolagem do Modal */
+.userModal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.userModal::-webkit-scrollbar-thumb {
+  background-color: var(--hover-bg);
+  border-radius: 4px;
+}
+
+.userModal::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 5px; /* Adiciona uma margem para a barra de rolagem não colar no topo/fundo */
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-color-light);
+  font-size: 1.25rem;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.modalCloseButton:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-color);
+}
+
+.modalHeader {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid var(--hover-bg);
+}
+
+.modalUserAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: var(--active-bg);
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.modalUserInfo {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem; /* Espaçamento entre os itens */
+}
+
+.modalUserName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  margin: 0;
+}
+
+.modalUserPapel {
+  background-color: var(--active-bg);
+  color: var(--text-color);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  align-self: flex-start; /* Impede que a badge estique */
+  margin: 0;
+}
+
+.modalUserEmail {
+  font-size: 0.85rem;
+  color: var(--text-color-light); /* Uma cor mais suave para o email */
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  margin: 0;
+}
+
+.modalBody {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modalButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+  text-align: center;
+}
+
+.modalButtonSecondary {
+  background-color: var(--hover-bg);
+  color: var(--text-color);
+}
+
+.modalButtonSecondary:hover {
+  background-color: var(--active-bg);
+  color: var(--text-color);
+}
+
+/* Responsividade do Modal */
+@media (max-width: 768px) {
+  .userModalOverlay {
+    /* Remove o alinhamento centralizado para o modal não ficar no meio da tela */
+    /* As propriedades align-items e justify-content foram removidas */
+    padding: 0; /* Remove o padding para o modal poder ir até as bordas */
+  }
+
+  .userModal {
+    /* Em telas menores, o modal permanece absoluto no canto superior direito */
+    top: 5rem; /* Mantém a distância do topo */
+    right: 1rem; /* Mantém a distância da direita */
+    left: auto; /* Garante que não está preso à esquerda */
+    width: 320px; /* Mantém a largura original em telas de tablet */
+    max-width: calc(100% - 2rem); /* Garante que não ultrapasse as bordas */
+    position: absolute; /* Garante que a posição seja absoluta */
+    transform: none; /* Reseta qualquer transformação anterior */
+    animation: slideIn 0.3s ease-out; /* Mantém a animação */
+  }
+}
+
+/* Em telas de celular, o modal deve ocupar quase a largura inteira */
+@media (max-width: 480px) {
+  .userModal {
+    width: auto; /* Permite que left/right definam a largura */
+    left: 1rem;
+    right: 1rem;
+    max-width: none; /* Remove a largura máxima para ocupar o espaço definido */
+  }
+}
+
+/* Ajustes finos para telas extremamente pequenas */
+@media (max-width: 320px) {
+  .modalHeader {
+    flex-direction: column; /* Empilha o avatar e as informações */
+    align-items: center; /* Centraliza os itens empilhados */
+    padding: 1rem 0.5rem;
+    gap: 0.5rem; /* Reduz o espaço entre avatar e texto */
+    text-align: center;
+  }
+  .modalUserInfo {
+    align-items: center; /* Centraliza o texto (nome, papel, email) */
+  }
+  .modalUserAvatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem; /* Espaço abaixo do avatar */
+  }
+  .modalUserName {
+    font-size: 0.85rem;
+  }
+  .modalUserPapel {
+    font-size: 0.55rem;
+    padding: 0.1rem 0.3rem;
+    align-self: center; /* Garante a centralização */
+  }
+  .modalUserEmail {
+    font-size: 0.65rem;
+    word-break: break-all; /* Quebra o e-mail se for muito longo */
+    white-space: normal;
+  }
+  .modalBody {
+    padding: 0.5rem;
+  }
+  .modalButton {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    gap: 0.4rem;
+  }
+  .modalCloseButton {
+    top: 0.25rem;
+    right: 0.25rem;
+    font-size: 0.9rem;
+    width: 24px;
+    height: 24px;
   }
 }

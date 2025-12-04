@@ -166,6 +166,7 @@ function Header() {
                   </div>
                   <div className={styles.userInfoText}>
                     <h3 className={styles.mobileUserName}>{userName}</h3>
+                    {user?.papel && <p className={styles.mobileUserPapel}>{user.papel}</p>}
                     <p className={styles.mobileUserEmail}>{userEmail}</p>
                   </div>
                 </div>
