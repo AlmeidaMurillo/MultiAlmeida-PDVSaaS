@@ -188,7 +188,7 @@ function Header() {
                 <span>Carrinho</span>
               </button>
               {isLoggedIn ? (
-                (isSubscriptionActive || isSubscriptionExpired) && (
+                (isSubscriptionActive || isSubscriptionExpired || auth.isAdmin()) && (
                   <button className={styles.mobileSidebarItem} onClick={() => { handlePainelClick(); toggleMobileSidebar(); }}>
                     <FaTachometerAlt />
                     <span>Painel</span>
