@@ -191,7 +191,7 @@ function Sidebar({ children }) {
 
   const usuarioMenuItems = [
     { icon: <FaHome />, label: "Dashboard", path: "/dashboardcliente" },
-    { icon: <FaUser />, label: "Meu Perfil", path: "/perfilcliente" },
+    { icon: <FaUser />, label: "Meu Perfil", path: "/perfil" },
     { icon: <FaMoneyBillWave />, label: "Meus Pedidos", path: "/meuspedidos" },
     { icon: <FaBell />, label: "Notificações", path: "/notificacoes" },
     { icon: <FaHeadset />, label: "Suporte", path: "/suporte" },

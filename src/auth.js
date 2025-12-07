@@ -193,6 +193,26 @@ export const auth = {
       // A verificação real foi movida para o backend.
       // A lógica do `handlePainelClick` no Header deve ser a única fonte da verdade.
       return this.isLoggedInCliente();
+  },
+
+  async getUserDetails() {
+    const { data } = await api.get('/api/auth/user-details');
+    return data;
+  },
+
+  async updateUserDetails(userData) {
+    const { data } = await api.put('/api/auth/user-details', userData);
+    return data;
+  },
+
+  async changePassword(senhaData) {
+    const { data } = await api.put('/api/auth/change-password', senhaData);
+    return data;
+  },
+
+  async alterarPlano(planoData) {
+    const { data } = await api.post('/api/auth/alterar-plano', planoData);
+    return data;
   }
 };
 

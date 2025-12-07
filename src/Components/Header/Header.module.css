@@ -232,18 +232,26 @@
 }
 
 .closeButton {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.20rem;
   background: none;
   border: none;
-  color: var(--text-color);
-  font-size: 1.2rem;
+  color: var(--text-color-light);
+  font-size: 1.25rem;
   cursor: pointer;
-  padding: 0.25rem;
   border-radius: 50%;
-  transition: background-color 0.3s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .closeButton:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--hover-bg);
+  color: var(--text-color);
 }
 
 .mobileSidebarContent {
@@ -307,14 +315,11 @@
   gap: 0.25rem; /* Espaçamento entre nome, cargo e email */
 }
 
-.mobileUserName {
-  font-size: 0.8rem; /* Mais Reduzido */
-  font-weight: 600;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block; /* Garante que o h3 ocupe a linha e possa usar ellipsis */
+.userInfoLine {
+  white-space: normal;
+  word-break: break-word;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 .mobileUserPapel {
@@ -330,12 +335,6 @@
   margin: 0;
 }
 
-.mobileUserEmail {
-  font-size: 0.65rem; /* Tamanho absoluto e menor */
-  font-weight: 400; /* Mais leve que o nome */
-  opacity: 0.8;
-  margin-left: 0.5rem; /* Espaço entre nome e email */
-}
 
 .mobileSidebarFooter {
   padding: 0.5rem 0;

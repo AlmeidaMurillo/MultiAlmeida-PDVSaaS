@@ -169,12 +169,10 @@ function Header() {
                     {userName ? userName.charAt(0).toUpperCase() : "U"}
                   </div>
                   <div className={styles.userInfoText}>
-                    <h3 className={styles.mobileUserName}>
-                      {userName}{" "}
-                      <span className={styles.mobileUserEmail}>{userEmail}</span>
-                    </h3>
+                    <div className={styles.userInfoLine}>{userName}</div>
+                    <div className={styles.userInfoLine}>{userEmail}</div>
                     {user?.papel && (
-                      <p className={styles.mobileUserPapel}>{user.papel}</p>
+                      <div className={styles.mobileUserPapel}>{user.papel}</div>
                     )}
                   </div>
                 </div>
