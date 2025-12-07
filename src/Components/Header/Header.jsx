@@ -137,9 +137,13 @@ function Header() {
                   <FaTachometerAlt /> Painel
                 </button>
               )}
-              <div className={styles.profileContainer}>
-                <div className={styles.profileCircle} onClick={toggleMobileSidebar}>
+              <div className={styles.profileContainer} onClick={toggleMobileSidebar}>
+                <div className={styles.profileCircle}>
                   {userName ? userName.charAt(0).toUpperCase() : "U"}
+                </div>
+                <div className={styles.profileInfo}>
+                  <span className={styles.profileName}>{userName}</span>
+                  <span className={styles.profileEmail}>{userEmail}</span>
                 </div>
               </div>
             </>
@@ -165,9 +169,13 @@ function Header() {
                     {userName ? userName.charAt(0).toUpperCase() : "U"}
                   </div>
                   <div className={styles.userInfoText}>
-                    <h3 className={styles.mobileUserName}>{userName}</h3>
-                    {user?.papel && <p className={styles.mobileUserPapel}>{user.papel}</p>}
-                    <p className={styles.mobileUserEmail}>{userEmail}</p>
+                    <h3 className={styles.mobileUserName}>
+                      {userName}{" "}
+                      <span className={styles.mobileUserEmail}>{userEmail}</span>
+                    </h3>
+                    {user?.papel && (
+                      <p className={styles.mobileUserPapel}>{user.papel}</p>
+                    )}
                   </div>
                 </div>
               ) : (

@@ -70,28 +70,65 @@
 
 .profileContainer {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  transition: background-color 0.3s ease;
+}
+
+.profileContainer:hover {
+  background-color: var(--hover-bg);
 }
 
 .profileCircle {
-  width: clamp(32px, 5vw, 42px);
-  height: clamp(32px, 5vw, 42px);
+  width: clamp(32px, 5vw, 40px);
+  height: clamp(32px, 5vw, 40px);
   border-radius: 50%;
-  background-color: var(--hover-bg);
+  background-color: var(--active-bg);
   color: var(--text-color);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-  cursor: pointer;
   transition: all 0.3s ease;
   border: 2px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
-.profileCircle:hover {
-  background-color: var(--active-bg);
+.profileContainer:hover .profileCircle {
   transform: scale(1.05);
   border-color: var(--hover-bg);
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden; /* Garante que o container não estoure */
+}
+
+.profileName,
+.profileEmail {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.profileName {
+  font-weight: 600;
+  font-size: clamp(0.85rem, 1.5vw, 0.9rem);
+  color: var(--text-color);
+  line-height: 1.2;
+}
+
+.profileEmail {
+  font-size: clamp(0.75rem, 1.5vw, 0.8rem);
+  color: var(--text-color);
+  opacity: 0.7;
+  line-height: 1.2;
 }
 
 .iconButton {
@@ -150,7 +187,8 @@
 }
 
 .mobileSidebar {
-  width: 280px;
+  width: 90vw;
+  max-width: 280px;
   height: 100%;
   background: var(--sidebar-bg);
   color: var(--text-color);
@@ -270,12 +308,13 @@
 }
 
 .mobileUserName {
-  font-size: 1rem;
+  font-size: 0.8rem; /* Mais Reduzido */
   font-weight: 600;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: block; /* Garante que o h3 ocupe a linha e possa usar ellipsis */
 }
 
 .mobileUserPapel {
@@ -292,12 +331,10 @@
 }
 
 .mobileUserEmail {
-  font-size: 0.8rem;
-  opacity: 0.7;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.65rem; /* Tamanho absoluto e menor */
+  font-weight: 400; /* Mais leve que o nome */
+  opacity: 0.8;
+  margin-left: 0.5rem; /* Espaço entre nome e email */
 }
 
 .mobileSidebarFooter {

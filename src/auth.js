@@ -165,6 +165,13 @@ export const auth = {
     return data.user;
   },
 
+  async criarConta(nome, email, senha) {
+    const { data } = await api.post('/api/criar-conta', { nome, email, senha });
+    // Após criar a conta, o backend já retorna o token, então podemos logar o usuário
+    updateAuthState(data.accessToken);
+    return data.user;
+  },
+
   async logout() {
     await this._silentLogout();
     // Redireciona para a home para garantir que o estado da UI seja reiniciado
