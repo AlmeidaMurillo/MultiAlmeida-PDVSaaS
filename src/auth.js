@@ -10,11 +10,18 @@ const api = axios.create({
 let authState = {
   user: null,
   isAuthenticated: false,
-  accessToken: localStorage.getItem('accessToken') || null,
+  accessToken: null,
   _isInitialized: false, // Adicionar esta flag
 };
 
 // --- Funções Auxiliares ---
+
+const listeners = new Set();
+
+function notifyListeners() {
+  // Notifica todos os componentes inscritos sobre a mudança de estado
+  listeners.forEach(listener => listener(authState));
+}
 
 function decodeJwtPayload(token) {
   try {
@@ -34,24 +41,34 @@ function decodeJwtPayload(token) {
 }
 
 function updateAuthState(accessToken) {
+  const wasAuthenticated = authState.isAuthenticated;
+
   if (accessToken) {
     const decodedUser = decodeJwtPayload(accessToken);
+    // Verifica se o token é válido e não expirado
     if (decodedUser && decodedUser.exp * 1000 > Date.now()) {
       authState.user = decodedUser;
       authState.isAuthenticated = true;
       authState.accessToken = accessToken;
-      localStorage.setItem('accessToken', accessToken);
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     } else {
-      // Token inválido ou expirado
-      updateAuthState(null);
+      // Se o token for inválido ou expirado, trata como deslogado
+      authState.user = null;
+      authState.isAuthenticated = false;
+      authState.accessToken = null;
+      delete api.defaults.headers.common['Authorization'];
     }
   } else {
+    // Se nenhum token for fornecido, trata como deslogado
     authState.user = null;
     authState.isAuthenticated = false;
     authState.accessToken = null;
-    localStorage.removeItem('accessToken');
     delete api.defaults.headers.common['Authorization'];
+  }
+
+  // Notifica os listeners se o estado de autenticação mudou
+  if (wasAuthenticated !== authState.isAuthenticated) {
+    notifyListeners();
   }
 }
 
@@ -131,12 +148,25 @@ api.interceptors.request.use(config => {
 // --- Serviço de Autenticação Exportado ---
 
 export const auth = {
-  init() {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      updateAuthState(token);
+  subscribe(callback) {
+    listeners.add(callback);
+    // Oferece uma função para cancelar a inscrição
+    return () => listeners.delete(callback);
+  },
+
+  async init() {
+    try {
+      const { data } = await api.post('/api/auth/refresh');
+      updateAuthState(data.accessToken);
+    } catch (error) {
+      console.log("Nenhuma sessão ativa encontrada:", error);
+      // Garante que o estado seja limpo se o refresh falhar
+      updateAuthState(null);
+    } finally {
+      authState._isInitialized = true;
+      // Notifica os listeners que a inicialização terminou
+      notifyListeners();
     }
-    authState._isInitialized = true; // Definir como true após a inicialização
   },
 
   // Getter para o estado de inicialização
@@ -145,37 +175,31 @@ export const auth = {
   // Função interna para limpar a sessão sem redirecionar
   async _silentLogout() {
     try {
-      // Notifica o backend para invalidar o refresh token, se houver
       await api.post('/api/auth/logout');
     } catch (error) {
       console.error("Erro no logout do servidor, mas o cliente será deslogado:", error);
     } finally {
-      // Limpa o estado de autenticação local
       updateAuthState(null);
     }
   },
 
   async login(email, senha) {
-    if (this.isAuthenticated()) {
-      await this._silentLogout(); 
-    }
-    
+    // Realiza o login e atualiza o estado
     const { data } = await api.post('/api/auth/login', { email, senha });
     updateAuthState(data.accessToken);
-    return data.user;
+    return authState.user; // Retorna o usuário do estado atualizado
   },
 
   async criarConta(nome, email, senha) {
     const { data } = await api.post('/api/criar-conta', { nome, email, senha });
-    // Após criar a conta, o backend já retorna o token, então podemos logar o usuário
     updateAuthState(data.accessToken);
-    return data.user;
+    return authState.user; // Retorna o usuário do estado atualizado
   },
 
   async logout() {
     await this._silentLogout();
-    // Redireciona para a home para garantir que o estado da UI seja reiniciado
-    window.location.href = '/'; 
+    // Opcional: Redirecionar após o estado ser atualizado e os listeners notificados
+    window.location.href = '/';
   },
   
   // Getters para acessar o estado de forma segura
