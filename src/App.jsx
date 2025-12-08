@@ -52,20 +52,41 @@ const Perfil = lazy(() => import("./screens/Clients/Perfil"));
 
 function App() {
   const location = useLocation(); 
-  const [isAuthReady, setIsAuthReady] = useState(false); // Novo estado para controle do spinner
+  const [isAuthenticated, setIsAuthenticated] = useState(auth.isAuthenticated());
+  const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
-    // Verifica se o módulo de autenticação já está inicializado
-    if (auth.isInitialized()) {
-      setIsAuthReady(true);
+    let unsubscribe;
+
+    const handleAuthChange = (newAuthState) => {
+      setIsAuthenticated(newAuthState.isAuthenticated);
+      // Only set isAuthReady to true AFTER init has completed AND notified
+      // This ensures App component re-renders when authState is truly ready
+      if (newAuthState._isInitialized) {
+        setIsAuthReady(true);
+      }
+    };
+
+    // Subscribe immediately
+    unsubscribe = auth.subscribe(handleAuthChange);
+
+    // Call init() if not already initialized
+    // auth.init() internally sets _isInitialized and notifies when done
+    if (!auth.isInitialized()) {
+      auth.init();
     } else {
-      // Se não estiver, pode-se adicionar um mecanismo de escuta se o 'auth' tivesse um
-      // Por enquanto, uma verificação única após a montagem é suficiente
-      // dado que auth.init() é chamado no carregamento do módulo.
-      // Poderíamos adicionar um pequeno delay aqui para garantir que o init() em auth.js
-      // tenha tido tempo de executar, embora ele seja síncrono.
-      setIsAuthReady(true); // Assumimos que auth.init() já rodou ao carregar o módulo
+      // If already initialized (e.g., hot reload, or subsequent mount),
+      // ensure state is reflected immediately.
+      setIsAuthenticated(auth.isAuthenticated());
+      setIsAuthReady(true);
     }
+
+    // Cleanup subscription on unmount
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   if (!isAuthReady) return <Spinner />;
@@ -74,11 +95,11 @@ function App() {
     <>
       <ScrollToTop />
       <Suspense fallback={<Spinner />}>
-        <Routes location={location} key={location.key}>
+        <Routes location={location}>
           {/* Rotas públicas */}
-          <Route path="/" element={<LandingPage key={location.key} />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Registro key={location.key} />} />
+          <Route path="/registro" element={<Registro />} />
           <Route path="/payment/:paymentId" element={<Payment />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route 
@@ -89,25 +110,25 @@ function App() {
           {/* Rotas protegidas de admin */}
           <Route
             path="/dashboardadmin"
-            element={auth.isAdmin() ? <DashboardAdmin /> : <Navigate to="/login" />}
+            element={isAuthenticated && auth.isAdmin() ? <DashboardAdmin /> : <Navigate to="/login" />}
           />
           <Route
             path="/empresasadmin"
-            element={auth.isAdmin() ? <EmpresasAdmin /> : <Navigate to="/login" />}
+            element={isAuthenticated && auth.isAdmin() ? <EmpresasAdmin /> : <Navigate to="/login" />}
           />
           <Route
             path="/planosadmin"
-            element={auth.isAdmin() ? <PlanosAdmin /> : <Navigate to="/login" />}
+            element={isAuthenticated && auth.isAdmin() ? <PlanosAdmin /> : <Navigate to="/login" />}
           />
 
           {/* Rotas protegidas de cliente */}
           <Route
-            path="/dashboardcliente" // Rota corrigida
-            element={auth.isLoggedInCliente() ? <DashboardCliente /> : <Navigate to="/login" />}
+            path="/dashboardcliente"
+            element={isAuthenticated && auth.isLoggedInCliente() ? <DashboardCliente /> : <Navigate to="/login" />}
           />
           <Route
             path="/perfil"
-            element={auth.isAuthenticated() ? <Perfil /> : <Navigate to="/login" />}
+            element={isAuthenticated ? <Perfil /> : <Navigate to="/login" />}
           />
         </Routes>
       </Suspense>
