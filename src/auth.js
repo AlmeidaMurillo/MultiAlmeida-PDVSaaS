@@ -41,44 +41,35 @@ function decodeJwtPayload(token) {
 }
 
 function updateAuthState(accessToken) {
-  console.log('updateAuthState: Início com accessToken:', accessToken ? 'presente' : 'ausente');
   const wasAuthenticated = authState.isAuthenticated;
 
   if (accessToken) {
     const decodedUser = decodeJwtPayload(accessToken);
-    console.log('updateAuthState: Decoded User:', decodedUser);
-
     // Verifica se o token é válido e não expirado
     if (decodedUser && decodedUser.exp * 1000 > Date.now()) {
-      console.log('updateAuthState: Token Válido. exp*1000 > Date.now() =', decodedUser.exp * 1000 > Date.now());
       authState.user = decodedUser;
       authState.isAuthenticated = true;
       authState.accessToken = accessToken;
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     } else {
-      console.log('updateAuthState: Token INVÁLIDO ou EXPIRADO.');
+      // Se o token for inválido ou expirado, trata como deslogado
       authState.user = null;
       authState.isAuthenticated = false;
       authState.accessToken = null;
       delete api.defaults.headers.common['Authorization'];
     }
   } else {
-    console.log('updateAuthState: Nenhum accessToken fornecido.');
+    // Se nenhum token for fornecido, trata como deslogado
     authState.user = null;
     authState.isAuthenticated = false;
     authState.accessToken = null;
     delete api.defaults.headers.common['Authorization'];
   }
 
-  console.log('updateAuthState: isAuthenticated ANTES:', wasAuthenticated);
-  console.log('updateAuthState: isAuthenticated AGORA:', authState.isAuthenticated);
-
   // Notifica os listeners se o estado de autenticação mudou
   if (wasAuthenticated !== authState.isAuthenticated) {
-    console.log('updateAuthState: Estado de autenticação mudou, notificando listeners.');
     notifyListeners();
   }
-  console.log('updateAuthState: Fim.');
 }
 
 // --- Lógica do Interceptor ---
@@ -168,7 +159,7 @@ export const auth = {
       const { data } = await api.post('/api/auth/refresh');
       updateAuthState(data.accessToken);
     } catch (error) {
-      console.log("Nenhuma sessão ativa encontrada:", error);
+      console.error("Erro ao inicializar autenticação:", error);
       // Garante que o estado seja limpo se o refresh falhar
       updateAuthState(null);
     } finally {
