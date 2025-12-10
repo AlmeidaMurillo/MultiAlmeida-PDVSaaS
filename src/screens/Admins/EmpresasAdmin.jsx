@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import styles from "./EmpresasAdmin.module.css";
 import { Eye, Edit, Trash2, Building2, Plus, Search } from "lucide-react";
-import api from "../../auth";
+import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
 import { IMaskInput } from "react-imask";
 
 function EmpresasAdmin() {
   useEffect(() => {
     document.title = "MultiAlmeida | Empresas Admin";
   }, []);
+
+  const { api } = useAuth(); // Obtém a instância da API do hook useAuth
 
   const [empresas, setEmpresas] = useState([]);
   const [modal, setModal] = useState(false);
@@ -53,7 +55,7 @@ function EmpresasAdmin() {
       }
     };
     load();
-  }, []);
+  }, [api]); // Adiciona 'api' como dependência do useEffect
 
   async function salvarEmpresa() {
     if (!form.periodo || !form.plano) return alert("Selecione período e plano!");
@@ -125,14 +127,6 @@ function EmpresasAdmin() {
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Pesquisar empresa..."
-            style={{
-              width: "100%",
-              padding: ".7rem",
-              borderRadius: ".5rem",
-              border: "1px solid rgba(255,255,255,.15)",
-              background: "var(--input-bg)",
-              color: "var(--input-text)",
-            }}
           />
         </div>
 

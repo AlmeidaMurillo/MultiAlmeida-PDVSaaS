@@ -19,9 +19,8 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
-import { auth } from "../../auth";
+import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
 
-// ===== Componente de item do menu =====
 const MenuItem = memo(function MenuItem({
   icon,
   label,
@@ -48,11 +47,12 @@ const MenuItem = memo(function MenuItem({
   );
 });
 
-// ===== Sidebar principal =====
 function Sidebar({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const sidebarRef = useRef(null);
+  const { isAuthenticated, user, userRole, logout } = useAuth(); // Usa o hook useAuth
+
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -61,20 +61,11 @@ function Sidebar({ children }) {
   });
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-  // Removed unused isLoggedIn state to fix ESLint warning
   const [showUserModal, setShowUserModal] = useState(false);
 
-  const [userType, setUserType] = useState(null);
-
   const handleLogout = async () => {
-    await auth.logout();
-    setUserName("");
-    setUserEmail("");
+    await logout(); // Usa a função logout do useAuth
     setShowUserModal(false);
-    setUserType(null);
-    navigate("/");
   };
 
   useEffect(() => {
@@ -91,22 +82,7 @@ function Sidebar({ children }) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
-
-  useEffect(() => {
-    const user = auth.getUser();
-    if (user) {
-      setUserName(user.nome);
-      setUserEmail(user.email);
-      setUserType(user.papel);
-    } else {
-      setUserName("");
-      setUserEmail("");
-      setUserType(null);
-    }
-  }, []);
   
-  // Removed sync useEffect related to isLoggedIn state
-
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
@@ -156,23 +132,20 @@ function Sidebar({ children }) {
     (path) => {
       navigate(path);
       if (window.innerWidth <= 768) {
-        setIsCollapsed(true);
+        setMobileOpen(false); // Fecha o sidebar mobile ao clicar em um item
       }
     },
     [navigate]
   );
 
   const handleDollarClick = () => {
-    // Implementar lógica para o clique no ícone de dólar
-    console.log("Ícone de dólar clicado!");
+    // Implementar lógica futura aqui
   };
 
   const handleBellClick = () => {
-    // Implementar lógica para o clique no ícone de sino
-    console.log("Ícone de sino clicado!");
+    // Implementar lógica futura aqui
   };
 
-  // Menu definitions for admin and usuario (client)
   const adminMenuItems = [
     { icon: <FaHome />, label: "Dashboard", path: "/dashboardadmin" },
     { icon: <FaUser />, label: "Empresas", path: "/empresasadmin" },
@@ -198,7 +171,9 @@ function Sidebar({ children }) {
     { icon: <FaChartBar />, label: "Faturamento", path: "/faturamentocliente" },
   ];
 
-  const menuItems = userType === 'admin' ? adminMenuItems : usuarioMenuItems;
+  const menuItems = userRole === 'admin' ? adminMenuItems : usuarioMenuItems;
+  const userName = user?.nome || "";
+  const userEmail = user?.email || "";
 
   useEffect(() => {
     document.documentElement.classList.add('sidebar-active-page');
@@ -240,10 +215,12 @@ function Sidebar({ children }) {
             <span className={`${styles.badge} ${styles.black}`}>0</span>
           </button>
 
-          <div className={styles.profileCircle} onClick={() => setShowUserModal(!showUserModal)}>
-            {userName ? userName.charAt(0).toUpperCase() : <FaUser size={20} />}
-          </div>
-          {showUserModal && (
+          {isAuthenticated && (
+            <div className={styles.profileCircle} onClick={() => setShowUserModal(!showUserModal)}>
+              {userName ? userName.charAt(0).toUpperCase() : <FaUser size={20} />}
+            </div>
+          )}
+          {showUserModal && isAuthenticated && (
             <div className={styles.userModalOverlay} onClick={() => setShowUserModal(false)}>
               <div className={styles.userModal} onClick={(e) => e.stopPropagation()}>
                 <button className={styles.modalCloseButton} onClick={() => setShowUserModal(false)}>
@@ -255,7 +232,7 @@ function Sidebar({ children }) {
                   </div>
                   <div className={styles.modalUserInfo}>
                     <h3 className={styles.modalUserName}>{userName}</h3>
-                    <p className={styles.modalUserPapel}>{userType}</p>
+                    <p className={styles.modalUserPapel}>{userRole}</p>
                     <p className={styles.modalUserEmail}>{userEmail}</p>
                   </div>
                 </div>
@@ -294,7 +271,6 @@ function Sidebar({ children }) {
                   isActive={isActive(path)}
                   onClick={() => {
                     handleMenuItemClick(path);
-                    if (window.innerWidth <= 768) setMobileOpen(false);
                   }}
                 />
               ))}

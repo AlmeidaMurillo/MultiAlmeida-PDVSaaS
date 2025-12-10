@@ -5,15 +5,15 @@ import {
   FaShoppingCart,
   FaTrash,
 } from "react-icons/fa";
-import api from "../../auth";
-import { auth } from "../../auth";
 import styles from "./CarrinhoCompras.module.css";
 import Header from "../../Components/Header/Header";
+import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
 
 export default function CarrinhoCompras() {
   const location = useLocation();
   const navigate = useNavigate();
   const { planId, periodo } = location.state || {};
+  const { isAuthenticated, api } = useAuth(); // Obtém isAuthenticated e api do hook useAuth
 
   const [itensCarrinho, setItensCarrinho] = useState([]);
   const [planos, setPlanos] = useState([]);
@@ -25,12 +25,13 @@ export default function CarrinhoCompras() {
 
   const carregarPlanos = useCallback(async () => {
     try {
-      const response = await api.get("/api/planos");
+      // Solicita planos agrupados do backend para manter compatibilidade com a lógica existente
+      const response = await api.get("/api/planos?grouped=true"); 
       setPlanos(response.data.planos || []);
     } catch (err) {
       console.error("Erro ao carregar planos:", err);
     }
-  }, []);
+  }, [api]); // Dependência 'api'
 
   const carregarCarrinho = useCallback(async () => {
     try {
@@ -41,16 +42,17 @@ export default function CarrinhoCompras() {
       console.error("Erro ao carregar carrinho:", err);
       setError("Erro ao carregar carrinho");
     }
-  }, []);
+  }, [api]); // Dependência 'api'
 
   useEffect(() => {
-    // A verificação agora é síncrona. Se não estiver autenticado, redireciona para o login.
-    if (!auth.isAuthenticated()) {
-      navigate("/login", { state: { from: "/carrinho", planId, periodo } });
-      return; // Interrompe a execução do hook
+    // A rota já é protegida por ProtectedRoute, não precisa verificar isAuthenticated aqui
+    if (!isAuthenticated) {
+        // Embora a rota seja protegida, se por algum motivo o estado de auth falhar, redireciona.
+        // Isso é um fallback.
+        navigate("/login", { state: { from: "/carrinho", planId, periodo } });
+        return; 
     }
 
-    // Se autenticado, carrega os dados.
     carregarPlanos();
     carregarCarrinho();
 
@@ -65,7 +67,7 @@ export default function CarrinhoCompras() {
       };
       adicionarAoCarrinho();
     }
-  }, [navigate, planId, periodo, carregarCarrinho, carregarPlanos]);
+  }, [navigate, planId, periodo, carregarCarrinho, carregarPlanos, isAuthenticated]); // Dependências atualizadas
 
   const removerItem = async (itemId) => {
     try {
@@ -124,13 +126,18 @@ export default function CarrinhoCompras() {
     }
   };
 
-  const calcularTotal = () => {
+  const calcularTotal = useCallback(() => { // Adiciona useCallback
     return itensCarrinho.reduce((total, item) => {
-      const planoInfo = planos.find(p => p[item.periodo] && p[item.periodo].id === item.plano_id);
-      const preco = planoInfo ? Number(planoInfo[item.periodo].preco) * item.quantidade : 0;
+      // Busca o plano no formato agrupado
+      const planoInfoAgrupado = planos.find(p => p.id === item.plano_id || p.nome === item.plano_id); // Pode ser pelo ID do plano base ou nome
+      
+      let preco = 0;
+      if (planoInfoAgrupado && planoInfoAgrupado[item.periodo]) {
+        preco = Number(planoInfoAgrupado[item.periodo].preco) * item.quantidade;
+      }
       return total + preco;
     }, 0);
-  };
+  }, [itensCarrinho, planos]); // Dependências
 
   return (
     <div className={styles.container}>
@@ -165,8 +172,12 @@ export default function CarrinhoCompras() {
               </div>
 
               {itensCarrinho.map((item) => {
-                const plano = planos.find(p => p.mensal?.id === item.plano_id || p.trimestral?.id === item.plano_id || p.semestral?.id === item.plano_id || p.anual?.id === item.plano_id);
-                const periodoInfo = plano ? plano[item.periodo] : null;
+                const plano = planos.find(p => p.id === item.plano_id || p.nome === item.plano_id); // Encontra o plano base
+                const periodoInfo = plano ? plano[item.periodo] : null; // Pega info do período
+                
+                // console.log("Item Carrinho:", item);
+                // console.log("Plano Base Encontrado:", plano);
+                // console.log("Periodo Info:", periodoInfo);
 
                 return (
                   <div key={item.id} className={styles.itemCard}>
@@ -195,6 +206,7 @@ export default function CarrinhoCompras() {
                                 }
                               }}
                             >
+                              <option value="">Selecione um plano</option>
                               {planos.map((p) => (
                                 <option key={p.nome} value={p.nome}>
                                   {p.nome}
@@ -207,28 +219,30 @@ export default function CarrinhoCompras() {
                               value={item.periodo}
                               onChange={(e) => {
                                 const novoPeriodo = e.target.value;
-                                const novoPeriodoInfo = plano ? plano[novoPeriodo] : null;
+                                const planoBase = planos.find(p => p.id === item.plano_id || p.nome === item.plano_id); // Precisa encontrar o plano base novamente
+                                const novoPeriodoInfo = planoBase ? planoBase[novoPeriodo] : null;
                                 if (novoPeriodoInfo) {
                                   alterarPlanoPeriodo(item.id, novoPeriodoInfo.id, novoPeriodo);
                                 }
                               }}
                             >
-                              {plano?.mensal && (
+                              <option value="">Selecione um período</option>
+                              {plano && plano.mensal && (
                                 <option value="mensal">
                                   Mensal - R$ {plano.mensal.preco.toFixed(2)}
                                 </option>
                               )}
-                              {plano?.trimestral && (
+                              {plano && plano.trimestral && (
                                 <option value="trimestral">
                                   Trimestral - R$ {plano.trimestral.preco.toFixed(2)}
                                 </option>
                               )}
-                              {plano?.semestral && (
+                              {plano && plano.semestral && (
                                 <option value="semestral">
                                   Semestral - R$ {plano.semestral.preco.toFixed(2)}
                                 </option>
                               )}
-                              {plano?.anual && (
+                              {plano && plano.anual && (
                                 <option value="anual">
                                   Anual - R$ {plano.anual.preco.toFixed(2)}
                                 </option>
@@ -271,14 +285,14 @@ export default function CarrinhoCompras() {
                 <h2 className={styles.summaryHeader}>Resumo do Pedido</h2>
                 <div className={styles.summaryContent}>
                   {itensCarrinho.map((item) => {
-                    const planoInfo = planos.find(p => p[item.periodo] && p[item.periodo].id === item.plano_id);
-                    const periodoInfo = planoInfo ? planoInfo[item.periodo] : null;
+                    const planoInfoAgrupado = planos.find(p => p.id === item.plano_id || p.nome === item.plano_id);
+                    const periodoInfo = planoInfoAgrupado ? planoInfoAgrupado[item.periodo] : null;
                     const subtotal = (periodoInfo?.preco || 0) * item.quantidade;
 
                     return (
                       <div key={item.id} className={styles.summaryItem}>
                         <span className={styles.summaryItemLabel}>
-                          {planoInfo?.nome || 'Plano'} ({item.periodo})
+                          {planoInfoAgrupado?.nome || 'Plano'} ({item.periodo})
                         </span>
                         <span className={styles.summaryItemValue}>R${subtotal.toFixed(2)}</span>
                       </div>
@@ -381,3 +395,4 @@ export default function CarrinhoCompras() {
     </div>
   );
 }
+

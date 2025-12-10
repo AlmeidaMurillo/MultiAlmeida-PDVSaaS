@@ -40,12 +40,15 @@
   background: var(--button-hover);
 }
 
-.searchBox {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 1rem;
+.searchBox input {
+  width: 100%;
+  padding: .7rem;
+  border-radius: .5rem;
+  border: 1px solid rgba(255,255,255,.15);
+  background: var(--input-bg);
+  color: var(--input-text);
 }
+
 
 .tableBox {
   overflow-x: auto;
@@ -131,7 +134,6 @@ thead th {
   font-weight: 600;
 }
 
-/* MODAL */
 .modalBg {
   position: fixed;
   inset: 0;
@@ -222,7 +224,6 @@ thead th {
   }
 }
 
-/* MOBILE */
 @media (max-width: 768px) {
   .titleRow {
     flex-direction: column;
@@ -260,7 +261,6 @@ thead th {
   }
 }
 
-/* SMALL MOBILE */
 @media (max-width: 480px) {
   .empresasContent {
     padding: 1rem;

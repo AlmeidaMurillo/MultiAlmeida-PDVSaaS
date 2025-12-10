@@ -10,8 +10,6 @@
   scroll-behavior: smooth;
 }
 
-/* HeaderTop */
-
 .headerTop {
   position: sticky;
   top: 0;
@@ -78,7 +76,6 @@
   transform: scale(1.1);
 }
 
-/* Header */
 .header {
   background: var(--input-bg);
   border-bottom: 1px solid var(--input-placeholder);
@@ -162,7 +159,6 @@
   border-radius: 0.5rem;
 }
 
-/* Conteúdo */
 .content {
   max-width: 1120px;
   margin: 0 auto;
@@ -222,7 +218,6 @@
   height: 1.5rem;
 }
 
-/* Item Carrinho */
 .itemCardWrapper {
   margin-bottom: 1rem;
 }
@@ -451,7 +446,6 @@
   text-decoration: line-through;
 }
 
-/* Resumo */
 .summary {
   position: sticky;
   top: 120px;
@@ -631,7 +625,6 @@
   text-align: center;
 }
 
-/* Footer */
 .footer {
   margin-top: 4rem;
   padding: 4rem 2rem;
@@ -705,7 +698,6 @@
   font-size: 1.1rem;
 }
 
-/* Empty State */
 .empty {
   display: flex;
   flex-direction: column;
@@ -780,14 +772,12 @@
 
 
 
-/* Monitores grandes */
 @media (max-width: 1440px) {
   .content {
     padding: 2rem 4rem;
   }
 }
 
-/* Laptops */
 @media (max-width: 1024px) {
   .grid {
     grid-template-columns: 1fr;
@@ -813,7 +803,6 @@
   }
 }
 
-/* Tablets */
 @media (max-width: 768px) {
   .content {
     padding: 1.5rem;
@@ -845,7 +834,6 @@
   }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
 .backButton {
     width: 2.5rem;
@@ -1053,7 +1041,6 @@
   }
 }
 
-/* ===== KEYFRAME ANIMATIONS ===== */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -1092,7 +1079,6 @@
     transform: scale(1) translateY(0);
   }
 }
-/* ===== HEADER ===== */
 .loginButton,
 .painelButton {
   background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
@@ -1137,7 +1123,6 @@
   transform: scale(1.05);
   border-color: var(--hover-bg);
 }
-/* ===== NEW USER MODAL STYLES ===== */
 .userModalOverlay {
   position: fixed;
   top: 0;
@@ -1264,7 +1249,6 @@
   opacity: 1;
   transform: scale(1.1);
 }
-/* ===== MOBILE MENU BUTTON ===== */
 .mobileMenuButton {
   display: none;
   background: none;
@@ -1280,7 +1264,6 @@
   background-color: var(--hover-bg);
   transform: scale(1.1);
 }
-/* ===== MOBILE SIDEBAR ===== */
 .mobileSidebarOverlay {
   position: fixed;
   top: 0;

@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ========================================================================== */
-/* Main Page Container */
-/* ========================================================================== */
 .registroPage {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--bg-color) 0%, var(--secondary-bg) 100%);
@@ -10,9 +7,6 @@
   flex-direction: column;
 }
 
-/* ========================================================================== */
-/* Header */
-/* ========================================================================== */
 .headerTop {
   position: sticky;
   top: 0;
@@ -80,9 +74,6 @@
   transform: scale(1.1);
 }
 
-/* ========================================================================== */
-/* Main Content */
-/* ========================================================================== */
 .mainContent {
   flex: 1;
   display: flex;
@@ -130,9 +121,6 @@
   box-sizing: border-box;
 }
 
-/* ========================================================================== */
-/* Form Styles */
-/* ========================================================================== */
 .form {
   display: flex;
   flex-direction: column;
@@ -242,18 +230,12 @@
   text-decoration: underline;
 }
 
-/* ========================================================================== */
-/* Responsive Design */
-/* ========================================================================== */
-
-/* Monitores grandes */
 @media (max-width: 1440px) {
   .registroForm {
     max-width: 380px;
   }
 }
 
-/* Laptops */
 @media (max-width: 1024px) {
   .headerTop {
     padding: 0 2rem;
@@ -273,7 +255,6 @@
   }
 }
 
-/* Tablets */
 @media (max-width: 768px) {
   .headerTop {
     padding: 0 1.5rem;
@@ -297,7 +278,6 @@
   }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
   .registroPage {
     min-height: -webkit-fill-available; /* iOS Safari */
@@ -337,7 +317,6 @@
   }
 }
 
-/* Telas muito pequenas (ex: 300px, 240px) */
 @media (max-width: 320px) {
   .headerTop {
     padding: 0 0.75rem; /* Aumenta o padding lateral do header */

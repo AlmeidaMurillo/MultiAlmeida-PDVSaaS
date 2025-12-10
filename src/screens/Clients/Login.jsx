@@ -5,39 +5,35 @@ import {
   FaLock,
   FaEye,
   FaEyeSlash,
-  FaMoon,
-  FaSun,
 } from "react-icons/fa";
-import { auth } from "../../auth";
+import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
 import styles from "./Login.module.css";
-import Spinner from "../../Components/Spinner/Spinner"; // Importar o Spinner
+import Spinner from "../../Components/Spinner/Spinner"; // Mantém o Spinner para o estado de loading do form
 
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated, userRole, login, loading: authLoading } = useAuth(); // Obtém estados e funções do useAuth
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(false); // A verificação agora é síncrona
+  const [loading, setLoading] = useState(false); // Loading local para o form de login
 
+  // Redirecionamento após login bem-sucedido
   useEffect(() => {
-    // Se o usuário já está logado, redireciona.
-    if (auth.isAuthenticated() && auth.getPapel() !== 'admin') {
-      navigate('/');
+    if (!authLoading && isAuthenticated) {
+      const locationState = location.state;
+      if (userRole === 'admin') {
+        navigate("/dashboardadmin"); // Redireciona admins para o dashboard admin
+      } else if (locationState?.from === "/carrinho" || locationState?.planId) {
+        navigate("/carrinho", { state: locationState });
+      } else {
+        navigate("/dashboardcliente"); // Redireciona usuários comuns para o dashboard cliente
+      }
     }
-  }, [navigate]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+  }, [isAuthenticated, userRole, authLoading, navigate, location.state]);
 
   const toggleSenha = () => setMostrarSenha((prev) => !prev);
 
@@ -47,29 +43,16 @@ function Login() {
     setError("");
 
     try {
-      await auth.login(email, senha);
-
-      // Se o usuário for admin, redireciona para a home e para a execução.
-      if (auth.isAdmin()) {
-        navigate("/");
-        return;
-      }
-      
-      const locationState = location.state;
-      if (locationState?.from === "/carrinho" || locationState?.planId) {
-        navigate("/carrinho", { state: locationState });
-      } else {
-        navigate("/");
-      }
+      // O login do AuthContext já deve lidar com a sessão existente
+      await login(email, senha);
+      // A navegação agora é tratada no useEffect acima
     } catch (err) {
-      console.error("Erro no login:", err);
       const errorMessage = err.response?.data?.error || "Erro ao fazer login. Verifique suas credenciais.";
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleRegistroClick = (e) => {
     e.preventDefault();
@@ -81,25 +64,14 @@ function Login() {
     }
   };
 
-  if (isCheckingAuth) {
-    return <Spinner />;
+  if (authLoading) {
+    return <Spinner />; // Mostra spinner enquanto o AuthContext está carregando
   }
 
+  // Se já autenticado, o useEffect acima já deveria ter redirecionado.
+  // Caso contrário, mostra o formulário de login.
   return (
     <div className={styles.loginPage}>
-      <header className={styles.headerTop}>
-        <div className={styles.logoContainer} onClick={() => navigate("/")}>
-          <div className={styles.logo}>MultiAlmeida</div>
-          <h2 className={styles.subtitle}>ERP SaaS PDV</h2>
-        </div>
-
-        <div className={styles.actionsContainer}>
-          <button className={styles.iconButton} onClick={toggleTheme}>
-            {theme === "dark" ? <FaSun /> : <FaMoon />}
-          </button>
-        </div>
-      </header>
-
       <main className={styles.mainContent}>
         <section className={styles.hero}>
           <div className={styles.heroContent}>

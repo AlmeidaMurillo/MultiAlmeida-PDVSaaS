@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import styles from "./LandingPage.module.css";
-import api from "../../auth";
-import { auth } from "../../auth";
 import Header from "../../Components/Header/Header";
+import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
 
 function LandingPage() {
   const navigate = useNavigate();
+  const { isAuthenticated, api } = useAuth(); // Obtém isAuthenticated e api do hook useAuth
 
   const [periodoSelecionado, setPeriodoSelecionado] = useState("mensal");
   const [planos, setPlanos] = useState([]);
@@ -16,7 +16,7 @@ function LandingPage() {
   const [error, setError] = useState("");
 
   const handleAssinar = (planId) => {
-    if (auth.isLoggedInCliente()) {
+    if (isAuthenticated) { // Usa isAuthenticated do useAuth
       navigate("/carrinho", { state: { planId, periodo: periodoSelecionado } });
     } else {
       navigate("/login", { state: { planId, periodo: periodoSelecionado } });
@@ -27,26 +27,25 @@ function LandingPage() {
     try {
       setLoading(true);
       setError("");
-      const response = await api.get("/api/planos");
-      const todosPlanos = response.data.planos || [];
+      // Solicita planos agrupados do backend
+      const response = await api.get("/api/planos?grouped=true"); 
+      const todosPlanosAgrupados = response.data.planos || [];
 
+      // Filtra e formata os planos para o período selecionado
       const planosFiltrados = [];
-      todosPlanos.forEach((planoGrupo) => {
-        const periodo = planoGrupo[periodoSelecionado];
-        const nome = planoGrupo.nome;
-
-        if (periodo && periodo.beneficios && periodo.beneficios.length > 0) {
+      todosPlanosAgrupados.forEach((planoGrupo) => {
+        const periodoData = planoGrupo[periodoSelecionado];
+        if (planoGrupo.nome && periodoData && periodoData.beneficios && periodoData.beneficios.length > 0) {
           planosFiltrados.push({
-            id: periodo.id,
-            nome: nome,
+            id: periodoData.id, // O ID agora é do plano específico do período
+            nome: planoGrupo.nome,
             periodo: periodoSelecionado,
-            preco: Number(periodo.preco),
-            duracaoDias: periodo.duracaoDias,
-            beneficios: periodo.beneficios,
+            preco: Number(periodoData.preco),
+            duracaoDias: periodoData.duracaoDias,
+            beneficios: periodoData.beneficios,
           });
         }
       });
-
       setPlanos(planosFiltrados);
     } catch (err) {
       console.error("Erro ao carregar planos:", err);
@@ -54,7 +53,7 @@ function LandingPage() {
     } finally {
       setLoading(false);
     }
-  }, [periodoSelecionado]);
+  }, [periodoSelecionado, api]); // Adiciona 'api' como dependência
 
   useEffect(() => {
     carregarPlanos();
@@ -75,12 +74,6 @@ function LandingPage() {
               finanças e muito mais em uma plataforma moderna, intuitiva e
               integrada.
             </p>
-            <button
-              className={styles.loginButton2}
-              onClick={() => navigate("/login")}
-            >
-              Comece Agora
-            </button>
           </div>
 
           <div className={styles.heroImage}>
@@ -230,7 +223,7 @@ function LandingPage() {
                   <FiMail /> <span>contato@multialmeida.com</span>
                 </p>
                 <p>
-                  <FiPhone /> <span>(11) 9999-9999</span>
+                  <FiPhone /> <span>(11) 97054-3189</span>
                 </p>
                 <p>
                   <FiMapPin /> <span>São Paulo, SP</span>

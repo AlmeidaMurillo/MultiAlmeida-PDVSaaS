@@ -1,30 +1,44 @@
 import axios from 'axios';
 
 // --- Configuração da Instância Axios ---
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://multialmeida-pdvsaas-backend-production.up.railway.app',
+// Em desenvolvimento: usa o proxy do Vite (http://localhost:5174/api → http://localhost:5174/api via proxy → backend)
+// Em produção: usa a URL completa do backend
+const baseURL = import.meta.env.VITE_API_URL || (
+  import.meta.env.DEV 
+    ? '' // Em dev, usa URLs relativas que serão proxyadas pelo Vite
+    : 'https://multialmeida-pdvsaas-backend-production.up.railway.app'
+);
+
+console.log('📍 API baseURL:', baseURL || '(usando URLs relativas via proxy Vite)');
+console.log('🌍 DEV mode:', import.meta.env.DEV);
+
+export const api = axios.create({
+  baseURL: baseURL,
   withCredentials: true, // Essencial para enviar cookies (como o refresh token)
 });
+
 
 // --- Estado de Autenticação em Memória ---
 let authState = {
   user: null,
   isAuthenticated: false,
   accessToken: null,
-  _isInitialized: false, // Adicionar esta flag
+  _isInitialized: false,
 };
 
 // --- Funções Auxiliares ---
-
 const listeners = new Set();
 
 function notifyListeners() {
-  // Notifica todos os componentes inscritos sobre a mudança de estado
   listeners.forEach(listener => listener(authState));
 }
 
 function decodeJwtPayload(token) {
   try {
+    if (typeof token !== 'string') {
+      console.error("Token não é uma string:", typeof token, token);
+      return null;
+    }
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(
@@ -43,37 +57,33 @@ function decodeJwtPayload(token) {
 function updateAuthState(accessToken) {
   const wasAuthenticated = authState.isAuthenticated;
 
-  if (accessToken) {
+  if (accessToken && typeof accessToken === 'string') {
     const decodedUser = decodeJwtPayload(accessToken);
-    // Verifica se o token é válido e não expirado
     if (decodedUser && decodedUser.exp * 1000 > Date.now()) {
       authState.user = decodedUser;
       authState.isAuthenticated = true;
       authState.accessToken = accessToken;
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     } else {
-      // Se o token for inválido ou expirado, trata como deslogado
+      console.warn("Token expirado ou inválido");
       authState.user = null;
       authState.isAuthenticated = false;
       authState.accessToken = null;
       delete api.defaults.headers.common['Authorization'];
     }
   } else {
-    // Se nenhum token for fornecido, trata como deslogado
     authState.user = null;
     authState.isAuthenticated = false;
     authState.accessToken = null;
     delete api.defaults.headers.common['Authorization'];
   }
 
-  // Notifica os listeners se o estado de autenticação mudou
   if (wasAuthenticated !== authState.isAuthenticated) {
     notifyListeners();
   }
 }
 
 // --- Lógica do Interceptor ---
-
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -88,91 +98,140 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+export function initAxiosInterceptor({ onLogout, onTokenRefreshSuccess }) {
+  api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
 
-    // Correção: Não interceptar erros em rotas de autenticação sensíveis
-    if (originalRequest.url.includes('/api/auth/login') || originalRequest.url.includes('/api/auth/refresh')) {
-      return Promise.reject(error);
-    }
+      if (originalRequest.url.includes('/api/auth/login') || originalRequest.url.includes('/api/auth/refresh')) {
+        console.log('⏭️ [Interceptor] Pulando interceptor para:', originalRequest.url);
+        return Promise.reject(error);
+      }
 
-    // Se o erro não for 401 ou já estamos tentando renovar o token, rejeita
-    if (error.response?.status !== 401 || originalRequest._retry) {
-      return Promise.reject(error);
-    }
+      if (error.response?.status !== 401 || originalRequest._retry) {
+        console.log('⏭️ [Interceptor] Status não é 401 ou request já foi retentado. Status:', error.response?.status, 'Retry:', originalRequest._retry);
+        return Promise.reject(error);
+      }
 
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        failedQueue.push({ resolve, reject });
-      })
-        .then(token => {
-          originalRequest.headers['Authorization'] = 'Bearer ' + token;
-          return api(originalRequest);
+      console.log('🔄 [Interceptor] Recebido erro 401 para:', originalRequest.url, 'Tentando refresh...');
+
+      if (isRefreshing) {
+        console.log('⏳ [Interceptor] Já está fazendo refresh, aguardando fila...');
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
         })
-        .catch(err => {
-          return Promise.reject(err);
-        });
+          .then(token => {
+            console.log('✅ [Interceptor] Token de fila recebido, retentando request');
+            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            return api(originalRequest);
+          })
+          .catch(err => {
+            console.error('❌ [Interceptor] Erro na fila:', err);
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        console.log('🔄 [Interceptor] Fazendo POST /api/auth/refresh');
+        const { data } = await api.post('/api/auth/refresh');
+        console.log('✅ [Interceptor] Refresh bem-sucedido, novo token recebido');
+        updateAuthState(data.accessToken);
+        onTokenRefreshSuccess(data.accessToken);
+        
+        originalRequest.headers['Authorization'] = 'Bearer ' + data.accessToken;
+        processQueue(null, data.accessToken);
+        
+        console.log('🔄 [Interceptor] Retentando request original:', originalRequest.url);
+        return api(originalRequest);
+      } catch (refreshError) {
+        console.error('❌ [Interceptor] Erro no refresh:', refreshError.response?.status);
+        processQueue(refreshError, null);
+        onLogout();
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
+  );
 
-    originalRequest._retry = true;
-    isRefreshing = true;
-
-    try {
-      const { data } = await api.post('/api/auth/refresh');
-      updateAuthState(data.accessToken);
+  api.interceptors.request.use(config => {
+      const hasCookie = document.cookie.length > 0;
+      const authHeader = config.headers.Authorization ? '✅ Sim' : '❌ Não';
       
-      originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
-      processQueue(null, data.accessToken);
+      console.log('📤 Request interceptor:', {
+        url: config.url,
+        withCredentials: config.withCredentials,
+        cookies: hasCookie ? `${document.cookie.split(';').length} cookies` : 'nenhum cookie',
+        authHeader: authHeader,
+      });
       
-      return api(originalRequest);
-    } catch (refreshError) {
-      processQueue(refreshError, null);
-      auth.logout(); // Se o refresh falhar, desloga o usuário
-      return Promise.reject(refreshError);
-    } finally {
-      isRefreshing = false;
-    }
-  }
-);
+      if (authState.accessToken) {
+          config.headers.Authorization = `Bearer ${authState.accessToken}`;
+          console.log('✅ Authorization header adicionado ao request');
+      }
+      return config;
+  });
 
-api.interceptors.request.use(config => {
-    if (authState.accessToken) {
-        config.headers.Authorization = `Bearer ${authState.accessToken}`;
-    }
-    return config;
-});
+  return api;
+}
 
 
 // --- Serviço de Autenticação Exportado ---
-
 export const auth = {
   subscribe(callback) {
     listeners.add(callback);
-    // Oferece uma função para cancelar a inscrição
     return () => listeners.delete(callback);
   },
 
   async init() {
     try {
-      const { data } = await api.post('/api/auth/refresh');
-      updateAuthState(data.accessToken);
+      // Sempre tenta fazer refresh. Se não houver cookie válido, o backend retorna 401/403
+      // Cookies httpOnly não são acessíveis via JavaScript, então sempre tentamos
+      console.log("🔄 [Init] Tentando refresh do token...");
+      console.log("🔄 [Init] withCredentials:", api.defaults.withCredentials);
+      
+      try {
+        const { data } = await api.post('/api/auth/refresh');
+        console.log("✅ [Init] Token refreshed com sucesso durante init");
+        console.log("✅ [Init] AccessToken recebido:", data.accessToken ? 'Sim' : 'Não');
+        updateAuthState(data.accessToken);
+      } catch (refreshError) {
+        if (refreshError.response?.status === 401 || refreshError.response?.status === 403) {
+          console.log("ℹ️ [Init] Nenhum refresh token válido encontrado. Usuário não autenticado.");
+          console.log("ℹ️ [Init] Status do erro:", refreshError.response?.status);
+          updateAuthState(null);
+        } else {
+          throw refreshError;
+        }
+      }
     } catch (error) {
-      console.error("Erro ao inicializar autenticação:", error);
-      // Garante que o estado seja limpo se o refresh falhar
+      console.error("❌ [Init] Erro ao inicializar autenticação:", error);
+      if (error.response) {
+        console.error("❌ [Init] Status do erro:", error.response.status);
+        console.error("❌ [Init] Dados do erro:", error.response.data);
+      } else if (error.request) {
+        console.error("❌ [Init] Nenhuma resposta recebida:", error.request);
+      } else {
+        console.error("❌ [Init] Erro de configuração da requisição:", error.message);
+      }
       updateAuthState(null);
     } finally {
       authState._isInitialized = true;
-      // Notifica os listeners que a inicialização terminou
       notifyListeners();
+      console.log("✅ [Init] Autenticação inicializada, estado:", {
+        isAuthenticated: authState.isAuthenticated,
+        hasUser: !!authState.user,
+        hasAccessToken: !!authState.accessToken,
+      });
     }
   },
 
-  // Getter para o estado de inicialização
   isInitialized: () => authState._isInitialized,
 
-  // Função interna para limpar a sessão sem redirecionar
   async _silentLogout() {
     try {
       await api.post('/api/auth/logout');
@@ -184,39 +243,48 @@ export const auth = {
   },
 
   async login(email, senha) {
-    // Realiza o login e atualiza o estado
-    const { data } = await api.post('/api/auth/login', { email, senha });
-    updateAuthState(data.accessToken);
-    return authState.user; // Retorna o usuário do estado atualizado
+    try {
+      console.log("🔐 [Login] Tentando fazer login com email:", email);
+      const { data } = await api.post('/api/auth/login', { email, senha });
+      console.log('✅ [Login] Login bem-sucedido');
+      console.log('✅ [Login] AccessToken recebido:', data.accessToken ? 'Sim' : 'Não');
+      updateAuthState(data.accessToken);
+      console.log('✅ [Login] Estado atualizado:', {
+        isAuthenticated: authState.isAuthenticated,
+        hasUser: !!authState.user,
+        papel: authState.user?.papel,
+      });
+      return { user: authState.user, role: authState.user?.papel };
+    } catch (error) {
+      console.error('❌ [Login] Erro no login:', error.response?.data || error.message);
+      throw error;
+    }
   },
 
   async criarConta(nome, email, senha) {
     const { data } = await api.post('/api/criar-conta', { nome, email, senha });
     updateAuthState(data.accessToken);
-    return authState.user; // Retorna o usuário do estado atualizado
+    return { user: authState.user, role: authState.user?.papel }; // Retorna o usuário e o papel do estado atualizado
   },
 
   async logout() {
     await this._silentLogout();
-    // Opcional: Redirecionar após o estado ser atualizado e os listeners notificados
     window.location.href = '/';
   },
   
-  // Getters para acessar o estado de forma segura
   isAuthenticated: () => authState.isAuthenticated,
   getUser: () => authState.user,
   getPapel: () => authState.user?.papel,
   isAdmin: () => authState.user?.papel === 'admin',
   isLoggedInCliente: () => authState.user?.papel === 'usuario',
 
-  // Esta função agora é síncrona e baseada no estado em memória, que é atualizado via API.
   hasActiveOrExpiredSubscription() {
-      // Para manter esta checagem, o backend precisa incluir
-      // o status da assinatura no payload do Access Token.
-      // Por simplicidade, vamos assumir que se o usuário é cliente, ele tem acesso.
-      // A verificação real foi movida para o backend.
-      // A lógica do `handlePainelClick` no Header deve ser a única fonte da verdade.
       return this.isLoggedInCliente();
+  },
+
+  async getCurrentUser() {
+    // Retorna o usuário atual do authState, útil para AuthContext
+    return { user: authState.user, role: authState.user?.papel };
   },
 
   async getUserDetails() {
@@ -240,7 +308,8 @@ export const auth = {
   }
 };
 
-// Inicializa o estado de autenticação ao carregar o módulo
-auth.init();
-
-export default api;
+// NÃO chamar auth.init() aqui - será chamado pelo AuthContext
+// Exporta o objeto auth e a instância api para uso em outros módulos
+// Não exportamos default api pois já o exportamos como named export e initAxiosInterceptor já retorna a instância configurada.
+// Se App.jsx ou outro lugar precisar da instância de axios configurada, deve usar initAxiosInterceptor.
+// Default export should be avoided if named exports are sufficient.

@@ -12,7 +12,7 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import "./DashboardAdmin.module.css";
+import styles from "./DashboardAdmin.module.css"; // Importa o objeto de estilos
 
 function DashboardAdmin() {
   useEffect(() => {
@@ -37,30 +37,30 @@ function DashboardAdmin() {
 
   return (
     <Sidebar>
-      <div className="dashboardContent">
+      <div className={styles.dashboardContent}>
         <h1>Dashboard Admin</h1>
 
-        <div className="cards">
-          <div className="card">
+        <div className={styles.cards}>
+          <div className={styles.card}>
             <h3>Empresas</h3>
             <p>35</p>
           </div>
-          <div className="card">
+          <div className={styles.card}>
             <h3>Pendentes</h3>
             <p>12</p>
           </div>
-          <div className="card">
+          <div className={styles.card}>
             <h3>Recebidos</h3>
             <p>28</p>
           </div>
-          <div className="card">
+          <div className={styles.card}>
             <h3>Faturamento</h3>
             <p>R$ 47.000</p>
           </div>
         </div>
 
-        <div className="charts">
-          <div className="chartContainer">
+        <div className={styles.charts}>
+          <div className={styles.chartContainer}>
             <h3>Vendas Mensais</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={vendasMensais}>
@@ -72,7 +72,7 @@ function DashboardAdmin() {
             </ResponsiveContainer>
           </div>
 
-          <div className="chartContainer">
+          <div className={styles.chartContainer}>
             <h3>Status dos Pagamentos</h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>

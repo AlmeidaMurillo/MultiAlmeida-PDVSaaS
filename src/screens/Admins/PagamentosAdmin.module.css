@@ -186,7 +186,6 @@
   color: var(--text-secondary);
 }
 
-/* Responsividade */
 @media (max-width: 768px) {
   .pagamentosContent {
     padding: 1rem;

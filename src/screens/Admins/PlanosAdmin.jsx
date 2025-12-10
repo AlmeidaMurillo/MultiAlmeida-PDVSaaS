@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import styles from "./PlanosAdmin.module.css";
 import { Edit, Trash2, Plus, Users } from "lucide-react";
-import axiosInstance from "../../auth";
+import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
 
 function PlanosAdmin() {
+  const { api } = useAuth(); // Obtém a instância da API do hook useAuth
+
   const [planos, setPlanos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -28,13 +30,14 @@ function PlanosAdmin() {
   useEffect(() => {
     document.title = "MultiAlmeida | Planos Admin";
     carregarPlanos();
-  }, []);
+  }, [api]); // Adiciona 'api' como dependência do useEffect
 
   async function carregarPlanos() {
     try {
       setLoading(true);
       setError("");
-      const response = await axiosInstance.get("/api/admin/planos");
+      // Agora o backend retorna a lista plana de planos
+      const response = await api.get("/api/admin/planos");
       setPlanos(response.data.planos || []);
     } catch (err) {
       console.error("Erro ao carregar planos:", err);
@@ -44,16 +47,15 @@ function PlanosAdmin() {
     }
   }
 
-  function abrirModal(plano, periodoKey) {
-    if (plano && periodoKey) {
+  function abrirModal(plano = null) {
+    if (plano) {
       setEditId(plano.id);
-      const periodoData = plano[periodoKey];
       setForm({
         nome: plano.nome,
-        periodo: periodoKey,
-        preco: periodoData.preco,
-        duracaoDias: periodoData.duracaoDias ? periodoData.duracaoDias.toString() : "",
-        beneficios: periodoData.beneficios.join("\n"),
+        periodo: plano.periodo,
+        preco: plano.preco ? plano.preco.toString() : "",
+        duracaoDias: plano.duracao_dias ? plano.duracao_dias.toString() : "",
+        beneficios: plano.beneficios ? plano.beneficios.join("\n") : "",
       });
     } else {
       setEditId(null);
@@ -84,9 +86,9 @@ function PlanosAdmin() {
       };
 
       if (editId) {
-        await axiosInstance.put(`/api/admin/planos/${editId}`, payload);
+        await api.put(`/api/admin/planos/${editId}`, payload);
       } else {
-        await axiosInstance.post("/api/admin/planos", payload);
+        await api.post("/api/admin/planos", payload);
       }
 
       await carregarPlanos();
@@ -99,13 +101,13 @@ function PlanosAdmin() {
     }
   }
 
-  async function excluir(planoId, periodo) {
-    if (!confirm(`Deseja realmente excluir o período ${periodo}?`)) return;
+  async function excluir(planoId) { // Remove o parâmetro 'periodo'
+    if (!confirm(`Deseja realmente excluir o plano?`)) return;
 
     try {
       setLoading(true);
       setError("");
-      await axiosInstance.delete(`/api/admin/planos/${planoId}?periodo=${periodo}`);
+      await api.delete(`/api/admin/planos/${planoId}`); // Remove o query param 'periodo'
       await carregarPlanos();
     } catch (err) {
       console.error("Erro ao excluir:", err);
@@ -132,51 +134,42 @@ function PlanosAdmin() {
         {error && <div className={styles.error}>{error}</div>}
         {loading && <div className={styles.loading}>Carregando...</div>}
 
-        {periodosOptions.map((periodo) => (
-          <div key={periodo.key} className={styles.periodoSection}>
-            <h2>{periodo.label}</h2>
-            <div className={styles.cardsRow}>
-              {planos
-                .filter((p) => p[periodo.key]?.beneficios?.length > 0)
-                .map((plano) => {
-                  const pData = plano[periodo.key];
-                  return (
-                    <div
-                      key={`${plano.id}-${periodo.key}`}
-                      className={styles.planoCard}
-                    >
-                      <h3 className={styles.planoNome}>{plano.nome}</h3>
-                      <p className={styles.preco}>
-                        R$ {pData.preco}/{periodo.label.toLowerCase()}
-                      </p>
-                      <ul className={styles.beneficiosList}>
-                        {pData.beneficios.map((b, i) => (
-                          <li key={i}>{b}</li>
-                        ))}
-                      </ul>
-                      <div className={styles.empresasBox}>
-                        <Users size={16} /> {plano.empresas} empresas
-                      </div>
-                      <div className={styles.actions}>
-                        <button
-                          onClick={() => abrirModal(plano, periodo.key)}
-                          disabled={loading}
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => excluir(pData.id, periodo.key)}
-                          disabled={loading}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-        ))}
+        <div className={styles.cardsGrid}> {/* Usando um grid para exibir planos */}
+          {planos.length > 0 ? (
+            planos.map((plano) => (
+              <div key={plano.id} className={styles.planoCard}>
+                <h3 className={styles.planoNome}>{plano.nome} ({plano.periodo})</h3>
+                <p className={styles.preco}>
+                  R$ {parseFloat(plano.preco).toFixed(2)}/{plano.periodo}
+                </p>
+                <ul className={styles.beneficiosList}>
+                  {plano.beneficios && plano.beneficios.map((b, i) => (
+                    <li key={i}>{b}</li>
+                  ))}
+                </ul>
+                <div className={styles.empresasBox}>
+                  <Users size={16} /> {plano.quantidade_empresas || 0} empresas
+                </div>
+                <div className={styles.actions}>
+                  <button
+                    onClick={() => abrirModal(plano)}
+                    disabled={loading}
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    onClick={() => excluir(plano.id)}
+                    disabled={loading}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            !loading && <p className={styles.noPlans}>Nenhum plano cadastrado.</p>
+          )}
+        </div>
 
         {modal && (
           <div className={styles.modalBg}>
@@ -194,7 +187,7 @@ function PlanosAdmin() {
               <select
                 value={form.periodo}
                 onChange={(e) => setForm({ ...form, periodo: e.target.value })}
-                disabled={loading}
+                disabled={loading || editId} // Não permite alterar o período em edição para simplificar
               >
                 {periodosOptions.map((p) => (
                   <option key={p.key} value={p.key}>

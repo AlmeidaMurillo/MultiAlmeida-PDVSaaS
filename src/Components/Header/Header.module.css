@@ -1,4 +1,3 @@
-/* ===== HEADER ===== */
 .headerTop {
   position: sticky;
   top: 0;
@@ -151,7 +150,6 @@
   color: var(--text-color); /* Garante que o ícone tenha contraste com o fundo de hover */
 }
 
-/* ===== MOBILE MENU BUTTON ===== */
 .mobileMenuButton {
   display: none;
   background: none;
@@ -169,7 +167,6 @@
   transform: scale(1.1);
 }
 
-/* ===== MOBILE SIDEBAR ===== */
 .mobileSidebarOverlay {
   position: fixed;
   top: 0;
@@ -342,7 +339,6 @@
   margin-top: auto;
 }
 
-/* ===== RESPONSIVENESS ===== */
 @media (max-width: 768px) {
   .headerTop {
     padding: 0 1.5rem;

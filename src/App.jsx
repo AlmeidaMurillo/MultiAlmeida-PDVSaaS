@@ -4,40 +4,6 @@ import ScrollToTop from "./Components/Scroll/ScrollToTop";
 import { auth } from "./auth";
 import Spinner from "./Components/Spinner/Spinner";
 
-/* FAZER FUNCIONAR A CRIAÇÃO DE PLANOS NO SISTEMA DE ADMIN.
-ARRUMAR A RESPONSIVIDADE DAS TELAS DE ADMIN E CLIENTE.
-
-FAZER UMA TELA DE PAGAMENTO RECUSADO OU CANCELADO PARA QUANDO UM PAGAMENTO FOR RECUSADO PELO SISTEMA DE PAGAMENTO OU ALGO ASSIM..
-E ARRUMAR A TELA DE SUCESSO TAMBEM.
-
-
-QUERO QUE AO LOGAR EM ALGUM DISPOSITIVO, QUERO QUE SÓ DESLOGA DO DISPOSITIVO QUE TA LOGADO A CONTA QUANDO, A PESSOA CLICAR EM SAIR OU A SESSAO EXPIRAR, QUERO QUE ISSO SEJA RIGIDO PARA NAO FICAR SESSAO ATIVA LA NO BANCO SENDO QUE ESSA SESSAO QUE TA ATIVA O DISPOSITIVO QUE FOI ATIVO NELA JA ESTA DESLOGADO.
-
-TERMINAR A PARTE DE ALTERAR PLANO NO PERFIL DO CLIENTE.
-FAZER UM MÉTODO PARA ALTERAÇÃO DE PLANO, PARA TER QUE FAZER UMA DIFERENÇA DE PAGAMENTO NO VALOR DO PLANO QUE O CLIENTE VAI QUERER
-DE ACORDO COM OS DIAS DO PLANO QUE ELE JA TEM ATIVO NO SISTEMA.
-NA PARTE DE ALTERAÇÃO DE PLANO, MOSTRAR TODOS OS PLANOS MENOS OQUE O CLIENTE JA ESTA ATIVO NO SISTEMA.
-
-TERMINAR PARTE DE ALTERAÇÃO DE SENHA NO PERFIL DO CLIENTE.
-IMPLEMENTAR UMA PARTE DE RECUPERAÇÃO DE SENHA.
-ADICIONAR OLHINHO PARA DESOCULTAR E MOSTRAR SENHA NOS CAMPOS DE SENHA.
-FAZER UM MÉTODO PARA ENVIAR CÓDIGO DE VERIFICAÇÃO PARA O EMAIL DO USUÁRIO OU NO TELEFONE.
-
-IMPLEMENTAR MAIS COISAS NO CADASTRO DO CLIENTE COMO CPF, TELEFONE, ETC.
-ARRUMAR ALGUM MÉTODO PARA SALVAR A FOTO DE PERFIL DO CLIENTE.
-
-VERIFICAR O PORQUE O LOGIN EM VEZ DE ESTAR SE ENCERRANDO EM UM DIA QUE FOI O PRAZO QUE EU COLOQUE LA, ELE ESTA SE ENCERRANDO EM
-MENOS DE HORA.
-
-
-FAZER PARA NAO DEIXAR NADA QUE SEJA FRAGIL NO SISTEMA EXPOSTO COMO POR EXEMPLO AS APIS.
-
-
-FAZER UM VISUAL NOVO, BEM ATRATIVO, MODERNO E BEM ANIMADO PARA O SISTEMA DEPOIS DE TUDO TERMINADO.
-
-*/
-
-// Lazy loading das páginas
 const LandingPage = lazy(() => import("./screens/Clients/LandingPage"));
 const Registro = lazy(() => import("./screens/Clients/Registro"));
 const Login = lazy(() => import("./screens/Clients/Login"));
@@ -60,28 +26,19 @@ function App() {
 
     const handleAuthChange = (newAuthState) => {
       setIsAuthenticated(newAuthState.isAuthenticated);
-      // Only set isAuthReady to true AFTER init has completed AND notified
-      // This ensures App component re-renders when authState is truly ready
       if (newAuthState._isInitialized) {
         setIsAuthReady(true);
       }
     };
 
-    // Subscribe immediately
     unsubscribe = auth.subscribe(handleAuthChange);
 
-    // Call init() if not already initialized
-    // auth.init() internally sets _isInitialized and notifies when done
-    if (!auth.isInitialized()) {
-      auth.init();
-    } else {
-      // If already initialized (e.g., hot reload, or subsequent mount),
-      // ensure state is reflected immediately.
+    // Apenas retorna o estado atual se já foi inicializado
+    if (auth.isInitialized()) {
       setIsAuthenticated(auth.isAuthenticated());
       setIsAuthReady(true);
     }
 
-    // Cleanup subscription on unmount
     return () => {
       if (unsubscribe) {
         unsubscribe();
@@ -96,7 +53,6 @@ function App() {
       <ScrollToTop />
       <Suspense fallback={<Spinner />}>
         <Routes location={location}>
-          {/* Rotas públicas */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
@@ -107,7 +63,6 @@ function App() {
             element={<CarrinhoCompras />} 
           />
 
-          {/* Rotas protegidas de admin */}
           <Route
             path="/dashboardadmin"
             element={isAuthenticated && auth.isAdmin() ? <DashboardAdmin /> : <Navigate to="/login" />}
@@ -121,7 +76,6 @@ function App() {
             element={isAuthenticated && auth.isAdmin() ? <PlanosAdmin /> : <Navigate to="/login" />}
           />
 
-          {/* Rotas protegidas de cliente */}
           <Route
             path="/dashboardcliente"
             element={isAuthenticated && auth.isLoggedInCliente() ? <DashboardCliente /> : <Navigate to="/login" />}

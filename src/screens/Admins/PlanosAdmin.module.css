@@ -36,27 +36,15 @@
   background: var(--button-hover);
 }
 
-.periodoSection {
-  margin-bottom: 3rem;
-}
-
-.periodoSection h2 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  border-left: 4px solid var(--primary-color);
-  padding-left: 0.5rem;
-}
-
-.cardsRow {
-  display: flex;
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  flex-wrap: wrap;
+  margin-top: 2rem;
 }
 
 .planoCard {
   background: var(--sidebar-bg);
-  flex: 1 1 280px;
   padding: 1.5rem;
   border-radius: 0.8rem;
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);

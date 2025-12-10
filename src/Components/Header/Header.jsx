@@ -11,29 +11,20 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import styles from "./Header.module.css";
-import { auth } from "../../auth";
-import api from "../../auth";
+import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
 
 function Header() {
   const navigate = useNavigate();
+  const { isAuthenticated, user, userRole, logout, api } = useAuth(); // Usa o hook useAuth
 
-  // O estado agora é um reflexo do estado do serviço `auth`
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
-  const [isLoggedIn, setIsLoggedIn] = useState(() => auth.isAuthenticated());
-  const [user, setUser] = useState(() => auth.getUser());
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
   const [isSubscriptionExpired, setIsSubscriptionExpired] = useState(false);
 
   useEffect(() => {
-    // Sincroniza o estado no mount (o `auth.init` já rodou)
-    setIsLoggedIn(auth.isAuthenticated());
-    setUser(auth.getUser());
-  }, []);
-
-  useEffect(() => {
     async function checkSubscription() {
-      if (auth.isLoggedInCliente()) {
+      if (userRole === 'usuario') { // Usar userRole do useAuth
         try {
           const { data } = await api.get('/api/auth/status');
           setIsSubscriptionActive(data.isSubscriptionActive);
@@ -44,8 +35,13 @@ function Header() {
       }
     }
 
-    checkSubscription();
-  }, [isLoggedIn]);
+    if (isAuthenticated) {
+      checkSubscription();
+    } else {
+      setIsSubscriptionActive(false);
+      setIsSubscriptionExpired(false);
+    }
+  }, [isAuthenticated, userRole, api]); // Dependências atualizadas
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -65,36 +61,31 @@ function Header() {
   };
 
   const handlePainelClick = async () => {
-    if (!auth.isAuthenticated()) {
+    if (!isAuthenticated) {
       navigate('/login');
       return;
     }
 
-    if (auth.isAdmin()) {
+    if (userRole === 'admin') { // Usar userRole do useAuth
       navigate("/dashboardadmin");
       return;
     }
 
-    if (auth.isLoggedInCliente()) {
-      try {
-        const { data } = await api.get('/api/auth/status');
-        if (data.isSubscriptionActive || data.isSubscriptionExpired) {
-          navigate("/dashboardcliente");
-        } else {
-          alert("Você precisa ter uma assinatura ativa ou vencida para acessar o painel.");
-        }
-      } catch (error) {
-        console.error("Erro ao verificar status da assinatura:", error);
-        alert("Não foi possível verificar o status da sua assinatura. Tente novamente.");
+    if (userRole === 'usuario') { // Usar userRole do useAuth
+      // Não precisa fazer a chamada de API novamente aqui se o estado já está sendo atualizado pelo useEffect
+      if (isSubscriptionActive || isSubscriptionExpired) {
+        navigate("/dashboardcliente");
+      } else {
+        alert("Você precisa ter uma assinatura ativa ou vencida para acessar o painel.");
       }
     }
   };
 
   const handleCarrinhoClick = () => {
-    if (auth.isAdmin()) {
+    if (userRole === 'admin') { // Usar userRole do useAuth
       // Se for admin, redireciona diretamente para /login para que possa logar como usuário
       navigate("/login", { replace: false });
-    } else if (auth.isAuthenticated()) {
+    } else if (isAuthenticated) {
       // Se for um cliente autenticado, vai para o carrinho
       navigate("/carrinho", { replace: false });
     } else {
@@ -104,7 +95,7 @@ function Header() {
   };
 
   const handleLogout = () => {
-    auth.logout(); // O logout agora lida com o redirecionamento
+    logout(); // Chama o logout do useAuth hook
   };
 
   const toggleMobileSidebar = () => {
@@ -130,9 +121,9 @@ function Header() {
             <FaShoppingCart />
           </button>
 
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <>
-              {(isSubscriptionActive || isSubscriptionExpired || auth.isAdmin()) && (
+              {(isSubscriptionActive || isSubscriptionExpired || userRole === 'admin') && ( // Usar userRole do useAuth
                 <button className={styles.painelButton} onClick={handlePainelClick}>
                   <FaTachometerAlt /> Painel
                 </button>
@@ -163,7 +154,7 @@ function Header() {
         <div className={styles.mobileSidebarOverlay} onClick={toggleMobileSidebar}>
           <div className={styles.mobileSidebar} onClick={(e) => e.stopPropagation()}>
             <div className={styles.mobileSidebarHeader}>
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <div className={styles.mobileUserInfo}>
                   <div className={styles.mobileUserAvatar}>
                     {userName ? userName.charAt(0).toUpperCase() : "U"}
@@ -171,8 +162,8 @@ function Header() {
                   <div className={styles.userInfoText}>
                     <div className={styles.userInfoLine}>{userName}</div>
                     <div className={styles.userInfoLine}>{userEmail}</div>
-                    {user?.papel && (
-                      <div className={styles.mobileUserPapel}>{user.papel}</div>
+                    {userRole && ( // Usar userRole do useAuth
+                      <div className={styles.mobileUserPapel}>{userRole}</div>
                     )}
                   </div>
                 </div>
@@ -193,8 +184,8 @@ function Header() {
                 <FaShoppingCart />
                 <span>Carrinho</span>
               </button>
-              {isLoggedIn ? (
-                (isSubscriptionActive || isSubscriptionExpired || auth.isAdmin()) && (
+              {isAuthenticated ? (
+                (isSubscriptionActive || isSubscriptionExpired || userRole === 'admin') && ( // Usar userRole do useAuth
                   <button className={styles.mobileSidebarItem} onClick={() => { handlePainelClick(); toggleMobileSidebar(); }}>
                     <FaTachometerAlt />
                     <span>Painel</span>
@@ -208,7 +199,7 @@ function Header() {
               )}
             </div>
 
-            {isLoggedIn && (
+            {isAuthenticated && (
               <div className={styles.mobileSidebarFooter}>
                 <button className={styles.mobileSidebarItem} onClick={handleLogout}>
                   <FaSignOutAlt />

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
-import "./Payment.module.css";
+import styles from "./PaymentSuccess.module.css"; // Importa o CSS correto
 
 export default function PaymentSuccess() {
   const navigate = useNavigate();
@@ -15,9 +15,9 @@ export default function PaymentSuccess() {
   }, [navigate]);
 
   return (
-    <div className="container">
-      <div className="formContainer">
-        <div className="successContainer">
+    <div className={styles.container}>
+      <div className={styles.formContainer}>
+        <div className={styles.successContainer}>
           <FaCheckCircle size={80} color="#4caf50" />
           <h1>Pagamento Aprovado!</h1>
           <p>Seu pagamento PIX foi confirmado com sucesso.</p>

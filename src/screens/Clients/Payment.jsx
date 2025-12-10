@@ -4,14 +4,14 @@ import {
   FaCopy,
   FaCheck,
 } from "react-icons/fa";
-import { auth } from "../../auth";
-import api from "../../auth";
+import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
 import styles from "./Payment.module.css";
 import Header from "../../Components/Header/Header";
 
 export default function Payment() {
   const { paymentId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated, api } = useAuth(); // Obtém isAuthenticated e api do hook useAuth
 
   const [loading, setLoading] = useState(true);
   const [paymentData, setPaymentData] = useState(null);
@@ -31,10 +31,8 @@ export default function Payment() {
   };
 
   useEffect(() => {
-    if (!auth.isAuthenticated()) {
-      navigate("/login");
-      return;
-    }
+    // A rota é protegida por ProtectedRoute, então isAuthenticated já é garantido como true aqui.
+    // Não precisa de um if (!isAuthenticated) navigate("/login");
     
     if (paymentId) {
       const fetchPaymentDetails = async () => {
@@ -51,7 +49,7 @@ export default function Payment() {
       };
       fetchPaymentDetails();
     }
-  }, [navigate, paymentId]);
+  }, [paymentId, api]); // Adiciona 'api' como dependência
 
   useEffect(() => {
     if (!paymentId) return;
@@ -69,7 +67,7 @@ export default function Payment() {
     }, 3000); // Poll every 3 seconds
 
     return () => clearInterval(interval); // Cleanup on unmount
-  }, [paymentId, navigate]);
+  }, [paymentId, navigate, api]); // Adiciona 'api' como dependência
 
 
   return (
