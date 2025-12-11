@@ -11,11 +11,14 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import styles from "./Header.module.css";
-import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
+import { auth, api } from "../../auth";
 
 function Header() {
   const navigate = useNavigate();
-  const { isAuthenticated, user, userRole, logout, api } = useAuth(); // Usa o hook useAuth
+  
+  const isAuthenticated = auth.isAuthenticated();
+  const user = auth.getUser();
+  const userRole = auth.getRole();
 
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -41,7 +44,7 @@ function Header() {
       setIsSubscriptionActive(false);
       setIsSubscriptionExpired(false);
     }
-  }, [isAuthenticated, userRole, api]); // Dependências atualizadas
+  }, [isAuthenticated, userRole]); // Dependências atualizadas
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -95,7 +98,7 @@ function Header() {
   };
 
   const handleLogout = () => {
-    logout(); // Chama o logout do useAuth hook
+    auth.logout();
   };
 
   const toggleMobileSidebar = () => {

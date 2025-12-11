@@ -16,7 +16,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
 }
 
 .spinner {
@@ -34,20 +33,13 @@
   color: var(--text-color); /* Copiado do Sidebar.module.css */
   line-height: 1; /* Copiado do Sidebar.module.css */
   animation: blink 1.5s linear infinite; /* Mantém a animação de piscar */
-  margin-bottom: 5px; /* Ajuste para ter um pouco de espaço, como na sidebar */
 }
 
 .subtitle {
   font-size: 0.75rem; /* Copiado do Sidebar.module.css */
   color: var(--text-color);
   font-weight: 600; /* Copiado do Sidebar.module.css */
-  margin-top: 2px; /* Copiado do Sidebar.module.css */
   animation: blink 1.5s linear infinite; /* Aplicando a animação de piscar */
-}
-
-.loadingText {
-  color: var(--text-color); /* Usar a cor do texto do tema */
-  font-size: 1.2rem;
 }
 
 @keyframes spin {

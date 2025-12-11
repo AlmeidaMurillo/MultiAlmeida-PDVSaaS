@@ -4,11 +4,10 @@ import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import styles from "./LandingPage.module.css";
 import Header from "../../Components/Header/Header";
-import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
+import { auth, api } from "../../auth";
 
 function LandingPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, api } = useAuth(); // Obtém isAuthenticated e api do hook useAuth
 
   const [periodoSelecionado, setPeriodoSelecionado] = useState("mensal");
   const [planos, setPlanos] = useState([]);
@@ -16,7 +15,7 @@ function LandingPage() {
   const [error, setError] = useState("");
 
   const handleAssinar = (planId) => {
-    if (isAuthenticated) { // Usa isAuthenticated do useAuth
+    if (auth.isAuthenticated()) {
       navigate("/carrinho", { state: { planId, periodo: periodoSelecionado } });
     } else {
       navigate("/login", { state: { planId, periodo: periodoSelecionado } });

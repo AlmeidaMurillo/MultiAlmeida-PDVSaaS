@@ -2,8 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import styles from "./Perfil.module.css";
-import { useAuth } from "../../context/useAuthHook";
-import { auth } from "../../auth";
+import { auth, api } from "../../auth";
 import {
   FaCamera,
   FaKey,
@@ -17,7 +16,6 @@ import {
 
 function Perfil() {
   const navigate = useNavigate();
-  const { logout, api, getUserDetails } = useAuth();
 
   const [dadosUsuario, setDadosUsuario] = useState({
     nome: "",
@@ -82,7 +80,7 @@ function Perfil() {
 
   const fetchUserDetails = useCallback(async () => {
     try {
-      const data = await getUserDetails();
+      const data = await auth.getUserDetails();
       if (data) {
         setDadosUsuario({
           nome: data.nome || "",
@@ -162,7 +160,7 @@ function Perfil() {
         navigate('/login');
       }
     }
-  }, [navigate, getUserDetails]);
+  }, [navigate]);
 
   const fetchPlanos = useCallback(async () => {
     try {
@@ -191,8 +189,7 @@ function Perfil() {
   };
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
+    await auth.logout();
   };
 
   // Handlers para Modal Editar Dados Usuário

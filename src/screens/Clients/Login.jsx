@@ -6,34 +6,48 @@ import {
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
-import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
+import { auth } from "../../auth";
 import styles from "./Login.module.css";
-import Spinner from "../../Components/Spinner/Spinner"; // Mantém o Spinner para o estado de loading do form
+import Spinner from "../../Components/Spinner/Spinner";
 
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, userRole, login, loading: authLoading } = useAuth(); // Obtém estados e funções do useAuth
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Loading local para o form de login
+  const [loading, setLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
-  // Redirecionamento após login bem-sucedido
+  // Verifica autenticação inicial
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      const locationState = location.state;
-      if (userRole === 'admin') {
-        navigate("/dashboardadmin"); // Redireciona admins para o dashboard admin
-      } else if (locationState?.from === "/carrinho" || locationState?.planId) {
-        navigate("/carrinho", { state: locationState });
-      } else {
-        navigate("/dashboardcliente"); // Redireciona usuários comuns para o dashboard cliente
+    if (auth.isInitialized()) {
+      setAuthReady(true);
+      
+      if (auth.isAuthenticated()) {
+        const locationState = location.state;
+        const userRole = auth.getRole();
+        
+        if (userRole === 'admin') {
+          navigate("/dashboardadmin");
+        } else if (locationState?.from === "/carrinho" || locationState?.planId) {
+          navigate("/carrinho", { state: locationState });
+        } else {
+          navigate("/dashboardcliente");
+        }
       }
     }
-  }, [isAuthenticated, userRole, authLoading, navigate, location.state]);
+    
+    const unsubscribe = auth.subscribe((state) => {
+      if (state.initialized) {
+        setAuthReady(true);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [navigate, location.state]);
 
   const toggleSenha = () => setMostrarSenha((prev) => !prev);
 
@@ -43,9 +57,18 @@ function Login() {
     setError("");
 
     try {
-      // O login do AuthContext já deve lidar com a sessão existente
-      await login(email, senha);
-      // A navegação agora é tratada no useEffect acima
+      await auth.login(email, senha);
+      
+      const locationState = location.state;
+      const userRole = auth.getRole();
+      
+      if (userRole === 'admin') {
+        navigate("/dashboardadmin");
+      } else if (locationState?.from === "/carrinho" || locationState?.planId) {
+        navigate("/carrinho", { state: locationState });
+      } else {
+        navigate("/dashboardcliente");
+      }
     } catch (err) {
       const errorMessage = err.response?.data?.error || "Erro ao fazer login. Verifique suas credenciais.";
       setError(errorMessage);
@@ -64,12 +87,9 @@ function Login() {
     }
   };
 
-  if (authLoading) {
-    return <Spinner />; // Mostra spinner enquanto o AuthContext está carregando
+  if (!authReady) {
+    return <Spinner />;
   }
-
-  // Se já autenticado, o useEffect acima já deveria ter redirecionado.
-  // Caso contrário, mostra o formulário de login.
   return (
     <div className={styles.loginPage}>
       <main className={styles.mainContent}>

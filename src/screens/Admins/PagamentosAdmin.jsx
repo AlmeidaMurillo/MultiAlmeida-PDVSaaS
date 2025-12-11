@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import styles from "./PagamentosAdmin.module.css";
 import { Eye, CheckCircle, XCircle, Clock, Search, CreditCard } from "lucide-react";
-import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
+import { api } from "../../auth";
 
 function PagamentosAdmin() {
-  const { api } = useAuth(); // Obtém a instância da API do hook useAuth
 
   const [pagamentos, setPagamentos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +14,7 @@ function PagamentosAdmin() {
   useEffect(() => {
     document.title = "MultiAlmeida | Pagamentos Admin";
     carregarPagamentos();
-  }, [api]); // Adiciona 'api' como dependência do useEffect
+  }, []);
 
   const carregarPagamentos = async () => {
     try {

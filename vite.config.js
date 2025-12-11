@@ -11,20 +11,20 @@ export default defineConfig({
       '/api': {
         target: 'https://multialmeida-pdvsaas-backend-production.up.railway.app',
         changeOrigin: true,
-        rewrite: (path) => path,
-        secure: false,  // Ignora problemas de certificado SSL em dev
+        secure: false,
         ws: true,
-        onProxyRes: (proxyRes, req, res) => {
-          // Permite que cookies sejam setados pelo proxy
-          if (proxyRes.headers['set-cookie']) {
-            console.log('🍪 Cookie recebido do backend via proxy:', proxyRes.headers['set-cookie']);
-          }
-        },
-        onProxyReq: (proxyReq, req, res) => {
-          // Loga cookies sendo enviados
-          if (req.headers.cookie) {
-            console.log('📨 Cookie enviado ao backend via proxy:', req.headers.cookie);
-          }
+        cookieDomainRewrite: '', // Remove o domínio para cookies funcionarem em localhost
+        cookiePathRewrite: '/', // Garante que o path seja /
+        configure: (proxy, options) => {
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            if (proxyRes.headers['set-cookie']) {
+              // Remove domínio para cookies funcionarem em localhost
+              const cookies = proxyRes.headers['set-cookie'].map(cookie => {
+                return cookie.replace(/Domain=[^;]+;?\s*/gi, '');
+              });
+              proxyRes.headers['set-cookie'] = cookies;
+            }
+          });
         },
       },
     },

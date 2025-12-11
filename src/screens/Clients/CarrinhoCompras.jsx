@@ -7,13 +7,12 @@ import {
 } from "react-icons/fa";
 import styles from "./CarrinhoCompras.module.css";
 import Header from "../../Components/Header/Header";
-import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
+import { auth, api } from "../../auth";
 
 export default function CarrinhoCompras() {
   const location = useLocation();
   const navigate = useNavigate();
   const { planId, periodo } = location.state || {};
-  const { isAuthenticated, api } = useAuth(); // Obtém isAuthenticated e api do hook useAuth
 
   const [itensCarrinho, setItensCarrinho] = useState([]);
   const [planos, setPlanos] = useState([]);

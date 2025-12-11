@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import ScrollToTop from "./Components/Scroll/ScrollToTop";
-import { auth } from "./auth";
+import { auth, setupInterceptors } from "./auth";
 import Spinner from "./Components/Spinner/Spinner";
 
 const LandingPage = lazy(() => import("./screens/Clients/LandingPage"));
@@ -18,32 +18,25 @@ const Perfil = lazy(() => import("./screens/Clients/Perfil"));
 
 function App() {
   const location = useLocation(); 
-  const [isAuthenticated, setIsAuthenticated] = useState(auth.isAuthenticated());
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
-    let unsubscribe;
+    // Configura interceptores do axios
+    setupInterceptors();
 
-    const handleAuthChange = (newAuthState) => {
-      setIsAuthenticated(newAuthState.isAuthenticated);
-      if (newAuthState._isInitialized) {
+    // Subscribe para mudanças no estado de autenticação
+    const unsubscribe = auth.subscribe((newState) => {
+      setIsAuthenticated(newState.isAuthenticated);
+      if (newState.initialized) {
         setIsAuthReady(true);
       }
-    };
+    });
 
-    unsubscribe = auth.subscribe(handleAuthChange);
+    // Inicializa autenticação
+    auth.init();
 
-    // Apenas retorna o estado atual se já foi inicializado
-    if (auth.isInitialized()) {
-      setIsAuthenticated(auth.isAuthenticated());
-      setIsAuthReady(true);
-    }
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
+    return () => unsubscribe();
   }, []);
 
   if (!isAuthReady) return <Spinner />;
@@ -58,31 +51,28 @@ function App() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/payment/:paymentId" element={<Payment />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route 
-            path="/carrinho" 
-            element={<CarrinhoCompras />} 
-          />
+          <Route path="/carrinho" element={<CarrinhoCompras />} />
 
           <Route
             path="/dashboardadmin"
-            element={isAuthenticated && auth.isAdmin() ? <DashboardAdmin /> : <Navigate to="/login" />}
+            element={isAuthenticated && auth.isAdmin() ? <DashboardAdmin /> : <Navigate to="/login" replace />}
           />
           <Route
             path="/empresasadmin"
-            element={isAuthenticated && auth.isAdmin() ? <EmpresasAdmin /> : <Navigate to="/login" />}
+            element={isAuthenticated && auth.isAdmin() ? <EmpresasAdmin /> : <Navigate to="/login" replace />}
           />
           <Route
             path="/planosadmin"
-            element={isAuthenticated && auth.isAdmin() ? <PlanosAdmin /> : <Navigate to="/login" />}
+            element={isAuthenticated && auth.isAdmin() ? <PlanosAdmin /> : <Navigate to="/login" replace />}
           />
 
           <Route
             path="/dashboardcliente"
-            element={isAuthenticated && auth.isLoggedInCliente() ? <DashboardCliente /> : <Navigate to="/login" />}
+            element={isAuthenticated && auth.isCliente() ? <DashboardCliente /> : <Navigate to="/login" replace />}
           />
           <Route
             path="/perfil"
-            element={isAuthenticated ? <Perfil /> : <Navigate to="/login" />}
+            element={isAuthenticated ? <Perfil /> : <Navigate to="/login" replace />}
           />
         </Routes>
       </Suspense>

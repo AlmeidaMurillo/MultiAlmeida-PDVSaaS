@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import styles from "./PlanosAdmin.module.css";
 import { Edit, Trash2, Plus, Users } from "lucide-react";
-import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
+import { api } from "../../auth";
 
 function PlanosAdmin() {
-  const { api } = useAuth(); // Obtém a instância da API do hook useAuth
 
   const [planos, setPlanos] = useState([]);
   const [loading, setLoading] = useState(false);

@@ -19,7 +19,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
-import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
+import { auth } from "../../auth";
 
 const MenuItem = memo(function MenuItem({
   icon,
@@ -51,10 +51,8 @@ function Sidebar({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const sidebarRef = useRef(null);
-  const { isAuthenticated, user, userRole, logout } = useAuth(); // Usa o hook useAuth
 
   const [mobileOpen, setMobileOpen] = useState(false);
-
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const stored = localStorage.getItem("menuCollapsed");
     return stored === "true";
@@ -63,8 +61,12 @@ function Sidebar({ children }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showUserModal, setShowUserModal] = useState(false);
 
+  const isAuthenticated = auth.isAuthenticated();
+  const user = auth.getUser();
+  const userRole = auth.getRole();
+
   const handleLogout = async () => {
-    await logout(); // Usa a função logout do useAuth
+    await auth.logout();
     setShowUserModal(false);
   };
 

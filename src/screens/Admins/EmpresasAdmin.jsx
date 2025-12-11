@@ -2,15 +2,13 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import styles from "./EmpresasAdmin.module.css";
 import { Eye, Edit, Trash2, Building2, Plus, Search } from "lucide-react";
-import { useAuth } from "../../context/useAuthHook"; // Importa o hook useAuth
+import { api } from "../../auth";
 import { IMaskInput } from "react-imask";
 
 function EmpresasAdmin() {
   useEffect(() => {
     document.title = "MultiAlmeida | Empresas Admin";
   }, []);
-
-  const { api } = useAuth(); // Obtém a instância da API do hook useAuth
 
   const [empresas, setEmpresas] = useState([]);
   const [modal, setModal] = useState(false);
