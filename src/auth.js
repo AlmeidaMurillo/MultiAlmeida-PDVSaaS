@@ -40,6 +40,7 @@ let authState = {
 
 const listeners = new Set();
 let initializingPromise = null; // Evita múltiplas chamadas simultâneas de init()
+let sessionCheckInterval = null; // Intervalo de verificação de sessão
 
 // Notifica todos os subscribers sobre mudanças no estado
 function notify() {
@@ -85,11 +86,67 @@ function setAuth(token) {
   // Define header Authorization para todas as requisições
   api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   
+  // Inicia verificação periódica de sessão
+  startSessionCheck();
+  
   notify();
 }
 
-// Limpa o estado de autenticação
+// Verifica se a sessão ainda está ativa no servidor
+async function checkSessionActive() {
+  try {
+    const response = await api.get('/api/auth/has-refresh');
+    return response.data.sessionActive === true;
+  } catch (error) {
+    // Se der erro na requisição, considera sessão inativa
+    return false;
+  }
+}
+
+// Inicia verificação periódica de sessão (a cada 30 segundos)
+function startSessionCheck() {
+  // Limpa intervalo anterior se existir
+  if (sessionCheckInterval) {
+    clearInterval(sessionCheckInterval);
+  }
+
+  // Verifica a cada 30 segundos
+  sessionCheckInterval = setInterval(async () => {
+    // Só verifica se estiver autenticado
+    if (!authState.isAuthenticated) {
+      stopSessionCheck();
+      return;
+    }
+
+    const isActive = await checkSessionActive();
+    
+    if (!isActive) {
+      // Sessão foi invalidada (login em outro dispositivo)
+      stopSessionCheck();
+      
+      // Mostra alerta
+      alert('⚠️ Sua sessão foi encerrada porque você fez login em outro dispositivo.');
+      
+      // Desloga automaticamente
+      clearAuth();
+      window.location.replace('/');
+    }
+  }, 30000); // 30 segundos
+}
+
+// Para a verificação periódica
+function stopSessionCheck() {
+  if (sessionCheckInterval) {
+    clearInterval(sessionCheckInterval);
+    sessionCheckInterval = null;
+  }
+}
+
+// Limpa o estado de autenticação e TODOS os rastros
 function clearAuth() {
+  // Para verificação de sessão
+  stopSessionCheck();
+  
   authState = {
     user: null,
     token: null,
@@ -99,6 +156,31 @@ function clearAuth() {
   
   // Remove header Authorization
   delete api.defaults.headers.common["Authorization"];
+  
+  // 🧹 LIMPEZA COMPLETA - Remove TODOS os rastros
+  try {
+    // Limpa localStorage completamente
+    localStorage.clear();
+    
+    // Limpa sessionStorage
+    sessionStorage.clear();
+    
+    // Tenta limpar cookies via JavaScript (mesmo httpOnly cookies)
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+    });
+    
+    // Limpa cache do axios
+    if (api.defaults.headers) {
+      Object.keys(api.defaults.headers.common || {}).forEach(key => {
+        delete api.defaults.headers.common[key];
+      });
+    }
+  } catch (err) {
+    console.error('Erro ao limpar rastros:', err);
+  }
   
   notify();
 }
@@ -234,13 +316,23 @@ export const auth = {
     return authState.user;
   },
 
-  // Logout
+  // Logout com limpeza TOTAL
   async logout() {
     try {
+      // Chama o backend para desativar a sessão e limpar cookie
       await api.post("/api/auth/logout");
+    } catch (error) {
+      console.error('Erro ao fazer logout no servidor:', error);
+      // Continua com a limpeza local mesmo se o servidor falhar
     } finally {
+      // Limpa TUDO localmente
       clearAuth();
-      window.location.href = "/";
+      
+      // Aguarda um momento para garantir limpeza
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Redireciona para home forçando reload completo
+      window.location.replace("/");
     }
   },
 
