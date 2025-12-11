@@ -98,7 +98,7 @@ async function checkSessionActive() {
     const response = await api.get('/api/auth/has-refresh');
     return response.data.sessionActive === true;
   } catch (error) {
-    // Se der erro na requisição, considera sessão inativa
+    console.error('Erro ao verificar sessão ativa:', error);
     return false;
   }
 }
@@ -126,6 +126,13 @@ function startSessionCheck() {
       
       // Mostra alerta
       alert('⚠️ Sua sessão foi encerrada porque você fez login em outro dispositivo.');
+      
+      // Chama o backend para limpar o refresh token (cookie httpOnly)
+      try {
+        await api.post('/api/auth/logout');
+      } catch (error) {
+        console.error('Erro ao limpar refresh token:', error);
+      }
       
       // Desloga automaticamente
       clearAuth();
