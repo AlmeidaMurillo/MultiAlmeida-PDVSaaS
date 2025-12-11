@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
+import { Calendar, Check } from "lucide-react";
 import styles from "./LandingPage.module.css";
 import Header from "../../Components/Header/Header";
 import { auth, api } from "../../auth";
@@ -10,9 +11,16 @@ function LandingPage() {
   const navigate = useNavigate();
 
   const [periodoSelecionado, setPeriodoSelecionado] = useState("mensal");
-  const [planos, setPlanos] = useState([]);
+  const [todosPlanos, setTodosPlanos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const periodosOptions = [
+    { label: "Mensal", key: "mensal", icon: "📅" },
+    { label: "Trimestral", key: "trimestral", icon: "📊" },
+    { label: "Semestral", key: "semestral", icon: "📈" },
+    { label: "Anual", key: "anual", icon: "🏆" },
+  ];
 
   const handleAssinar = (planId) => {
     if (auth.isAuthenticated()) {
@@ -22,41 +30,29 @@ function LandingPage() {
     }
   };
 
-  const carregarPlanos = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError("");
-      // Solicita planos agrupados do backend
-      const response = await api.get("/api/planos?grouped=true"); 
-      const todosPlanosAgrupados = response.data.planos || [];
-
-      // Filtra e formata os planos para o período selecionado
-      const planosFiltrados = [];
-      todosPlanosAgrupados.forEach((planoGrupo) => {
-        const periodoData = planoGrupo[periodoSelecionado];
-        if (planoGrupo.nome && periodoData && periodoData.beneficios && periodoData.beneficios.length > 0) {
-          planosFiltrados.push({
-            id: periodoData.id, // O ID agora é do plano específico do período
-            nome: planoGrupo.nome,
-            periodo: periodoSelecionado,
-            preco: Number(periodoData.preco),
-            duracaoDias: periodoData.duracaoDias,
-            beneficios: periodoData.beneficios,
-          });
-        }
-      });
-      setPlanos(planosFiltrados);
-    } catch (err) {
-      console.error("Erro ao carregar planos:", err);
-      setError("Erro ao carregar planos");
-    } finally {
-      setLoading(false);
-    }
-  }, [periodoSelecionado]); 
+  // Filtrar planos do período selecionado
+  const planosFiltrados = todosPlanos.filter(p => p.periodo === periodoSelecionado);
+  
+  // Encontrar informações do período atual
+  const periodoAtual = periodosOptions.find(p => p.key === periodoSelecionado);
 
   useEffect(() => {
+    const carregarPlanos = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const response = await api.get("/api/planos");
+        setTodosPlanos(response.data.planos || []);
+      } catch (err) {
+        console.error("Erro ao carregar planos:", err);
+        setError("Erro ao carregar planos");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     carregarPlanos();
-  }, [carregarPlanos]);
+  }, []);
 
   return (
     <div className={styles.landingPage}>
@@ -140,72 +136,107 @@ function LandingPage() {
         <section className={styles.planos}>
           <h2 className={styles.sectionTitle}>Escolha o Plano Ideal</h2>
           <p className={styles.sectionSubtitle}>
-            Planos flexíveis que se adaptam ao crescimento da sua empresa. Sem
-            taxas escondidas.
+            Planos flexíveis que se adaptam ao crescimento da sua empresa. Sem taxas escondidas.
           </p>
 
+          {/* Seletor de Período */}
           <div className={styles.periodoSelector}>
-            <label htmlFor="periodo">Período de Cobrança:</label>
+            <label htmlFor="periodo-select" className={styles.periodoLabel}>
+              <Calendar size={20} />
+              <span>Selecione o período:</span>
+            </label>
             <select
-              id="periodo"
+              id="periodo-select"
               value={periodoSelecionado}
               onChange={(e) => setPeriodoSelecionado(e.target.value)}
-              className={styles.select}
+              className={styles.periodoSelect}
             >
-              <option value="mensal">Mensal</option>
-              <option value="trimestral">Trimestral</option>
-              <option value="semestral">Semestral</option>
-              <option value="anual">Anual</option>
+              {periodosOptions.map((periodo) => (
+                <option key={periodo.key} value={periodo.key}>
+                  {periodo.icon} {periodo.label}
+                </option>
+              ))}
             </select>
           </div>
 
-          {loading && <p>Carregando planos...</p>}
+          {loading && (
+            <div className={styles.loading}>
+              <div className={styles.spinner}></div>
+              <p>Carregando planos...</p>
+            </div>
+          )}
+
           {error && <p className={styles.error}>{error}</p>}
 
-          <div className={styles.planosGrid}>
-            {planos.map((plano) => (
-              <div key={plano.id} className={styles.planoCard}>
-                <h3>{plano.nome}</h3>
-                <div className={styles.preco}>
-                  <span className={styles.cifrao}>R$</span>
-                  <span className={styles.valor}>
-                    {plano.preco.toFixed(2).replace(".", ",")}
+          {!loading && planosFiltrados.length === 0 && (
+            <div className={styles.emptyState}>
+              <Calendar size={48} />
+              <p>Nenhum plano disponível para o período selecionado</p>
+            </div>
+          )}
+
+          {!loading && planosFiltrados.length > 0 && periodoAtual && (
+            <div className={styles.periodosContainer}>
+              <div className={styles.blocoperiodo}>
+                <div className={styles.periodoHeader}>
+                  <span className={styles.periodoIcon}>{periodoAtual.icon}</span>
+                  <h3 className={styles.periodoTitle}>Planos {periodoAtual.label}</h3>
+                  <span 
+                    className={styles.periodoCount}
+                    data-periodo={periodoAtual.key}
+                  >
+                    {planosFiltrados.length} {planosFiltrados.length === 1 ? 'opção' : 'opções'}
                   </span>
-                  <span className={styles.periodo}>/{periodoSelecionado}</span>
                 </div>
-                <div className={styles.duracao}>
-                  Acesso por {plano.duracaoDias} dias
-                </div>
-                <ul className={styles.beneficiosList}>
-                  {plano.beneficios.map((beneficio, i) => (
-                    <li key={i}>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+
+                <div className={styles.planosGrid}>
+                  {planosFiltrados.map((plano) => (
+                    <div key={plano.id} className={styles.planoCard}>
+                      <div className={styles.cardHeader}>
+                        <h4 className={styles.planoNome}>{plano.nome}</h4>
+                        <div 
+                          className={styles.planoBadge}
+                          data-periodo={periodoAtual.key}
+                        >
+                          {periodoAtual.label}
+                        </div>
+                      </div>
+
+                      <div className={styles.preco}>
+                        <span className={styles.cifrao}>R$</span>
+                        <span className={styles.valor}>
+                          {parseFloat(plano.preco).toFixed(2)}
+                        </span>
+                        <span className={styles.periodo}>/{plano.periodo}</span>
+                      </div>
+
+                      <div className={styles.duracao}>
+                        <Calendar size={14} />
+                        <span>Acesso por {plano.duracao_dias} dias</span>
+                      </div>
+
+                      <ul className={styles.beneficiosList}>
+                        {plano.beneficios && plano.beneficios.map((beneficio, i) => (
+                          <li key={i}>
+                            <Check size={18} />
+                            <span>{beneficio}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <button
+                        className={styles.planoButton}
+                        onClick={() => handleAssinar(plano.id)}
+                        data-periodo={periodoAtual.key}
                       >
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-      
-                      <span>{beneficio}</span>
-                    </li>
+                        Assinar Agora
+                      </button>
+                    </div>
                   ))}
-                </ul>
-                <button
-                  className={styles.planoButton}
-                  onClick={() => handleAssinar(plano.id)}
-                >
-                  Assinar Agora
-                </button>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </section>
 
         <section className={styles.contato}>

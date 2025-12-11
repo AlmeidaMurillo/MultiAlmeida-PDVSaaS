@@ -98,7 +98,6 @@ function setAuth(token) {
 async function checkSessionActive() {
   try {
     const response = await api.get('/api/auth/has-refresh');
-    console.log('🔍 Verificação de sessão:', response.data);
     return response.data.sessionActive === true;
   } catch (error) {
     // Se erro for de rede ou servidor temporário, não desloga

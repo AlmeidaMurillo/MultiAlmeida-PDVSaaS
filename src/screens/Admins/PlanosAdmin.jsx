@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import styles from "./PlanosAdmin.module.css";
-import { Edit, Trash2, Plus, Users } from "lucide-react";
+import { Edit, Trash2, Plus, Users, Calendar } from "lucide-react";
 import { api } from "../../auth";
 
 function PlanosAdmin() {
@@ -20,11 +20,17 @@ function PlanosAdmin() {
   });
 
   const periodosOptions = [
-    { label: "Mensal", key: "mensal" },
-    { label: "Trimestral", key: "trimestral" },
-    { label: "Semestral", key: "semestral" },
-    { label: "Anual", key: "anual" },
+    { label: "Mensal", key: "mensal", icon: "📅", color: "#7c3aed" },
+    { label: "Trimestral", key: "trimestral", icon: "📊", color: "#2563eb" },
+    { label: "Semestral", key: "semestral", icon: "📈", color: "#059669" },
+    { label: "Anual", key: "anual", icon: "🏆", color: "#dc2626" },
   ];
+
+  // Agrupar planos por período
+  const planosPorPeriodo = periodosOptions.reduce((acc, periodo) => {
+    acc[periodo.key] = planos.filter(p => p.periodo === periodo.key);
+    return acc;
+  }, {});
 
   useEffect(() => {
     document.title = "MultiAlmeida | Planos Admin";
@@ -133,42 +139,97 @@ function PlanosAdmin() {
         {error && <div className={styles.error}>{error}</div>}
         {loading && <div className={styles.loading}>Carregando...</div>}
 
-        <div className={styles.cardsGrid}> {/* Usando um grid para exibir planos */}
-          {planos.length > 0 ? (
-            planos.map((plano) => (
-              <div key={plano.id} className={styles.planoCard}>
-                <h3 className={styles.planoNome}>{plano.nome} ({plano.periodo})</h3>
-                <p className={styles.preco}>
-                  R$ {parseFloat(plano.preco).toFixed(2)}/{plano.periodo}
-                </p>
-                <ul className={styles.beneficiosList}>
-                  {plano.beneficios && plano.beneficios.map((b, i) => (
-                    <li key={i}>{b}</li>
-                  ))}
-                </ul>
-                <div className={styles.empresasBox}>
-                  <Users size={16} /> {plano.quantidade_empresas || 0} empresas
-                </div>
-                <div className={styles.actions}>
-                  <button
-                    onClick={() => abrirModal(plano)}
-                    disabled={loading}
+        {!loading && planos.length === 0 && (
+          <div className={styles.emptyState}>
+            <Calendar size={48} />
+            <p>Nenhum plano cadastrado ainda</p>
+            <button className={styles.btnAddEmpty} onClick={() => abrirModal()}>
+              <Plus size={18} /> Criar Primeiro Plano
+            </button>
+          </div>
+        )}
+
+        {planos.length > 0 && (
+          <div className={styles.periodosContainer}>
+            {periodosOptions.map((periodoInfo) => {
+              const planosNoPeriodo = planosPorPeriodo[periodoInfo.key];
+              if (planosNoPeriodo.length === 0) return null;
+
+              return (
+                <div key={periodoInfo.key} className={styles.blocoperiodo}>
+                  <div 
+                    className={styles.periodoHeader}
+                    style={{ borderLeftColor: periodoInfo.color }}
                   >
-                    <Edit size={16} />
-                  </button>
-                  <button
-                    onClick={() => excluir(plano.id)}
-                    disabled={loading}
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                    <span className={styles.periodoIcon}>{periodoInfo.icon}</span>
+                    <h2 className={styles.periodoTitle}>{periodoInfo.label}</h2>
+                    <span className={styles.periodoCount}>
+                      {planosNoPeriodo.length} {planosNoPeriodo.length === 1 ? 'plano' : 'planos'}
+                    </span>
+                  </div>
+
+                  <div className={styles.cardsGrid}>
+                    {planosNoPeriodo.map((plano) => (
+                      <div key={plano.id} className={styles.planoCard}>
+                        <div className={styles.cardHeader}>
+                          <h3 className={styles.planoNome}>{plano.nome}</h3>
+                          <div className={styles.planoBadge} style={{ backgroundColor: periodoInfo.color }}>
+                            {periodoInfo.label}
+                          </div>
+                        </div>
+                        
+                        <div className={styles.precoContainer}>
+                          <span className={styles.precoCifrao}>R$</span>
+                          <span className={styles.precoValor}>
+                            {parseFloat(plano.preco).toFixed(2)}
+                          </span>
+                          <span className={styles.precoPeriodo}>/{periodoInfo.key}</span>
+                        </div>
+
+                        <div className={styles.duracaoInfo}>
+                          <Calendar size={14} />
+                          <span>{plano.duracao_dias} dias de acesso</span>
+                        </div>
+
+                        <ul className={styles.beneficiosList}>
+                          {plano.beneficios && plano.beneficios.map((b, i) => (
+                            <li key={i}>{b}</li>
+                          ))}
+                        </ul>
+
+                        <div className={styles.cardFooter}>
+                          <div className={styles.empresasBox}>
+                            <Users size={16} />
+                            <span>{plano.quantidade_empresas || 0} empresas</span>
+                          </div>
+
+                          <div className={styles.actions}>
+                            <button
+                              className={styles.btnEdit}
+                              onClick={() => abrirModal(plano)}
+                              disabled={loading}
+                              title="Editar plano"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button
+                              className={styles.btnDelete}
+                              onClick={() => excluir(plano.id)}
+                              disabled={loading}
+                              title="Excluir plano"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            !loading && <p className={styles.noPlans}>Nenhum plano cadastrado.</p>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {modal && (
           <div className={styles.modalBg}>

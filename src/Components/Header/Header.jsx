@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaMoon,
   FaSun,
@@ -9,12 +9,18 @@ import {
   FaTachometerAlt,
   FaBars,
   FaTimes,
+  FaUser,
+  FaCog,
+  FaCheckCircle,
+  FaExclamationCircle,
 } from "react-icons/fa";
 import styles from "./Header.module.css";
 import { auth, api } from "../../auth";
 
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const dropdownRef = useRef(null);
   
   const isAuthenticated = auth.isAuthenticated();
   const user = auth.getUser();
@@ -24,6 +30,8 @@ function Header() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
   const [isSubscriptionExpired, setIsSubscriptionExpired] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [cartItemCount, setCartItemCount] = useState(0);
 
   useEffect(() => {
     async function checkSubscription() {
@@ -40,11 +48,44 @@ function Header() {
 
     if (isAuthenticated) {
       checkSubscription();
+      loadCartItemCount();
     } else {
       setIsSubscriptionActive(false);
       setIsSubscriptionExpired(false);
+      setCartItemCount(0);
     }
   }, [isAuthenticated, userRole]); // Dependências atualizadas
+
+  // Carregar quantidade de itens no carrinho
+  const loadCartItemCount = async () => {
+    try {
+      const { data } = await api.get('/api/carrinho');
+      const totalItems = data.itens?.reduce((sum, item) => sum + (item.quantidade || 0), 0) || 0;
+      setCartItemCount(totalItems);
+    } catch (error) {
+      console.error("Erro ao carregar carrinho:", error);
+      setCartItemCount(0);
+    }
+  };
+
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false);
+      }
+    }
+
+    if (isProfileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isProfileDropdownOpen]);
+
+  // Fechar dropdown ao mudar de rota
+  useEffect(() => {
+    setIsProfileDropdownOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -97,6 +138,20 @@ function Header() {
     }
   };
 
+  const toggleProfileDropdown = () => {
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  };
+
+  const handleProfileClick = () => {
+    navigate('/perfil');
+    setIsProfileDropdownOpen(false);
+  };
+
+  const handleLogoutClick = () => {
+    auth.logout();
+    setIsProfileDropdownOpen(false);
+  };
+
   const handleLogout = () => {
     auth.logout();
   };
@@ -117,28 +172,99 @@ function Header() {
         </div>
 
         <div className={styles.actionsContainer}>
-          <button className={styles.iconButton} onClick={toggleTheme}>
+          <button 
+            className={styles.iconButton} 
+            onClick={toggleTheme}
+            title={theme === "dark" ? "Modo Claro" : "Modo Escuro"}
+            aria-label="Alternar tema"
+          >
             {theme === "dark" ? <FaSun /> : <FaMoon />}
           </button>
-          <button className={styles.iconButton} onClick={handleCarrinhoClick}>
+          
+          <button 
+            className={styles.iconButton} 
+            onClick={handleCarrinhoClick}
+            title="Carrinho de Compras"
+            aria-label="Carrinho"
+          >
             <FaShoppingCart />
+            {cartItemCount > 0 && (
+              <span className={styles.cartBadge}>{cartItemCount > 99 ? '99+' : cartItemCount}</span>
+            )}
           </button>
 
           {isAuthenticated ? (
             <>
-              {(isSubscriptionActive || isSubscriptionExpired || userRole === 'admin') && ( // Usar userRole do useAuth
-                <button className={styles.painelButton} onClick={handlePainelClick}>
+              {(isSubscriptionActive || isSubscriptionExpired || userRole === 'admin') && (
+                <button 
+                  className={styles.painelButton} 
+                  onClick={handlePainelClick}
+                  title="Acessar Painel"
+                >
                   <FaTachometerAlt /> Painel
                 </button>
               )}
-              <div className={styles.profileContainer} onClick={toggleMobileSidebar}>
-                <div className={styles.profileCircle}>
-                  {userName ? userName.charAt(0).toUpperCase() : "U"}
+              
+              <div className={styles.profileWrapper} ref={dropdownRef}>
+                <div 
+                  className={`${styles.profileContainer} ${isProfileDropdownOpen ? styles.active : ''}`} 
+                  onClick={toggleProfileDropdown}
+                >
+                  <div className={styles.profileCircle}>
+                    {userName ? userName.charAt(0).toUpperCase() : "U"}
+                    {userRole === 'usuario' && (
+                      <span className={`${styles.statusIndicator} ${isSubscriptionActive ? styles.statusActive : styles.statusExpired}`}>
+                        {isSubscriptionActive ? <FaCheckCircle /> : <FaExclamationCircle />}
+                      </span>
+                    )}
+                  </div>
+                  <div className={styles.profileInfo}>
+                    <span className={styles.profileName}>{userName}</span>
+                    <span className={styles.profileEmail}>{userEmail}</span>
+                  </div>
                 </div>
-                <div className={styles.profileInfo}>
-                  <span className={styles.profileName}>{userName}</span>
-                  <span className={styles.profileEmail}>{userEmail}</span>
-                </div>
+
+                {isProfileDropdownOpen && (
+                  <div className={styles.profileDropdown}>
+                    <div className={styles.dropdownHeader}>
+                      <div className={styles.dropdownAvatar}>
+                        {userName ? userName.charAt(0).toUpperCase() : "U"}
+                      </div>
+                      <div className={styles.dropdownUserInfo}>
+                        <strong>{userName}</strong>
+                        <small>{userEmail}</small>
+                        <span className={styles.dropdownRole}>
+                          {userRole === 'admin' ? 'Administrador' : 'Cliente'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.dropdownDivider}></div>
+                    <button className={styles.dropdownItem} onClick={handleProfileClick}>
+                      <FaUser /> Meu Perfil
+                    </button>
+                    {userRole === 'usuario' && (
+                      <div className={styles.subscriptionStatus}>
+                        {isSubscriptionActive ? (
+                          <span className={styles.statusActive}>
+                            <FaCheckCircle /> Assinatura Ativa
+                          </span>
+                        ) : isSubscriptionExpired ? (
+                          <span className={styles.statusExpired}>
+                            <FaExclamationCircle /> Assinatura Vencida
+                          </span>
+                        ) : (
+                          <span className={styles.statusInactive}>
+                            <FaExclamationCircle /> Sem Assinatura
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    <div className={styles.dropdownDivider}></div>
+                    <button className={styles.dropdownItem} onClick={handleLogoutClick}>
+                      <FaSignOutAlt /> Sair
+                    </button>
+                  </div>
+                )}
               </div>
             </>
           ) : (
@@ -165,8 +291,10 @@ function Header() {
                   <div className={styles.userInfoText}>
                     <div className={styles.userInfoLine}>{userName}</div>
                     <div className={styles.userInfoLine}>{userEmail}</div>
-                    {userRole && ( // Usar userRole do useAuth
-                      <div className={styles.mobileUserPapel}>{userRole}</div>
+                    {userRole && (
+                      <div className={styles.mobileUserPapel}>
+                        {userRole === 'admin' ? 'Administrador' : 'Cliente'}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -179,34 +307,80 @@ function Header() {
             </div>
 
             <div className={styles.mobileSidebarContent}>
-              <button className={styles.mobileSidebarItem} onClick={() => { toggleTheme(); toggleMobileSidebar(); }}>
-                {theme === "dark" ? <FaSun /> : <FaMoon />}
-                <span>Alternar Tema</span>
-              </button>
-              <button className={styles.mobileSidebarItem} onClick={() => { handleCarrinhoClick(); toggleMobileSidebar(); }}>
-                <FaShoppingCart />
-                <span>Carrinho</span>
-              </button>
-              {isAuthenticated ? (
-                (isSubscriptionActive || isSubscriptionExpired || userRole === 'admin') && ( // Usar userRole do useAuth
-                  <button className={styles.mobileSidebarItem} onClick={() => { handlePainelClick(); toggleMobileSidebar(); }}>
-                    <FaTachometerAlt />
-                    <span>Painel</span>
-                  </button>
-                )
-              ) : (
-                <button className={styles.mobileSidebarItem} onClick={() => { navigate("/login"); toggleMobileSidebar(); }}>
-                  <FaSignInAlt />
-                  <span>Login</span>
-                </button>
+              {isAuthenticated && userRole === 'usuario' && (
+                <div className={styles.mobileSubscriptionBanner}>
+                  {isSubscriptionActive ? (
+                    <div className={styles.bannerActive}>
+                      <FaCheckCircle />
+                      <div>
+                        <strong>Assinatura Ativa</strong>
+                        <small>Acesso completo ao sistema</small>
+                      </div>
+                    </div>
+                  ) : isSubscriptionExpired ? (
+                    <div className={styles.bannerExpired}>
+                      <FaExclamationCircle />
+                      <div>
+                        <strong>Assinatura Vencida</strong>
+                        <small>Renove para continuar usando</small>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.bannerInactive}>
+                      <FaExclamationCircle />
+                      <div>
+                        <strong>Sem Assinatura</strong>
+                        <small>Adquira um plano</small>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
+
+              <div className={styles.menuSection}>
+                <span className={styles.menuSectionTitle}>Navegação</span>
+                {isAuthenticated ? (
+                  (isSubscriptionActive || isSubscriptionExpired || userRole === 'admin') && (
+                    <button className={styles.mobileSidebarItem} onClick={() => { handlePainelClick(); toggleMobileSidebar(); }}>
+                      <FaTachometerAlt />
+                      <span>Painel</span>
+                    </button>
+                  )
+                ) : (
+                  <button className={styles.mobileSidebarItem} onClick={() => { navigate("/login"); toggleMobileSidebar(); }}>
+                    <FaSignInAlt />
+                    <span>Login</span>
+                  </button>
+                )}
+                <button className={styles.mobileSidebarItem} onClick={() => { handleCarrinhoClick(); toggleMobileSidebar(); }}>
+                  <FaShoppingCart />
+                  <span>Carrinho</span>
+                  {cartItemCount > 0 && (
+                    <span className={styles.mobileBadge}>{cartItemCount}</span>
+                  )}
+                </button>
+              </div>
+
+              <div className={styles.menuSection}>
+                <span className={styles.menuSectionTitle}>Configurações</span>
+                <button className={styles.mobileSidebarItem} onClick={() => { toggleTheme(); toggleMobileSidebar(); }}>
+                  {theme === "dark" ? <FaSun /> : <FaMoon />}
+                  <span>Tema {theme === "dark" ? "Claro" : "Escuro"}</span>
+                </button>
+                {isAuthenticated && (
+                  <button className={styles.mobileSidebarItem} onClick={() => { navigate('/perfil'); toggleMobileSidebar(); }}>
+                    <FaUser />
+                    <span>Meu Perfil</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {isAuthenticated && (
               <div className={styles.mobileSidebarFooter}>
-                <button className={styles.mobileSidebarItem} onClick={handleLogout}>
+                <button className={styles.logoutButton} onClick={handleLogout}>
                   <FaSignOutAlt />
-                  <span>Sair</span>
+                  <span>Sair da Conta</span>
                 </button>
               </div>
             )}

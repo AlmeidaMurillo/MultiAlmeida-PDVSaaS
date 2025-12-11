@@ -5,6 +5,8 @@ import {
   FaLock,
   FaEye,
   FaEyeSlash,
+  FaMoon,
+  FaSun,
 } from "react-icons/fa";
 import { auth } from "../../auth";
 import styles from "./Login.module.css";
@@ -20,8 +22,18 @@ function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [authReady, setAuthReady] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
   // Verifica autenticação inicial
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
   useEffect(() => {
     if (auth.isInitialized()) {
       setAuthReady(true);
@@ -31,11 +43,11 @@ function Login() {
         const userRole = auth.getRole();
         
         if (userRole === 'admin') {
-          navigate("/dashboardadmin");
+          navigate("/");
         } else if (locationState?.from === "/carrinho" || locationState?.planId) {
           navigate("/carrinho", { state: locationState });
         } else {
-          navigate("/dashboardcliente");
+          navigate("/");
         }
       }
     }
@@ -92,6 +104,18 @@ function Login() {
   }
   return (
     <div className={styles.loginPage}>
+      <header className={styles.headerTop}>
+        <div className={styles.logoContainer} onClick={() => navigate("/")}>
+          <div className={styles.logo}>MultiAlmeida</div>
+          <h2 className={styles.subtitle}>ERP SaaS PDV</h2>
+        </div>
+        <div className={styles.actionsContainer}>
+          <button className={styles.iconButton} onClick={toggleTheme}>
+            {theme === "dark" ? <FaSun /> : <FaMoon />}
+          </button>
+        </div>
+      </header>
+
       <main className={styles.mainContent}>
         <section className={styles.hero}>
           <div className={styles.heroContent}>
