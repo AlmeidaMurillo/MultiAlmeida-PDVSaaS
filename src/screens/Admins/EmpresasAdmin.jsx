@@ -53,7 +53,7 @@ function EmpresasAdmin() {
       }
     };
     load();
-  }, [api]); // Adiciona 'api' como dependência do useEffect
+  }, []); 
 
   async function salvarEmpresa() {
     if (!form.periodo || !form.plano) return alert("Selecione período e plano!");

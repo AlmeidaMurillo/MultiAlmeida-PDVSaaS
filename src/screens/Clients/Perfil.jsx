@@ -170,7 +170,7 @@ function Perfil() {
     } catch {
       setPlanosDisponiveis([]);
     }
-  }, [api]);
+  }, []);
 
   useEffect(() => {
     fetchUserDetails();

@@ -29,7 +29,7 @@ function PlanosAdmin() {
   useEffect(() => {
     document.title = "MultiAlmeida | Planos Admin";
     carregarPlanos();
-  }, [api]); // Adiciona 'api' como dependência do useEffect
+  }, []); 
 
   async function carregarPlanos() {
     try {

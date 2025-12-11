@@ -45,7 +45,7 @@ export default function Payment() {
       };
       fetchPaymentDetails();
     }
-  }, [paymentId, api]); // Adiciona 'api' como dependência
+  }, [paymentId]); 
 
   useEffect(() => {
     if (!paymentId) return;
@@ -63,7 +63,7 @@ export default function Payment() {
     }, 3000); // Poll every 3 seconds
 
     return () => clearInterval(interval); // Cleanup on unmount
-  }, [paymentId, navigate, api]); // Adiciona 'api' como dependência
+  }, [paymentId, navigate]); 
 
 
   return (

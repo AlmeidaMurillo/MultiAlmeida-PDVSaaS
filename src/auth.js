@@ -41,6 +41,8 @@ let authState = {
 const listeners = new Set();
 let initializingPromise = null; // Evita múltiplas chamadas simultâneas de init()
 let sessionCheckInterval = null; // Intervalo de verificação de sessão
+let sessionCheckFailureCount = 0; // Contador de falhas consecutivas
+const MAX_SESSION_CHECK_FAILURES = 2; // Número de falhas antes de deslogar
 
 // Notifica todos os subscribers sobre mudanças no estado
 function notify() {
@@ -96,9 +98,16 @@ function setAuth(token) {
 async function checkSessionActive() {
   try {
     const response = await api.get('/api/auth/has-refresh');
+    console.log('🔍 Verificação de sessão:', response.data);
     return response.data.sessionActive === true;
   } catch (error) {
-    console.error('Erro ao verificar sessão ativa:', error);
+    // Se erro for de rede ou servidor temporário, não desloga
+    if (error.response?.status >= 500 || !error.response) {
+      console.warn('⚠️ Erro temporário ao verificar sessão (ignorado):', error.message);
+      return true; // Assume que sessão está ativa em caso de erro de servidor
+    }
+    
+    console.error('❌ Erro ao verificar sessão ativa:', error);
     return false;
   }
 }
@@ -121,22 +130,36 @@ function startSessionCheck() {
     const isActive = await checkSessionActive();
     
     if (!isActive) {
-      // Sessão foi invalidada (login em outro dispositivo)
-      stopSessionCheck();
+      sessionCheckFailureCount++;
+      console.warn(`⚠️ Falha na verificação de sessão (${sessionCheckFailureCount}/${MAX_SESSION_CHECK_FAILURES})`);
       
-      // Mostra alerta
-      alert('⚠️ Sua sessão foi encerrada porque você fez login em outro dispositivo.');
-      
-      // Chama o backend para limpar o refresh token (cookie httpOnly)
-      try {
-        await api.post('/api/auth/logout');
-      } catch (error) {
-        console.error('Erro ao limpar refresh token:', error);
+      // Só desloga após múltiplas falhas consecutivas
+      if (sessionCheckFailureCount >= MAX_SESSION_CHECK_FAILURES) {
+        console.error('❌ Sessão invalidada após múltiplas falhas');
+        
+        // Sessão foi invalidada (login em outro dispositivo ou expirada)
+        stopSessionCheck();
+        
+        // Mostra alerta
+        alert('⚠️ Sua sessão foi encerrada porque você fez login em outro dispositivo.');
+        
+        // Chama o backend para limpar o refresh token (cookie httpOnly)
+        try {
+          await api.post('/api/auth/logout');
+        } catch (error) {
+          console.error('Erro ao limpar refresh token:', error);
+        }
+        
+        // Desloga automaticamente
+        clearAuth();
+        window.location.replace('/');
       }
-      
-      // Desloga automaticamente
-      clearAuth();
-      window.location.replace('/');
+    } else {
+      // Reseta contador de falhas se verificação foi bem-sucedida
+      if (sessionCheckFailureCount > 0) {
+        console.log('✅ Sessão verificada com sucesso, resetando contador de falhas');
+        sessionCheckFailureCount = 0;
+      }
     }
   }, 30000); // 30 segundos
 }
@@ -147,6 +170,7 @@ function stopSessionCheck() {
     clearInterval(sessionCheckInterval);
     sessionCheckInterval = null;
   }
+  sessionCheckFailureCount = 0; // Reseta contador
 }
 
 // Limpa o estado de autenticação e TODOS os rastros

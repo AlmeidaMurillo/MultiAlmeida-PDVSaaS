@@ -30,7 +30,7 @@ export default function CarrinhoCompras() {
     } catch (err) {
       console.error("Erro ao carregar planos:", err);
     }
-  }, [api]); // Dependência 'api'
+  }, []); // api não é uma dependência válida
 
   const carregarCarrinho = useCallback(async () => {
     try {
@@ -41,11 +41,11 @@ export default function CarrinhoCompras() {
       console.error("Erro ao carregar carrinho:", err);
       setError("Erro ao carregar carrinho");
     }
-  }, [api]); // Dependência 'api'
+  }, []); // api não é uma dependência válida
 
   useEffect(() => {
     // A rota já é protegida por ProtectedRoute, não precisa verificar isAuthenticated aqui
-    if (!isAuthenticated) {
+    if (!auth.isAuthenticated()) {
         // Embora a rota seja protegida, se por algum motivo o estado de auth falhar, redireciona.
         // Isso é um fallback.
         navigate("/login", { state: { from: "/carrinho", planId, periodo } });
@@ -66,7 +66,7 @@ export default function CarrinhoCompras() {
       };
       adicionarAoCarrinho();
     }
-  }, [navigate, planId, periodo, carregarCarrinho, carregarPlanos, isAuthenticated]); // Dependências atualizadas
+  }, [navigate, planId, periodo, carregarCarrinho, carregarPlanos]); // Dependências atualizadas
 
   const removerItem = async (itemId) => {
     try {

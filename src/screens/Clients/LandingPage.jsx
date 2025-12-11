@@ -52,7 +52,7 @@ function LandingPage() {
     } finally {
       setLoading(false);
     }
-  }, [periodoSelecionado, api]); // Adiciona 'api' como dependência
+  }, [periodoSelecionado]); 
 
   useEffect(() => {
     carregarPlanos();
