@@ -4,6 +4,19 @@
   background-color: var(--bg-color);
   min-height: 100vh;
   color: var(--text-color);
+  font-family: "Inter", sans-serif;
+  line-height: 1.6;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Header da página */
@@ -17,16 +30,15 @@
 }
 
 .titleRow h1 {
-  font-size: clamp(1.4rem, 4vw, 2rem);
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--primary-color), #00d4ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  letter-spacing: -0.02em;
 }
 
 .btnAdd {
-  background: linear-gradient(135deg, var(--primary-color), #6b46c1);
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
   color: white;
   padding: 0.8rem 1.4rem;
   border: none;
@@ -37,12 +49,15 @@
   align-items: center;
   gap: 6px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btnAdd:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  filter: brightness(1.1);
 }
 
 .btnAdd:active {
@@ -72,7 +87,7 @@
 }
 
 .btnAddEmpty {
-  background: linear-gradient(135deg, var(--primary-color), #6b46c1);
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
   color: white;
   padding: 0.9rem 1.8rem;
   border: none;
@@ -83,20 +98,25 @@
   align-items: center;
   gap: 8px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
   margin-top: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btnAddEmpty:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  filter: brightness(1.1);
 }
 
 /* Container de períodos */
 .periodosContainer {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* Bloco de período */
@@ -106,6 +126,7 @@
   padding: 1.5rem;
   border: 1px solid rgba(255,255,255,0.08);
   transition: all 0.3s ease;
+  animation: fadeInUp 0.8s ease-out backwards;
 }
 
 .blocoperiodo:hover {
@@ -178,7 +199,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--primary-color), #00d4ff);
+  background: linear-gradient(90deg, var(--primary-color), var(--button-hover));
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -222,6 +243,23 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Cores específicas por período para badge */
+.planoBadge[data-periodo="mensal"] {
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+}
+
+.planoBadge[data-periodo="trimestral"] {
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+}
+
+.planoBadge[data-periodo="semestral"] {
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+}
+
+.planoBadge[data-periodo="anual"] {
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
 }
 
 /* Preço */
@@ -276,6 +314,28 @@
   gap: 0.5rem;
   font-size: clamp(0.85rem, 1.5vw, 0.95rem);
   flex: 1;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Estilizar scrollbar para benefícios */
+.beneficiosList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.beneficiosList::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.beneficiosList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.beneficiosList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .beneficiosList li {
@@ -293,12 +353,13 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
   font-size: 0.75rem;
   font-weight: bold;
   flex-shrink: 0;
   margin-top: 2px;
+  padding: 2px;
 }
 
 /* Card Footer */
@@ -360,48 +421,45 @@
 .modalBg {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
-  padding: 1rem;
-  animation: fadeIn 0.2s ease;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+  overflow: hidden;
+  pointer-events: auto;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal {
   background: var(--sidebar-bg);
-  padding: clamp(1.5rem, 4vw, 2rem);
-  width: 100%;
+  padding: 2rem;
+  width: 90%;
   max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
   border-radius: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.1);
-  animation: slideUp 0.3s ease;
-  max-height: 90vh;
-  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: auto;
 }
 
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
+@keyframes modalSlideIn {
+  from { 
+    transform: scale(0.95);
     opacity: 0;
   }
-  to {
-    transform: translateY(0);
+  to { 
+    transform: scale(1);
     opacity: 1;
   }
 }
@@ -409,10 +467,8 @@
 .modal h2 {
   margin: 0 0 1rem 0;
   font-size: clamp(1.2rem, 3vw, 1.5rem);
-  background: linear-gradient(135deg, var(--primary-color), #00d4ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-weight: 700;
+  color: var(--text-color);
 }
 
 .modal select,
@@ -422,7 +478,7 @@
   padding: 0.8rem;
   background: var(--input-bg);
   border-radius: 0.6rem;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid var(--primary-color);
   color: var(--input-text);
   font-size: clamp(0.9rem, 2vw, 1rem);
   transition: all 0.2s ease;
@@ -473,14 +529,17 @@
 }
 
 .modalBtns button:first-child {
-  background: linear-gradient(135deg, var(--primary-color), #6b46c1);
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
   color: white;
-  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .modalBtns button:first-child:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  filter: brightness(1.1);
 }
 
 .btnCancel {
@@ -511,12 +570,29 @@
   padding: 0.8rem;
 }
 
+/* Loading */
 .loading {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
   padding: 3rem;
-  font-size: 1.1rem;
-  color: var(--primary-color);
-  animation: pulse 1.5s ease-in-out infinite;
+  text-align: center;
+  color: var(--hover-bg);
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--hover-bg);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @keyframes pulse {
@@ -529,6 +605,22 @@
 }
 
 /* Responsividade */
+
+/* Desktop pequeno e tablets landscape */
+@media (max-width: 1024px) {
+  .planosContent {
+    padding: 1.2rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  }
+
+  .modal {
+    max-width: 480px;
+    padding: 1.8rem;
+  }
+}
 
 /* Tablets */
 @media (max-width: 768px) {
@@ -558,9 +650,55 @@
   .blocoperiodo {
     padding: 1rem;
   }
+
+  /* Modal para tablets */
+  .modal {
+    width: 85%;
+    max-width: 450px;
+    padding: 1.6rem;
+    max-height: 88vh;
+  }
+
+  .modal h2 {
+    font-size: 1.3rem;
+  }
+
+  .modal input,
+  .modal select,
+  .modal textarea {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .modalBtns button {
+    padding: 0.85rem;
+    font-size: 0.95rem;
+  }
 }
 
-/* Smartphones */
+/* Smartphones grandes (481px - 640px) */
+@media (max-width: 640px) {
+  .planosContent {
+    padding: 0.9rem;
+  }
+
+  .titleRow h1 {
+    font-size: 1.6rem;
+  }
+
+  /* Modal para smartphones grandes */
+  .modal {
+    width: 88%;
+    max-width: 420px;
+    padding: 1.4rem;
+  }
+
+  .modal h2 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Smartphones médios (321px - 480px) */
 @media (max-width: 480px) {
   .planosContent {
     padding: 0.8rem;
@@ -607,12 +745,93 @@
     justify-content: flex-end;
   }
 
+  /* Modal para smartphones médios */
+  .modal {
+    width: 90%;
+    max-width: 380px;
+    padding: 1.3rem;
+    max-height: 90vh;
+  }
+
+  .modal h2 {
+    font-size: 1.15rem;
+  }
+
+  .modal input,
+  .modal select,
+  .modal textarea {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+
+  .modal select {
+    background-position: right 0.7rem center;
+  }
+
   .modalBtns {
     flex-direction: column;
+    gap: 0.7rem;
   }
 
   .modalBtns button {
     width: 100%;
+    padding: 0.8rem;
+    font-size: 0.92rem;
+  }
+}
+
+/* Smartphones pequenos (241px - 380px) */
+@media (max-width: 380px) {
+  .planosContent {
+    padding: 0.7rem;
+  }
+
+  .titleRow h1 {
+    font-size: 1.3rem;
+  }
+
+  .btnAdd {
+    padding: 0.65rem 1.1rem;
+    font-size: 0.88rem;
+  }
+
+  .planoCard {
+    padding: 0.9rem;
+  }
+
+  .planoNome {
+    font-size: 1.05rem;
+  }
+
+  .precoValor {
+    font-size: 1.8rem;
+  }
+
+  .beneficiosList {
+    font-size: 0.85rem;
+  }
+
+  /* Modal para smartphones pequenos */
+  .modal {
+    width: 92%;
+    max-width: 340px;
+    padding: 1.1rem;
+  }
+
+  .modal h2 {
+    font-size: 1.05rem;
+  }
+
+  .modal input,
+  .modal select,
+  .modal textarea {
+    padding: 0.65rem;
+    font-size: 0.87rem;
+  }
+
+  .modalBtns button {
+    padding: 0.75rem;
+    font-size: 0.88rem;
   }
 }
 
@@ -739,22 +958,300 @@
 /* Extra segurança para 240px */
 @media (max-width: 240px) {
   .planosContent {
-    padding: 0.4rem;
+    padding: 0.3rem;
+    min-height: auto;
+  }
+
+  .titleRow {
+    gap: 0.4rem;
+    margin-bottom: 1rem;
   }
 
   .titleRow h1 {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .btnAdd {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+
+  .blocoperiodo {
+    padding: 0.5rem;
+    gap: 0.8rem;
+    border-radius: 0.6rem;
+  }
+
+  .periodosContainer {
+    gap: 1.5rem;
+  }
+
+  .periodoHeader {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.4rem;
+    gap: 0.3rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .periodoIcon {
     font-size: 1rem;
+  }
+
+  .periodoTitle {
+    font-size: 0.85rem;
+  }
+
+  .periodoCount {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .cardsGrid {
+    gap: 0.6rem;
+    grid-template-columns: 1fr;
   }
 
   .planoCard {
     padding: 0.6rem;
+    gap: 0.6rem;
+    border-radius: 0.6rem;
   }
 
-  .periodoHeader {
-    font-size: 0.85rem;
+  .cardHeader {
+    gap: 0.5rem;
+  }
+
+  .planoNome {
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+
+  .planoBadge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    letter-spacing: 0.3px;
+  }
+
+  .precoContainer {
+    gap: 0.2rem;
+    margin: 0.3rem 0;
+  }
+
+  .precoCifrao {
+    font-size: 0.8rem;
+  }
+
+  .precoValor {
+    font-size: 1.3rem;
+  }
+
+  .precoPeriodo {
+    font-size: 0.7rem;
+  }
+
+  .beneficiosList {
+    font-size: 0.7rem;
+    gap: 0.3rem;
+    margin: 0.5rem 0;
+  }
+
+  .beneficiosList li {
+    gap: 0.4rem;
+    line-height: 1.4;
+  }
+
+  .beneficiosList li::before {
+    width: 14px;
+    height: 14px;
+    font-size: 0.65rem;
+    padding: 1px;
+  }
+
+  .duracaoInfo {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .cardFooter {
+    padding-top: 0.6rem;
+    gap: 0.5rem;
+  }
+
+  .empresasBox {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .actions {
+    gap: 0.4rem;
+  }
+
+  .actions button {
+    padding: 0.35rem;
+    border-radius: 0.4rem;
+  }
+
+  .actions button svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Modal responsiva para 240px */
+  .modalBg {
+    padding: 0.8rem;
   }
 
   .modal {
     padding: 0.8rem;
+    width: 92%;
+    max-width: 100%;
+    max-height: 95vh;
+    gap: 0.7rem;
+    border-radius: 0.6rem;
   }
+
+  .modal h2 {
+    font-size: 0.95rem;
+    margin: 0 0 0.6rem 0;
+    line-height: 1.3;
+  }
+
+  .modal input,
+  .modal select,
+  .modal textarea {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.4rem;
+  }
+
+  .modal select {
+    background-position: right 0.5rem center;
+    padding-right: 2rem;
+  }
+
+  .modal textarea {
+    min-height: 80px;
+  }
+
+  .modalBtns {
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+    flex-direction: column;
+  }
+
+  .modalBtns button {
+    min-width: 100%;
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 0.8rem;
+    border-radius: 0.4rem;
+    letter-spacing: 0.3px;
+  }
+
+  .error,
+  .modalError {
+    padding: 0.6rem;
+    font-size: 0.75rem;
+    border-radius: 0.4rem;
+  }
+
+  /* Empty State */
+  .emptyState {
+    padding: 1.5rem 0.8rem;
+    gap: 1rem;
+  }
+
+  .emptyState svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .emptyState p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .btnAddEmpty {
+    padding: 0.6rem 1rem;
+    font-size: 0.75rem;
+    gap: 6px;
+  }
+
+  /* Loading */
+  .loading {
+    padding: 2rem 1rem;
+    gap: 1rem;
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border-width: 3px;
+  }
+
+  .loading p {
+    font-size: 0.8rem;
+  }
+}
+
+/* ========================================
+   TEMA CLARO - Estilos específicos
+   ======================================== */
+[data-theme="light"] .periodoCount[data-periodo="mensal"] {
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+}
+
+[data-theme="light"] .periodoCount[data-periodo="trimestral"] {
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+}
+
+[data-theme="light"] .periodoCount[data-periodo="semestral"] {
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+}
+
+[data-theme="light"] .periodoCount[data-periodo="anual"] {
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+}
+
+[data-theme="light"] .precoContainer {
+  color: var(--text-color);
+}
+
+[data-theme="light"] .precoCifrao {
+  color: var(--text-color);
+  font-weight: 700;
+}
+
+[data-theme="light"] .precoValor {
+  color: var(--text-color);
+  font-weight: 900;
+}
+
+[data-theme="light"] .precoPeriodo {
+  color: var(--text-color);
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+[data-theme="light"] .blocoperiodo {
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+[data-theme="light"] .blocoperiodo:hover {
+  border-color: var(--active-bg);
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+[data-theme="light"] .periodoHeader {
+  background: var(--hover-bg);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--primary-color);
+  box-shadow: 0 2px 6px var(--shadow-color);
 }

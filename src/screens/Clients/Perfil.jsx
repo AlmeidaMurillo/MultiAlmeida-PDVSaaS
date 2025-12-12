@@ -354,8 +354,8 @@ function Perfil() {
   const ModalEditarDadosEmpresa = () => {
     if (!mostrarModalEmpresa) return null;
     return (
-      <div className={styles.modalOverlay}>
-        <div className={styles.modalContent}>
+      <div className={styles.modalOverlay} onClick={() => setMostrarModalEmpresa(false)}>
+        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
           <h2>Editar Dados da Empresa</h2>
           <input 
             type="text" 
@@ -394,8 +394,8 @@ function Perfil() {
   const ModalAlterarSenha = () => {
     if (!mostrarModalSenha) return null;
     return (
-      <div className={styles.modalOverlay}>
-        <div className={styles.modalContent}>
+      <div className={styles.modalOverlay} onClick={() => setMostrarModalSenha(false)}>
+        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
           <h2>Alterar Senha</h2>
           <input 
             type="password" 
@@ -434,8 +434,8 @@ function Perfil() {
   const ModalAlterarPlano = () => {
     if (!mostrarModalPlano) return null;
     return (
-      <div className={styles.modalOverlay}>
-        <div className={styles.modalContent}>
+      <div className={styles.modalOverlay} onClick={() => setMostrarModalPlano(false)}>
+        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
           <h2>Alterar Plano</h2>
           <label className={styles.modalLabel}>Selecione o Plano:</label>
           <select 
@@ -494,7 +494,7 @@ function Perfil() {
   const ModalVisualizarFoto = () => {
     if (!mostrarModalFoto) return null;
     return (
-      <div className={styles.modalOverlay}>
+      <div className={styles.modalOverlay} onClick={() => setMostrarModalFoto(false)}>
         <div className={styles.modalContent}>
           <button 
             className={styles.closeButton}

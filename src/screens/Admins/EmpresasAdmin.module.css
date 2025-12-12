@@ -1,8 +1,7 @@
 .empresasContent {
   padding: 1.5rem;
   background-color: var(--bg-color);
-  width: 100%;
-  min-height: 100%;
+  min-height: 100vh;
   color: var(--text-color);
 }
 

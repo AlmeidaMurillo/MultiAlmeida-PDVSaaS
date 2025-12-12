@@ -35,7 +35,8 @@ function PlanosAdmin() {
   useEffect(() => {
     document.title = "MultiAlmeida | Planos Admin";
     carregarPlanos();
-  }, []); 
+  }, []);
+
 
   async function carregarPlanos() {
     try {
@@ -75,6 +76,10 @@ function PlanosAdmin() {
     setModal(true);
   }
 
+  function fecharModal() {
+    setModal(false);
+  }
+
   async function salvar() {
     try {
       setLoading(true);
@@ -97,7 +102,7 @@ function PlanosAdmin() {
       }
 
       await carregarPlanos();
-      setModal(false);
+      fecharModal();
     } catch (err) {
       console.error("Erro ao salvar plano:", err);
       setError(err?.response?.data?.error || "Erro ao salvar plano");
@@ -137,7 +142,12 @@ function PlanosAdmin() {
         </div>
 
         {error && <div className={styles.error}>{error}</div>}
-        {loading && <div className={styles.loading}>Carregando...</div>}
+        {loading && (
+          <div className={styles.loading}>
+            <div className={styles.spinner}></div>
+            <p>Carregando planos...</p>
+          </div>
+        )}
 
         {!loading && planos.length === 0 && (
           <div className={styles.emptyState}>
@@ -159,11 +169,13 @@ function PlanosAdmin() {
                 <div key={periodoInfo.key} className={styles.blocoperiodo}>
                   <div 
                     className={styles.periodoHeader}
-                    style={{ borderLeftColor: periodoInfo.color }}
                   >
                     <span className={styles.periodoIcon}>{periodoInfo.icon}</span>
                     <h2 className={styles.periodoTitle}>{periodoInfo.label}</h2>
-                    <span className={styles.periodoCount}>
+                    <span 
+                      className={styles.periodoCount}
+                      data-periodo={periodoInfo.key}
+                    >
                       {planosNoPeriodo.length} {planosNoPeriodo.length === 1 ? 'plano' : 'planos'}
                     </span>
                   </div>
@@ -173,7 +185,10 @@ function PlanosAdmin() {
                       <div key={plano.id} className={styles.planoCard}>
                         <div className={styles.cardHeader}>
                           <h3 className={styles.planoNome}>{plano.nome}</h3>
-                          <div className={styles.planoBadge} style={{ backgroundColor: periodoInfo.color }}>
+                          <div 
+                            className={styles.planoBadge}
+                            data-periodo={periodoInfo.key}
+                          >
                             {periodoInfo.label}
                           </div>
                         </div>
@@ -289,7 +304,7 @@ function PlanosAdmin() {
                 </button>
                 <button
                   className={styles.btnCancel}
-                  onClick={() => setModal(false)}
+                  onClick={fecharModal}
                   disabled={loading}
                 >
                   Cancelar

@@ -59,7 +59,8 @@ function Sidebar({ children }) {
   });
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [showUserModal, setShowUserModal] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const isAuthenticated = auth.isAuthenticated();
   const user = auth.getUser();
@@ -67,7 +68,7 @@ function Sidebar({ children }) {
 
   const handleLogout = async () => {
     await auth.logout();
-    setShowUserModal(false);
+    setIsProfileDropdownOpen(false);
   };
 
   useEffect(() => {
@@ -84,6 +85,25 @@ function Sidebar({ children }) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
+
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false);
+      }
+    }
+
+    if (isProfileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isProfileDropdownOpen]);
+
+  // Fechar dropdown ao mudar de rota
+  useEffect(() => {
+    setIsProfileDropdownOpen(false);
+  }, [location.pathname]);
   
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
@@ -218,36 +238,40 @@ function Sidebar({ children }) {
           </button>
 
           {isAuthenticated && (
-            <div className={styles.profileCircle} onClick={() => setShowUserModal(!showUserModal)}>
-              {userName ? userName.charAt(0).toUpperCase() : <FaUser size={20} />}
-            </div>
-          )}
-          {showUserModal && isAuthenticated && (
-            <div className={styles.userModalOverlay} onClick={() => setShowUserModal(false)}>
-              <div className={styles.userModal} onClick={(e) => e.stopPropagation()}>
-                <button className={styles.modalCloseButton} onClick={() => setShowUserModal(false)}>
-                  <FaTimes />
-                </button>
-                <div className={styles.modalHeader}>
-                  <div className={styles.modalUserAvatar}>
-                    {userName ? userName.charAt(0).toUpperCase() : "U"}
-                  </div>
-                  <div className={styles.modalUserInfo}>
-                    <h3 className={styles.modalUserName}>{userName}</h3>
-                    <p className={styles.modalUserPapel}>{userRole}</p>
-                    <p className={styles.modalUserEmail}>{userEmail}</p>
-                  </div>
-                </div>
-                <div className={styles.modalBody}>
-                  <button
-                    className={`${styles.modalButton} ${styles.modalButtonSecondary}`}
-                    onClick={handleLogout}
-                  >
-                    <FaSignOutAlt />
-                    <span>Sair</span>
-                  </button>
+            <div className={styles.profileWrapper} ref={dropdownRef}>
+              <div 
+                className={styles.profileContainer}
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+              >
+                <div className={styles.profileCircle}>
+                  {userName ? userName.charAt(0).toUpperCase() : "U"}
                 </div>
               </div>
+
+              {isProfileDropdownOpen && (
+                <div className={styles.profileDropdown}>
+                  <div className={styles.dropdownHeader}>
+                    <div className={styles.dropdownAvatar}>
+                      {userName ? userName.charAt(0).toUpperCase() : "U"}
+                    </div>
+                    <div className={styles.dropdownUserInfo}>
+                      <strong>{userName}</strong>
+                      <small>{userEmail}</small>
+                      <span className={styles.dropdownRole}>
+                        {userRole === 'admin' ? 'Administrador' : 'Cliente'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.dropdownDivider}></div>
+                  <button className={styles.dropdownItem} onClick={() => { navigate('/perfil'); setIsProfileDropdownOpen(false); }}>
+                    <FaUser /> Meu Perfil
+                  </button>
+                  <div className={styles.dropdownDivider}></div>
+                  <button className={styles.dropdownItem} onClick={handleLogout}>
+                    <FaSignOutAlt /> Sair
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

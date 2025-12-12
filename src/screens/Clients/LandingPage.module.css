@@ -471,6 +471,28 @@
   gap: 0.5rem;
   font-size: clamp(0.85rem, 1.5vw, 0.95rem);
   flex: 1;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Estilizar scrollbar para benefícios */
+.beneficiosList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.beneficiosList::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.beneficiosList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.beneficiosList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .beneficiosList li {
