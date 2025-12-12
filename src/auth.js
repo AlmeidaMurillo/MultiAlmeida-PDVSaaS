@@ -42,7 +42,7 @@ const listeners = new Set();
 let initializingPromise = null; // Evita múltiplas chamadas simultâneas de init()
 let sessionCheckInterval = null; // Intervalo de verificação de sessão
 let sessionCheckFailureCount = 0; // Contador de falhas consecutivas
-const MAX_SESSION_CHECK_FAILURES = 2; // Número de falhas antes de deslogar
+const MAX_SESSION_CHECK_FAILURES = 3; // Número de falhas antes de deslogar (mais tolerante)
 
 // Notifica todos os subscribers sobre mudanças no estado
 function notify() {
@@ -111,14 +111,14 @@ async function checkSessionActive() {
   }
 }
 
-// Inicia verificação periódica de sessão (a cada 5 segundos para detecção rápida)
+// Inicia verificação periódica de sessão (a cada 10 segundos)
 function startSessionCheck() {
   // Limpa intervalo anterior se existir
   if (sessionCheckInterval) {
     clearInterval(sessionCheckInterval);
   }
 
-  // Verifica a cada 5 segundos (detecção mais rápida)
+  // Verifica a cada 10 segundos
   sessionCheckInterval = setInterval(async () => {
     // Só verifica se estiver autenticado
     if (!authState.isAuthenticated) {
@@ -160,7 +160,7 @@ function startSessionCheck() {
         sessionCheckFailureCount = 0;
       }
     }
-  }, 5000); // 5 segundos para detecção rápida
+  }, 10000); // 10 segundos
 }
 
 // Para a verificação periódica
@@ -316,18 +316,6 @@ export const auth = {
         if (check.hasRefresh && check.sessionActive) {
           const { data } = await api.post("/api/auth/refresh");
           setAuth(data.accessToken);
-          
-          // Verifica imediatamente se a sessão ainda está ativa (detecção rápida)
-          setTimeout(async () => {
-            const isActive = await checkSessionActive();
-            if (!isActive) {
-              console.warn('⚠️ Sessão detectada como inválida logo após inicialização');
-              stopSessionCheck();
-              alert('⚠️ Sua sessão foi encerrada porque você fez login em outro dispositivo.');
-              clearAuth();
-              window.location.replace('/');
-            }
-          }, 2000); // Verifica 2 segundos após inicialização
         } else {
           clearAuth();
         }
@@ -348,15 +336,6 @@ export const auth = {
   async login(email, senha) {
     const { data } = await api.post("/api/auth/login", { email, senha });
     setAuth(data.accessToken);
-    
-    // Verifica imediatamente se a sessão está ativa (detecção rápida de login múltiplo)
-    setTimeout(async () => {
-      const isActive = await checkSessionActive();
-      if (!isActive) {
-        console.warn('⚠️ Sessão invalidada logo após login');
-      }
-    }, 1000); // Verifica 1 segundo após o login
-    
     return authState.user;
   },
 
