@@ -75,11 +75,11 @@ function Login() {
       const userRole = auth.getRole();
       
       if (userRole === 'admin') {
-        navigate("/dashboardadmin");
+        navigate("/");
       } else if (locationState?.from === "/carrinho" || locationState?.planId) {
         navigate("/carrinho", { state: locationState });
       } else {
-        navigate("/dashboardcliente");
+        navigate("/");
       }
     } catch (err) {
       const errorMessage = err.response?.data?.error || "Erro ao fazer login. Verifique suas credenciais.";

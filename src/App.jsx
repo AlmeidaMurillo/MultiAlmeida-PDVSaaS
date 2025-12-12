@@ -39,6 +39,27 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  // Verifica sessão ao mudar de rota (detecção rápida de login em outro dispositivo)
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Verifica se a sessão ainda está ativa ao navegar
+      const checkSession = async () => {
+        try {
+          const response = await auth.api.get('/api/auth/has-refresh');
+          if (!response.data.sessionActive) {
+            console.warn('⚠️ Sessão invalidada detectada ao navegar');
+            alert('⚠️ Sua sessão foi encerrada porque você fez login em outro dispositivo.');
+            await auth.logout();
+          }
+        } catch (error) {
+          console.error('Erro ao verificar sessão:', error);
+        }
+      };
+      
+      checkSession();
+    }
+  }, [location.pathname, isAuthenticated]);
+
   if (!isAuthReady) return <Spinner />;
 
   return (
