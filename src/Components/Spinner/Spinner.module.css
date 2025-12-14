@@ -4,12 +4,13 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: var(--bg-color); /* Usar a variável de tema */
+  background-color: var(--bg-color);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* Garante que o spinner fique por cima de tudo */
+  z-index: 9999;
+  transition: background-color 0.3s ease;
 }
 
 .spinnerContainer {
@@ -18,33 +19,34 @@
   align-items: center;
 }
 
-.spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: var(--primary-color); /* Usar a cor primária do tema */
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-}
-
 .logo {
-  font-size: 1.4rem; /* Copiado do Sidebar.module.css */
-  font-weight: 700; /* Copiado do Sidebar.module.css */
-  color: var(--text-color); /* Copiado do Sidebar.module.css */
-  line-height: 1; /* Copiado do Sidebar.module.css */
-  animation: blink 1.5s linear infinite; /* Mantém a animação de piscar */
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-color);
+  line-height: 1;
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: pulse 2s ease-in-out infinite;
 }
 
 .subtitle {
-  font-size: 0.75rem; /* Copiado do Sidebar.module.css */
+  font-size: 0.85rem;
   color: var(--text-color);
-  font-weight: 600; /* Copiado do Sidebar.module.css */
-  animation: blink 1.5s linear infinite; /* Aplicando a animação de piscar */
+  font-weight: 500;
+  opacity: 0.8;
+  animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 @keyframes blink {

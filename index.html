@@ -4,6 +4,23 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Content Security Policy - Proteção contra XSS -->
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; 
+                   script-src 'self'; 
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+                   img-src 'self' data: https:; 
+                   font-src 'self' data: https://fonts.gstatic.com; 
+                   connect-src 'self' https://multialmeida-pdvsaas-backend-production.up.railway.app; 
+                   base-uri 'self'; 
+                   form-action 'self';">
+    
+    <!-- Proteções Adicionais -->
+    <!-- Nota: X-Frame-Options e frame-ancestors devem ser configurados no servidor -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
     <title>MultiAlmeida | ERP SaaS PDV</title>
   </head>
   <body>

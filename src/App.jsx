@@ -4,6 +4,39 @@ import ScrollToTop from "./Components/Scroll/ScrollToTop";
 import { auth, setupInterceptors } from "./auth";
 import Spinner from "./Components/Spinner/Spinner";
 
+/* 
+
+COMO EU FAREI AS PERMISSOES QUE ESTAO NOS BENEFICIOS DOS PLANOS FUNCIONAREM COM EXITO? 
+TIPO QUERO NA TELA DE PLANOS CLICAR EM UM BOTAO DE PERMISSOES ONDE ABRIRA UM MODAL 
+COM TODAS AS PERMISSOES DOS PLANOS DO SISTEMA ONDE EU IREI MARCAR AS CAIXAS DE 
+QUAIS PERMISSOES AQUELE PLANO IRA TER, COMO FAREI ISSO? TEM QUE CRIAR ALGO NO BANCO? 
+POR ONDE COMEÇAR?
+
+AINDA ESTOU COM PROBLEMA DE ESTAR DESLOGANDO SOZINHO DA CONTA O SISTEMA.
+
+
+VERIFICAR PARA VER SE TA TUDO CERTO COM AS ROTAS A PARTE DO FRONTEND E A PARTE DO BACKEND
+PARA NAO VAZAR NADA E NENHUMA ROTA FICAR EXPOSTA EM LUGAR NENHUM E SER TOTALMENTE IMPOSSIVEL DE ALGUEM
+HACKEAR OU ATACAR O MEU SISTEMA.
+
+
+VERIFICAR COMO IREI FAZER A QUESTAO DE AURIZAÇÕES OS PLANOS DO USUARIO PARA ELE CONSEGUIR
+USAR APENAS OQUE ESTA DESCRITO NO PLANO DE ASSINATURA DELE.
+FAZER MESMA COISA PARA OS FUNCIONARIOS DOS DONOS DAS EMPRESAS, PARA ADMINS CARGOS DE ADMIN DO MEU SISTEMA.
+
+FAZER ALGO TIPO UMA POLITICA DE REGRAS PARA O SISTEMA TIPO TERMOS DE USO E POLITICA DE PRIVACIDADE
+
+FAZER UMA DOCUMENTAÇÃO PARA ABRIR EM CADA PLANO E O USUARIO VER TODOS OS BENEFICIOS DO PLANO CONTRATADO
+DE PONTA A PONTA.   
+
+FAZER PARA NAO CONSEGUIREM ACESSAR AS ROTAS PUBLICAS QUE NECESSITAM DE ALGO TIPO A LOGIN QUANDO O USUARIO JA ESTIVER
+LOGADO NO SISTEMA, A TELA PAGAMENTO CASO O USUARIO NAO TENHA VINDO DO BOTAO CONTINUAR PARA O PAGAMENTO NA TELA CARRINHO
+E A TELA PAGAMENTO STATUS TAMBEM.
+
+FAZER O STATUS DE QUANDO A ASSINATURA DO USUARIO ESTIVER EXPIRADA, CANCELADA, VENCIDA E ETC NA MODAL DA TELA LANDINGPAGE E NA SIDERBAR DA LANDINGPAGE.
+
+*/
+
 const LandingPage = lazy(() => import("./screens/Clients/LandingPage"));
 const Registro = lazy(() => import("./screens/Clients/Registro"));
 const Login = lazy(() => import("./screens/Clients/Login"));
@@ -11,8 +44,9 @@ const CarrinhoCompras = lazy(() => import("./screens/Clients/CarrinhoCompras"));
 const DashboardAdmin = lazy(() => import("./screens/Admins/DashboardAdmin"));
 const EmpresasAdmin = lazy(() => import("./screens/Admins/EmpresasAdmin"));
 const PlanosAdmin = lazy(() => import("./screens/Admins/PlanosAdmin"));
+const CuponsAdmin = lazy(() => import("./screens/Admins/CuponsAdmin"));
 const Payment = lazy(() => import("./screens/Clients/Payment"));
-const PaymentSuccess = lazy(() => import("./screens/Clients/PaymentSuccess"));
+const PaymentStatus = lazy(() => import("./screens/Clients/PaymentStatus"));
 const DashboardCliente = lazy(() => import("./screens/Clients/DashboardCliente"));
 const Perfil = lazy(() => import("./screens/Clients/Perfil"));
 
@@ -22,10 +56,8 @@ function App() {
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
-    // Configura interceptores do axios
     setupInterceptors();
 
-    // Subscribe para mudanças no estado de autenticação
     const unsubscribe = auth.subscribe((newState) => {
       setIsAuthenticated(newState.isAuthenticated);
       if (newState.initialized) {
@@ -33,12 +65,15 @@ function App() {
       }
     });
 
-    // Inicializa autenticação
-    auth.init();
+    auth.init().catch(err => {
+      console.error('Erro crítico na inicialização:', err);
+      setIsAuthReady(true);
+    });
 
     return () => unsubscribe();
   }, []);
 
+  // Spinner só aparece durante carregamento inicial
   if (!isAuthReady) return <Spinner />;
 
   return (
@@ -50,7 +85,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/payment/:paymentId" element={<Payment />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-status" element={<PaymentStatus />} />
           <Route path="/carrinho" element={<CarrinhoCompras />} />
 
           <Route
@@ -64,6 +99,10 @@ function App() {
           <Route
             path="/planosadmin"
             element={isAuthenticated && auth.isAdmin() ? <PlanosAdmin /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/cuponsadmin"
+            element={isAuthenticated && auth.isAdmin() ? <CuponsAdmin /> : <Navigate to="/login" replace />}
           />
 
           <Route

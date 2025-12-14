@@ -17,6 +17,7 @@ import {
   FaBell,
   FaTimes,
   FaSignOutAlt,
+  FaTicketAlt,
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import { auth } from "../../auth";
@@ -172,6 +173,7 @@ function Sidebar({ children }) {
     { icon: <FaHome />, label: "Dashboard", path: "/dashboardadmin" },
     { icon: <FaUser />, label: "Empresas", path: "/empresasadmin" },
     { icon: <FaDollarSign />, label: "Planos e Assinaturas", path: "/planosadmin" },
+    { icon: <FaTicketAlt />, label: "Cupons", path: "/cuponsadmin" },
     { icon: <FaMoneyBillWave />, label: "Vendas/Transações", path: "/vendas" },
     { icon: <FaFileInvoiceDollar />, label: "Faturamento Mensal", path: "/faturamento" },
     { icon: <FaClock />, label: "Pagamentos Pendentes", path: "/pendentes" },

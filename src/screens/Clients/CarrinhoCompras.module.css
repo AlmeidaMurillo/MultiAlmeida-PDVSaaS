@@ -103,14 +103,14 @@
 }
 
 .backButton {
-  background: var(--primary-color);
+  background: var(--active-bg);
   border: none;
   border-radius: 50%;
   width: 3rem;
   height: 3rem;
   cursor: pointer;
   font-size: 1.25rem;
-  color: var(--text-color);
+  color: var(--bg-color);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -119,7 +119,7 @@
 }
 
 .backButton:hover {
-  background-color: var(--button-hover);
+  background-color: var(--primary-color);
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
@@ -151,8 +151,8 @@
 }
 
 .badge {
-  background-color: var(--primary-color);
-  color: var(--text-color);
+  background-color: var(--active-bg);
+  color: var(--bg-color);
   font-size: 1rem;
   padding: 0.5rem 1rem;
   font-weight: 600;
@@ -226,7 +226,7 @@
   position: relative;
   border: 2px solid var(--input-placeholder);
   border-radius: 0.75rem;
-  background: var(--input-bg);
+  background: linear-gradient(135deg, var(--sidebar-bg), rgba(0,0,0,0.3));
   transition: all 0.3s;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
@@ -280,7 +280,7 @@
   right: 1rem;
   background: none;
   border: none;
-  color: #9ca3af;
+  color: var(--primary-color);
   font-size: 1.25rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -358,8 +358,8 @@
 
 .cupomButton {
   padding: 0.75rem 1.5rem;
-  background: var(--primary-color);
-  color: var(--text-color);
+  background: var(--active-bg);
+  color: var(--bg-color);
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
@@ -370,12 +370,13 @@
 }
 
 .cupomButton:hover {
-  background: var(--button-hover);
+  background: var(--primary-color);
 }
 
 .cupomButton:disabled {
-  background: var(--input-placeholder);
+  background: var(--active-bg);
   cursor: not-allowed;
+  color: var(--bg-color);
 }
 
 .removerCupomButton {
@@ -482,23 +483,23 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--input-placeholder);
+  padding: 0.875rem 0;
 }
 
-.summaryItem:last-child {
-  border-bottom: none;
+.summaryItem:not(:last-child) {
+  border-bottom: 1px solid rgba(128, 128, 128, 0.15);
 }
 
 .summaryItemLabel {
-  font-size: 0.875rem;
-  color: var(--input-placeholder);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .summaryItemValue {
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: var(--text-color);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .subtotal {
@@ -536,8 +537,17 @@
 .cupom {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px dashed var(--border-color);
+}
+
+.cupom h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color);
 }
 
 .cupomInputGroup {
@@ -545,52 +555,152 @@
   gap: 0.5rem;
 }
 
-.cupom input {
+.cupomInput {
   flex: 1;
-  padding: 0.75rem;
-  border: 1px solid var(--input-placeholder);
-  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
   background: var(--input-bg);
   color: var(--text-color);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  font-size: 0.875rem;
-}
-
-.cupom button {
-  padding: 0.75rem 1.5rem;
-  background: var(--primary-color);
-  color: var(--text-color);
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-size: 0.95rem;
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
-  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
 }
 
-.cupom button:hover {
-  background: var(--button-hover);
+.cupomInput:focus {
+  outline: none;
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 3px rgba(67, 181, 129, 0.1);
+}
+
+.cupomInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cupomButton {
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(67, 181, 129, 0.3);
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.cupomButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(67, 181, 129, 0.4);
+}
+
+.cupomButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cupomErro {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(220, 38, 38, 0.1);
+  border: 2px solid #dc2626;
+  border-radius: 0.75rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 600;
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .cupomAplicado {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(67, 181, 129, 0.15), rgba(67, 181, 129, 0.05));
+  border: 2px solid var(--success-color);
+  border-radius: 0.75rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cupomInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.cupomSuccess {
+  color: var(--success-color);
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-  border-radius: 0.5rem;
-  border: 1px solid #93c5fd;
-  color: #1d4ed8;
-  font-size: 0.875rem;
+}
+
+.cupomDesconto {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
   font-weight: 500;
+}
+
+.removerCupomButton {
+  background: transparent;
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.removerCupomButton:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+  transform: rotate(90deg);
 }
 
 .checkoutButton {
   margin-top: 1.5rem;
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, var(--primary-color), #3b82f6);
-  color: var(--text-color);
+  background: var(--active-bg);
+  color: var(--bg-color);
   border: none;
   border-radius: 0.75rem;
   cursor: pointer;
@@ -601,7 +711,7 @@
 }
 
 .checkoutButton:hover {
-  background: linear-gradient(135deg, var(--button-hover), #2563eb);
+  background: var(--primary-color);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
@@ -618,11 +728,14 @@
 }
 
 .totalFinal {
-  font-weight: bold;
-  font-size: 1.5rem;
+  font-weight: 800;
+  font-size: 1.75rem;
   color: var(--text-color);
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
   text-align: center;
+  border-top: 3px solid var(--success-color);
+  letter-spacing: -0.5px;
 }
 
 .footer {
@@ -750,24 +863,84 @@
 
 .beneficiosList {
   list-style: none;
-  padding: 0;
-  margin: 0;
+  padding: 1rem;
+  margin: 1rem 0 0 0;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--input-bg);
+  border-radius: 0.75rem;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow-color), inset 0 0 0 1px rgba(67, 181, 129, 0.1);
+  position: relative;
+}
+
+.beneficiosList::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--success-color);
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+/* Estilizar scrollbar para benefícios */
+.beneficiosList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.beneficiosList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.beneficiosList::-webkit-scrollbar-thumb {
+  background: var(--success-color);
+  border-radius: 10px;
+}
+
+.beneficiosList::-webkit-scrollbar-thumb:hover {
+  background: var(--hoverscrollbar-thumb);
 }
 
 .beneficiosList li {
   font-size: 0.875rem;
   color: var(--text-color);
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem 0;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  transition: all 0.25s ease;
+  font-weight: 500;
+  line-height: 1.5;
+  border-left: 2px solid transparent;
+  border-radius: 0.5rem;
+}
+
+.beneficiosList li:last-child {
+  margin-bottom: 0;
+}
+
+.beneficiosList li:hover {
+  border-left-color: var(--success-color);
+  background: var(--bg-color);
+  transform: translateX(3px);
 }
 
 .beneficiosList li::before {
-  content: '✔';
-  color: #22c55e;
-  font-weight: bold;
-  font-size: 1rem;
+  content: '✓';
+  color: var(--success-color);
+  font-size: 0.875rem;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  margin-top: 0.125rem;
 }
 
 
@@ -1405,6 +1578,131 @@
 .painelButton {
     display: flex;
 }
+
+/* Responsividade para telas muito pequenas - Cupom Aplicado e Botão Lixeira */
+@media (max-width: 480px) {
+  .cupomAplicado {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .cupomSuccess {
+    font-size: 0.85rem;
+    gap: 0.25rem;
+  }
+
+  .cupomDesconto {
+    font-size: 0.75rem;
+  }
+
+  .removerCupomButton {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+
+  .removeButton {
+    font-size: 1.1rem;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    padding: 0.2rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .cupomAplicado {
+    padding: 0.6rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .cupomInfo {
+    gap: 0.2rem;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .cupomSuccess {
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    word-break: break-word;
+  }
+
+  .cupomDesconto {
+    font-size: 0.7rem;
+    word-break: break-word;
+  }
+
+  .removerCupomButton {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.85rem;
+    padding: 0.3rem;
+  }
+
+  .removeButton {
+    font-size: 1rem;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    padding: 0.15rem;
+  }
+}
+
+@media (max-width: 240px) {
+  .cupomAplicado {
+    padding: 0.5rem;
+    gap: 0.3rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cupomInfo {
+    width: 100%;
+    gap: 0.15rem;
+  }
+
+  .cupomSuccess {
+    font-size: 0.7rem;
+    gap: 0.15rem;
+  }
+
+  .cupomDesconto {
+    font-size: 0.65rem;
+  }
+
+  .removerCupomButton {
+    width: 100%;
+    height: 1.75rem;
+    font-size: 0.8rem;
+    padding: 0.25rem;
+    margin-top: 0.25rem;
+  }
+
+  .removerCupomButton:hover {
+    transform: scale(0.98);
+  }
+
+  .removeButton {
+    font-size: 0.9rem;
+    bottom: 0.4rem;
+    right: 0.4rem;
+    padding: 0.1rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 0.35rem;
+  }
+
+  .removeButton:hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+}
+
 @media (max-width: 768px) {
   .mobileMenuButton {
     display: block;

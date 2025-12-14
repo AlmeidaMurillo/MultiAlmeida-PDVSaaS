@@ -64,6 +64,44 @@
   transform: translateY(0);
 }
 
+/* Search Box */
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--input-bg);
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--primary-color);
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.searchBox:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
+}
+
+.searchBox svg {
+  color: var(--text-color);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.searchBox input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--input-text);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+.searchBox input::placeholder {
+  color: var(--input-placeholder);
+  opacity: 0.6;
+}
+
 /* Empty State */
 .emptyState {
   display: flex;

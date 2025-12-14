@@ -21,7 +21,7 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef(null);
-  
+
   const isAuthenticated = auth.isAuthenticated();
   const user = auth.getUser();
   const userRole = auth.getRole();
@@ -172,17 +172,17 @@ function Header() {
         </div>
 
         <div className={styles.actionsContainer}>
-          <button 
-            className={styles.iconButton} 
+          <button
+            className={styles.iconButton}
             onClick={toggleTheme}
             title={theme === "dark" ? "Modo Claro" : "Modo Escuro"}
             aria-label="Alternar tema"
           >
             {theme === "dark" ? <FaSun /> : <FaMoon />}
           </button>
-          
-          <button 
-            className={styles.iconButton} 
+
+          <button
+            className={styles.iconButton}
             onClick={handleCarrinhoClick}
             title="Carrinho de Compras"
             aria-label="Carrinho"
@@ -196,18 +196,18 @@ function Header() {
           {isAuthenticated ? (
             <>
               {(isSubscriptionActive || isSubscriptionExpired || userRole === 'admin') && (
-                <button 
-                  className={styles.painelButton} 
+                <button
+                  className={styles.painelButton}
                   onClick={handlePainelClick}
                   title="Acessar Painel"
                 >
                   <FaTachometerAlt /> Painel
                 </button>
               )}
-              
+
               <div className={styles.profileWrapper} ref={dropdownRef}>
-                <div 
-                  className={`${styles.profileContainer} ${isProfileDropdownOpen ? styles.active : ''}`} 
+                <div
+                  className={`${styles.profileContainer} ${isProfileDropdownOpen ? styles.active : ''}`}
                   onClick={toggleProfileDropdown}
                 >
                   <div className={styles.profileCircle}>
@@ -239,9 +239,11 @@ function Header() {
                       </div>
                     </div>
                     <div className={styles.dropdownDivider}></div>
-                    <button className={styles.dropdownItem} onClick={handleProfileClick}>
-                      <FaUser /> Meu Perfil
-                    </button>
+                    {(isSubscriptionActive || isSubscriptionExpired || userRole === 'admin') && (
+                      <button className={styles.dropdownItem} onClick={handleProfileClick}>
+                        <FaUser /> Meu Perfil
+                      </button>
+                    )}
                     {userRole === 'usuario' && (
                       <div className={styles.subscriptionStatus}>
                         {isSubscriptionActive ? (
@@ -367,7 +369,7 @@ function Header() {
                   {theme === "dark" ? <FaSun /> : <FaMoon />}
                   <span>Tema {theme === "dark" ? "Claro" : "Escuro"}</span>
                 </button>
-                {isAuthenticated && (
+                {isAuthenticated && (isSubscriptionActive || isSubscriptionExpired || userRole === 'admin') && (
                   <button className={styles.mobileSidebarItem} onClick={() => { navigate('/perfil'); toggleMobileSidebar(); }}>
                     <FaUser />
                     <span>Meu Perfil</span>

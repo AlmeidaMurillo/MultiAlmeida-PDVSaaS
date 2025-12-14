@@ -127,24 +127,39 @@
 
 .statusActive {
   background: linear-gradient(135deg, #2ecc71, #27ae60);
-  color: white;
+  color: var(--input-bg);
+  border-radius: 999px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center
 }
 
 .statusExpired {
   background: linear-gradient(135deg, #f39c12, #e67e22);
-  color: white;
+  color: var(--input-bg);
+  border-radius: 999px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .statusInactive {
-  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-  color: white;
+  background: var(--active-bg);
+  color: var(--input-bg);
+  border-radius: 999px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .profileInfo {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  overflow: hidden; /* Garante que o container não estoure */
+  overflow: hidden; 
 }
 
 .profileName,
@@ -392,7 +407,7 @@
   font-weight: 500;
 }
 
-.subscriptionStatus .statusActive {
+.subscriptionStatus {
   color: #2ecc71;
 }
 
@@ -400,7 +415,7 @@
   color: #f39c12;
 }
 
-.subscriptionStatus .statusInactive {
+.subscriptionStatus {
   color: #95a5a6;
 }
 
@@ -655,7 +670,6 @@
   font-weight: bold;
   font-size: 1.3rem;
   flex-shrink: 0;
-  border: 2px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -687,7 +701,6 @@
   align-self: center;
   margin: 0;
   margin-top: 0.35rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 

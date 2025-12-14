@@ -51,7 +51,7 @@
 
 
 .content {
-  padding: clamp(2rem, 5vh, 4rem) clamp(1rem, 3vw, 5rem);
+  padding: clamp(0.5rem, 1vh, 1rem) clamp(1rem, 3vw, 5rem);
   max-width: 1200px;
   margin: 0 auto;
   animation: fadeInUp 0.6s ease-out;
@@ -109,10 +109,10 @@
 .planInfo,
 .userInfo,
 .qrSection {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--input-bg);
   border-radius: 0.75rem;
   padding: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--primary-color);
 }
 
 .planInfo h2,
@@ -135,30 +135,101 @@
 
 .planInfo ul {
   list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.planInfo li {
-  color: var(--text-color);
-  margin-bottom: 0.5rem;
-  padding-left: 1rem;
+  padding: 1rem;
+  margin: 1rem 0 0 0;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--input-bg);
+  border-radius: 0.75rem;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 2px 8px var(--shadow-color), inset 0 0 0 1px rgba(67, 181, 129, 0.1);
   position: relative;
 }
 
-.planInfo li::before {
-  content: "✓";
-  color: var(--hover-bg);
-  font-weight: bold;
+.planInfo ul::before {
+  content: '';
   position: absolute;
+  top: 0;
   left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--success-color);
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+/* Estilizar scrollbar para benefícios */
+.planInfo ul::-webkit-scrollbar {
+  width: 4px;
+}
+
+.planInfo ul::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.planInfo ul::-webkit-scrollbar-thumb {
+  background: var(--success-color);
+  border-radius: 10px;
+}
+
+.planInfo ul::-webkit-scrollbar-thumb:hover {
+  background: var(--hoverscrollbar-thumb);
+}
+
+.planInfo li {
+  font-size: 0.875rem;
+  color: var(--text-color);
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  transition: all 0.25s ease;
+  font-weight: 500;
+  line-height: 1.5;
+  border-left: 2px solid transparent;
+  border-radius: 0.5rem;
+}
+
+.planInfo li:last-child {
+  margin-bottom: 0;
+}
+
+.planInfo li:hover {
+  border-left-color: var(--success-color);
+  background: var(--bg-color);
+  transform: translateX(3px);
+}
+
+.planInfo li::before {
+  content: '✓';
+  color: var(--success-color);
+  font-size: 0.875rem;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  margin-top: 0.125rem;
+}
+
+.cupomInfo {
+  background: linear-gradient(135deg, rgba(67, 181, 129, 0.15), rgba(67, 181, 129, 0.05));
+  border: 2px solid var(--success-color);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  margin: 0.75rem 0;
 }
 
 .qrCode {
+  max-width: 280px;
   width: 100%;
   height: auto;
   border-radius: 0.5rem;
-  margin: 1rem 0;
+  margin: 1rem auto;
+  display: block;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
@@ -196,6 +267,59 @@
   font-size: 0.9rem;
   text-align: center;
   margin-top: 1rem;
+}
+
+.countdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+  border: 2px solid rgba(255, 193, 7, 0.3);
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+  }
+}
+
+.clockIcon {
+  color: #ffc107;
+  font-size: 1.5rem;
+  animation: tick 1s ease-in-out infinite;
+}
+
+@keyframes tick {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+}
+
+.countdownText {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.countdownText strong {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffc107;
+  margin-left: 0.5rem;
 }
 
 @media (max-width: 768px) {

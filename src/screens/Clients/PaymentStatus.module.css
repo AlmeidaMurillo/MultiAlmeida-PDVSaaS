@@ -22,9 +22,22 @@
   width: 100%;
   box-sizing: border-box;
   text-align: center;
+  animation: fadeInUp 0.5s ease-out;
 }
 
-.successContainer {
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.successContainer,
+.expiredContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,11 +51,60 @@
   margin-bottom: 0.5rem;
 }
 
-.successContainer p {
+.expiredContainer h1 {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: #ff6b6b;
+  margin-bottom: 0.5rem;
+}
+
+.successContainer p,
+.expiredContainer p {
   font-size: 1rem;
   color: var(--text-color);
   margin-bottom: 0.5rem;
   line-height: 1.5;
+}
+
+.successIcon {
+  color: #4caf50;
+  animation: scaleIn 0.5s ease-out;
+}
+
+.expiredIcon {
+  color: #ff6b6b;
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.countdown {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.countdown p {
+  font-size: 1rem;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.countdown strong {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--hover-bg);
 }
 
 @media (max-width: 768px) {

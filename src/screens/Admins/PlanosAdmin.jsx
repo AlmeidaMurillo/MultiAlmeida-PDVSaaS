@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import styles from "./PlanosAdmin.module.css";
-import { Edit, Trash2, Plus, Users, Calendar } from "lucide-react";
+import { Edit, Trash2, Plus, Users, Calendar, Search } from "lucide-react";
 import { api } from "../../auth";
 
 function PlanosAdmin() {
@@ -11,6 +11,7 @@ function PlanosAdmin() {
   const [error, setError] = useState("");
   const [modal, setModal] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [busca, setBusca] = useState("");
   const [form, setForm] = useState({
     nome: "",
     periodo: "mensal",
@@ -18,6 +19,7 @@ function PlanosAdmin() {
     duracaoDias: "",
     beneficios: "",
   });
+ 
 
   const periodosOptions = [
     { label: "Mensal", key: "mensal", icon: "📅", color: "#7c3aed" },
@@ -26,9 +28,15 @@ function PlanosAdmin() {
     { label: "Anual", key: "anual", icon: "🏆", color: "#dc2626" },
   ];
 
+  // Filtrar planos pela busca
+  const planosFiltrados = planos.filter(plano => 
+    plano.nome.toLowerCase().includes(busca.toLowerCase()) ||
+    plano.periodo.toLowerCase().includes(busca.toLowerCase())
+  );
+
   // Agrupar planos por período
   const planosPorPeriodo = periodosOptions.reduce((acc, periodo) => {
-    acc[periodo.key] = planos.filter(p => p.periodo === periodo.key);
+    acc[periodo.key] = planosFiltrados.filter(p => p.periodo === periodo.key);
     return acc;
   }, {});
 
@@ -126,6 +134,7 @@ function PlanosAdmin() {
       setLoading(false);
     }
   }
+ 
 
   return (
     <Sidebar>
@@ -139,6 +148,15 @@ function PlanosAdmin() {
           >
             <Plus size={18} /> Novo Plano
           </button>
+        </div>
+
+        <div className={styles.searchBox}>
+          <Search size={18} />
+          <input
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Pesquisar planos..."
+          />
         </div>
 
         {error && <div className={styles.error}>{error}</div>}
@@ -217,7 +235,6 @@ function PlanosAdmin() {
                             <Users size={16} />
                             <span>{plano.quantidade_empresas || 0} empresas</span>
                           </div>
-
                           <div className={styles.actions}>
                             <button
                               className={styles.btnEdit}
@@ -235,6 +252,7 @@ function PlanosAdmin() {
                             >
                               <Trash2 size={16} />
                             </button>
+                            
                           </div>
                         </div>
                       </div>
@@ -313,6 +331,8 @@ function PlanosAdmin() {
             </div>
           </div>
         )}
+
+        
       </div>
     </Sidebar>
   );

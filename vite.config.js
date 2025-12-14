@@ -9,14 +9,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://multialmeida-pdvsaas-backend-production.up.railway.app',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
         ws: true,
         cookieDomainRewrite: '', // Remove o domínio para cookies funcionarem em localhost
         cookiePathRewrite: '/', // Garante que o path seja /
-        configure: (proxy, options) => {
-          proxy.on('proxyRes', (proxyRes, req, res) => {
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes) => {
             if (proxyRes.headers['set-cookie']) {
               // Remove domínio para cookies funcionarem em localhost
               const cookies = proxyRes.headers['set-cookie'].map(cookie => {

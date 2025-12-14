@@ -111,9 +111,7 @@ function EmpresasAdmin() {
     <Sidebar>
       <div className={styles.empresasContent}>
         <div className={styles.titleRow}>
-          <h1>
-            <Building2 size={24} /> Empresas
-          </h1>
+          <h1>Gerenciar Empresas</h1>
           <button className={styles.btnAdd} onClick={() => setModal(true)}>
             <Plus size={18} /> Nova Empresa
           </button>
@@ -209,7 +207,7 @@ function EmpresasAdmin() {
         {modal && (
           <div className={styles.modalBg}>
             <div className={styles.modal}>
-              <h2>Cadastrar Empresa</h2>
+              <h2>Cadastrar Nova Empresa</h2>
 
               <input
                 name="nome"
@@ -217,17 +215,21 @@ function EmpresasAdmin() {
                 onChange={handleChange}
                 placeholder="Nome da empresa"
               />
+              
               <input
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                placeholder="E-mail"
+                placeholder="E-mail da empresa"
+                type="email"
               />
+              
               <input
                 name="ownerEmail"
                 value={form.ownerEmail}
                 onChange={handleChange}
-                placeholder="E-mail do dono (opcional)"
+                placeholder="E-mail do proprietário (opcional)"
+                type="email"
               />
 
               <IMaskInput
@@ -235,7 +237,7 @@ function EmpresasAdmin() {
                 value={form.cnpj}
                 onAccept={(value) => setForm((prev) => ({ ...prev, cnpj: value }))}
                 placeholder="CNPJ"
-                className={styles.input}
+                className={styles.maskInput}
               />
 
               <IMaskInput
@@ -243,7 +245,7 @@ function EmpresasAdmin() {
                 value={form.telefone}
                 onAccept={(value) => setForm((prev) => ({ ...prev, telefone: value }))}
                 placeholder="Telefone"
-                className={styles.input}
+                className={styles.maskInput}
               />
 
               <select name="periodo" value={form.periodo} onChange={handleChange}>
@@ -266,13 +268,14 @@ function EmpresasAdmin() {
               )}
 
               <select name="status" value={form.status} onChange={handleChange}>
-                <option>Ativo</option>
-                <option>Pendente</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Pendente">Pendente</option>
               </select>
 
               <div className={styles.modalBtns}>
-                <button onClick={salvarEmpresa}>Salvar</button>
+                <button type="button" onClick={salvarEmpresa}>Salvar</button>
                 <button
+                  type="button"
                   className={styles.btnCancel}
                   onClick={() => setModal(false)}
                 >

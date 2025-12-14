@@ -16,9 +16,13 @@ import axios from "axios";
 // 1. CONFIGURAÇÃO DA API
 // ============================================
 
-const isDev = import.meta.env.DEV;
-const baseURL = import.meta.env.VITE_API_URL || 
-  (isDev ? "" : "https://multialmeida-pdvsaas-backend-production.up.railway.app");
+// Sempre usa a URL do Railway (em desenvolvimento e produção)
+const baseURL = import.meta.env.VITE_API_URL || "https://multialmeida-pdvsaas-backend-production.up.railway.app";
+
+console.log('🌐 Configuração da API:', {
+  baseURL,
+  withCredentials: true
+});
 
 export const api = axios.create({
   baseURL,
@@ -42,7 +46,9 @@ const listeners = new Set();
 let initializingPromise = null; // Evita múltiplas chamadas simultâneas de init()
 let sessionCheckInterval = null; // Intervalo de verificação de sessão
 let sessionCheckFailureCount = 0; // Contador de falhas consecutivas
-const MAX_SESSION_CHECK_FAILURES = 3; // Número de falhas antes de deslogar (mais tolerante)
+const MAX_SESSION_CHECK_FAILURES = 5; // Número de falhas antes de deslogar (tolerante)
+let rateLimitBackoff = false; // Flag para pausar verificações temporárias em caso de rate limit
+let backoffUntil = 0; // Timestamp até quando deve esperar em caso de backoff
 
 // Notifica todos os subscribers sobre mudanças no estado
 function notify() {
@@ -88,7 +94,8 @@ function setAuth(token) {
   // Define header Authorization para todas as requisições
   api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   
-  // Inicia verificação periódica de sessão
+  // Inicia verificação periódica de sessão (a cada 5 minutos)
+  // Sistema inteligente com backoff automático em caso de rate limit
   startSessionCheck();
   
   notify();
@@ -98,27 +105,41 @@ function setAuth(token) {
 async function checkSessionActive() {
   try {
     const response = await api.get('/api/auth/has-refresh');
+    // Reset backoff se requisição foi bem sucedida
+    rateLimitBackoff = false;
+    backoffUntil = 0;
     return response.data.sessionActive === true;
   } catch (error) {
-    // Se erro for de rede ou servidor temporário, não desloga
-    if (error.response?.status >= 500 || !error.response) {
-      console.warn('⚠️ Erro temporário ao verificar sessão (ignorado):', error.message);
-      return true; // Assume que sessão está ativa em caso de erro de servidor
+    // Se erro for rate limit (429), ativa backoff por 10 minutos
+    if (error.response?.status === 429) {
+      rateLimitBackoff = true;
+      backoffUntil = Date.now() + (10 * 60 * 1000);
+      return 'rate_limit';
     }
     
-    console.error('❌ Erro ao verificar sessão ativa:', error);
-    return false;
+    // Se erro for de rede ou servidor temporário, não desloga
+    if (error.response?.status >= 500 || !error.response) {
+      return 'temp_error';
+    }
+    
+    // Se erro for 401/403, sessão foi realmente invalidada
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      return false;
+    }
+    
+    return 'unknown_error';
   }
 }
 
-// Inicia verificação periódica de sessão (a cada 10 segundos)
+// Inicia verificação periódica de sessão (a cada 5 minutos)
 function startSessionCheck() {
   // Limpa intervalo anterior se existir
   if (sessionCheckInterval) {
     clearInterval(sessionCheckInterval);
   }
 
-  // Verifica a cada 10 segundos
+  // Verifica a cada 5 minutos (300 segundos)
+  // Isso resulta em apenas 3 requisições por janela de 15 min (3% do limite de 100)
   sessionCheckInterval = setInterval(async () => {
     // Só verifica se estiver autenticado
     if (!authState.isAuthenticated) {
@@ -126,41 +147,46 @@ function startSessionCheck() {
       return;
     }
 
+    // Se estiver em backoff por rate limit, pula esta verificação
+    if (rateLimitBackoff && Date.now() < backoffUntil) {
+      return;
+    }
+
     const isActive = await checkSessionActive();
     
-    if (!isActive) {
+    // Se retornou string (rate_limit, temp_error, unknown_error), não conta como falha
+    if (typeof isActive === 'string') {
+      return; // Não incrementa contador de falhas
+    }
+    
+    // Se retornou false, é uma falha real
+    if (isActive === false) {
       sessionCheckFailureCount++;
-      console.warn(`⚠️ Falha na verificação de sessão (${sessionCheckFailureCount}/${MAX_SESSION_CHECK_FAILURES})`);
       
-      // Só desloga após múltiplas falhas consecutivas
+      // Só desloga após múltiplas falhas consecutivas (5 falhas)
       if (sessionCheckFailureCount >= MAX_SESSION_CHECK_FAILURES) {
-        console.error('❌ Sessão invalidada - login em outro dispositivo detectado');
         
         // Sessão foi invalidada (login em outro dispositivo ou expirada)
         stopSessionCheck();
-        
-        // Mostra alerta
         alert('⚠️ Sua sessão foi encerrada porque você fez login em outro dispositivo.');
         
-        // Chama o backend para limpar o refresh token (cookie httpOnly)
         try {
           await api.post('/api/auth/logout');
         } catch (error) {
-          console.error('Erro ao limpar refresh token:', error);
+          console.error('Erro ao fazer logout no servidor:', error);
+          // Ignora erro ao limpar token
         }
         
-        // Desloga automaticamente
         clearAuth();
         window.location.replace('/');
       }
-    } else {
+    } else if (isActive === true) {
       // Reseta contador de falhas se verificação foi bem-sucedida
       if (sessionCheckFailureCount > 0) {
-        console.log('✅ Sessão verificada com sucesso, resetando contador de falhas');
         sessionCheckFailureCount = 0;
       }
     }
-  }, 10000); // 10 segundos
+  }, 300000); // 5 minutos (300 segundos) - apenas 3 requisições por janela de 15min
 }
 
 // Para a verificação periódica
@@ -170,11 +196,13 @@ function stopSessionCheck() {
     sessionCheckInterval = null;
   }
   sessionCheckFailureCount = 0; // Reseta contador
+  rateLimitBackoff = false; // Reseta backoff
+  backoffUntil = 0; // Reseta timestamp
 }
 
 // Limpa o estado de autenticação e TODOS os rastros
 function clearAuth() {
-  // Para verificação de sessão
+  // Para verificação de sessão (se estiver rodando)
   stopSessionCheck();
   
   authState = {
@@ -301,31 +329,62 @@ export const auth = {
   async init() {
     // Se já está inicializando, retorna a promise existente (evita chamadas duplicadas)
     if (initializingPromise) {
+      console.log('🔄 Inicialização já em andamento, aguardando...');
       return initializingPromise;
     }
 
     // Se já foi inicializado, não faz nada
     if (authState.initialized) {
+      console.log('✅ Auth já inicializado');
       return;
     }
     
+    console.log('🚀 Iniciando autenticação...');
+    
     initializingPromise = (async () => {
       try {
+        console.log('🔍 Verificando refresh token no servidor...');
         const { data: check } = await api.get("/api/auth/has-refresh");
+        console.log('📋 Resultado da verificação:', check);
+        console.log('📋 Detalhes:', {
+          hasRefresh: check.hasRefresh,
+          sessionActive: check.sessionActive,
+          typeof_hasRefresh: typeof check.hasRefresh,
+          typeof_sessionActive: typeof check.sessionActive
+        });
         
         if (check.hasRefresh && check.sessionActive) {
+          console.log('✅ Sessão válida encontrada, renovando access token...');
           const { data } = await api.post("/api/auth/refresh");
           setAuth(data.accessToken);
+          console.log('✅ Auth inicializado com sucesso');
         } else {
+          console.log('❌ Nenhuma sessão válida encontrada');
+          console.log('❌ Motivo:', {
+            hasRefresh: check.hasRefresh,
+            sessionActive: check.sessionActive
+          });
           clearAuth();
         }
       } catch (error) {
-        console.error('Erro na inicialização da autenticação:', error.message);
-        clearAuth();
+        console.error('❌ Erro ao inicializar auth:', {
+          status: error.response?.status,
+          message: error.message,
+          url: error.config?.url
+        });
+        
+        // Se for erro 429, não desloga - marca como inicializado e continua
+        if (error.response?.status === 429) {
+          console.warn('⚠️ Rate limit temporário. Aguarde alguns minutos.');
+          authState.initialized = true;
+        } else {
+          clearAuth();
+        }
       } finally {
         authState.initialized = true;
         initializingPromise = null;
         notify();
+        console.log('🏁 Inicialização finalizada');
       }
     })();
 

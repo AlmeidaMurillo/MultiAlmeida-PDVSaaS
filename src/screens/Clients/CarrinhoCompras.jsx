@@ -20,17 +20,40 @@ export default function CarrinhoCompras() {
   const [error, setError] = useState("");
   const [cupom, setCupom] = useState("");
   const [cupomAplicado, setCupomAplicado] = useState(null);
+  const [cupomValidando, setCupomValidando] = useState(false);
+  const [cupomErro, setCupomErro] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Verificar se há cupom aplicado no carrinho ao carregar
+  useEffect(() => {
+    if (itensCarrinho.length > 0 && itensCarrinho[0].cupom_codigo) {
+      const item = itensCarrinho[0];
+      const valorTotal = itensCarrinho.reduce((total, i) => {
+        return total + (Number(i.preco || 0) * i.quantidade);
+      }, 0);
+      
+      setCupomAplicado({
+        codigo: item.cupom_codigo,
+        tipo: item.cupom_tipo,
+        valor: item.cupom_valor,
+        desconto: item.cupom_desconto,
+        valor_original: valorTotal,
+        valor_final: valorTotal - item.cupom_desconto
+      });
+    } else {
+      setCupomAplicado(null);
+    }
+  }, [itensCarrinho]);
 
   const carregarPlanos = useCallback(async () => {
     try {
-      // Solicita planos agrupados do backend para manter compatibilidade com a lógica existente
       const response = await api.get("/api/planos?grouped=true"); 
       setPlanos(response.data.planos || []);
     } catch (err) {
       console.error("Erro ao carregar planos:", err);
+      setError("Erro ao carregar planos disponíveis");
     }
-  }, []); // api não é uma dependência válida
+  }, []);
 
   const carregarCarrinho = useCallback(async () => {
     try {
@@ -41,7 +64,7 @@ export default function CarrinhoCompras() {
       console.error("Erro ao carregar carrinho:", err);
       setError("Erro ao carregar carrinho");
     }
-  }, []); // api não é uma dependência válida
+  }, []);
 
   useEffect(() => {
     // A rota já é protegida por ProtectedRoute, não precisa verificar isAuthenticated aqui
@@ -79,25 +102,66 @@ export default function CarrinhoCompras() {
   };
 
   const alterarPlanoPeriodo = async (itemId, novoPlanoId, novoPeriodo) => {
+    setIsLoading(true);
+    setError("");
     try {
       await api.delete(`/api/carrinho/${itemId}`);
       await api.post("/api/carrinho", { planoId: novoPlanoId, periodo: novoPeriodo });
-      carregarCarrinho();
+      await carregarCarrinho();
     } catch (err) {
       console.error("Erro ao alterar plano/período:", err);
-      setError("Erro ao alterar plano/período");
+      const mensagemErro = err.response?.data?.error || "Erro ao alterar plano/período";
+      setError(mensagemErro);
+      alert(`Erro: ${mensagemErro}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const aplicarCupom = () => {
-    if (cupom.trim()) {
-      setCupomAplicado(cupom.trim());
-      setCupom("");
+  const aplicarCupom = async () => {
+    if (!cupom.trim()) return;
+    
+    setCupomValidando(true);
+    setCupomErro("");
+    
+    try {
+      const response = await api.post("/api/carrinho/cupom", {
+        codigo: cupom.trim()
+      });
+      
+      if (response.data.cupom) {
+        setCupomAplicado({
+          codigo: response.data.cupom.codigo,
+          tipo: response.data.cupom.tipo,
+          valor: response.data.cupom.valor,
+          desconto: response.data.cupom.desconto,
+          valor_original: response.data.cupom.valor_original,
+          valor_final: response.data.cupom.valor_final
+        });
+        setCupom("");
+        setCupomErro("");
+        // Recarrega o carrinho para pegar os dados atualizados
+        await carregarCarrinho();
+      }
+    } catch (err) {
+      console.error("Erro ao aplicar cupom:", err);
+      setCupomErro(err.response?.data?.error || "Cupom inválido");
+      setCupomAplicado(null);
+    } finally {
+      setCupomValidando(false);
     }
   };
 
-  const removerCupom = () => {
-    setCupomAplicado(null);
+  const removerCupom = async () => {
+    try {
+      await api.delete("/api/carrinho/cupom");
+      setCupomAplicado(null);
+      setCupomErro("");
+      // Recarrega o carrinho para limpar os dados do cupom
+      await carregarCarrinho();
+    } catch (err) {
+      console.error("Erro ao remover cupom:", err);
+    }
   };
 
   const handleContinuar = async () => {
@@ -106,7 +170,7 @@ export default function CarrinhoCompras() {
     setError("");
 
     try {
-      // O backend agora lê o carrinho, então não precisamos enviar dados
+      // O cupom já está salvo no carrinho, não precisa enviar
       const response = await api.post("/api/payments/initiate");
       const { paymentId } = response.data;
       if (paymentId) {
@@ -125,18 +189,20 @@ export default function CarrinhoCompras() {
     }
   };
 
-  const calcularTotal = useCallback(() => { // Adiciona useCallback
-    return itensCarrinho.reduce((total, item) => {
-      // Busca o plano no formato agrupado
-      const planoInfoAgrupado = planos.find(p => p.id === item.plano_id || p.nome === item.plano_id); // Pode ser pelo ID do plano base ou nome
-      
-      let preco = 0;
-      if (planoInfoAgrupado && planoInfoAgrupado[item.periodo]) {
-        preco = Number(planoInfoAgrupado[item.periodo].preco) * item.quantidade;
-      }
+  const calcularTotal = useCallback(() => {
+    const subtotal = itensCarrinho.reduce((total, item) => {
+      // Os dados de preço já vêm no item do carrinho
+      const preco = Number(item.preco || 0) * item.quantidade;
       return total + preco;
     }, 0);
-  }, [itensCarrinho, planos]); // Dependências
+    
+    // Se houver cupom aplicado, retorna o valor com desconto
+    if (cupomAplicado && cupomAplicado.valor_final !== undefined) {
+      return cupomAplicado.valor_final;
+    }
+    
+    return subtotal;
+  }, [itensCarrinho, cupomAplicado]); // Dependências
 
   return (
     <div className={styles.container}>
@@ -171,12 +237,16 @@ export default function CarrinhoCompras() {
               </div>
 
               {itensCarrinho.map((item) => {
-                const plano = planos.find(p => p.id === item.plano_id || p.nome === item.plano_id); // Encontra o plano base
-                const periodoInfo = plano ? plano[item.periodo] : null; // Pega info do período
+                // Os dados do plano já vêm no item do carrinho (nome, preco, duracao_dias, beneficios)
+                // Para exibição, usamos os dados que já vêm no item
+                const periodoInfo = {
+                  id: item.plano_id,
+                  preco: item.preco,
+                  duracaoDias: item.duracao_dias,
+                  beneficios: item.beneficios
+                };
                 
-                // console.log("Item Carrinho:", item);
-                // console.log("Plano Base Encontrado:", plano);
-                // console.log("Periodo Info:", periodoInfo);
+
 
                 return (
                   <div key={item.id} className={styles.itemCard}>
@@ -190,62 +260,70 @@ export default function CarrinhoCompras() {
                         </button>
                         <div className={styles.itemHeader}>
                           <div className={styles.selectsContainer}>
-                            <label className={styles.selectLabel}>Plano</label>
-                            <select
-                              className={styles.planoSelect}
-                              value={plano?.nome || ''}
-                              onChange={(e) => {
-                                const novoPlanoNome = e.target.value;
-                                const novoPlano = planos.find(p => p.nome === novoPlanoNome);
-                                if (novoPlano) {
-                                  const novoPeriodoInfo = novoPlano[item.periodo];
-                                  if (novoPeriodoInfo) {
-                                    alterarPlanoPeriodo(item.id, novoPeriodoInfo.id, item.periodo);
-                                  }
-                                }
-                              }}
-                            >
-                              <option value="">Selecione um plano</option>
-                              {planos.map((p) => (
-                                <option key={p.nome} value={p.nome}>
-                                  {p.nome}
-                                </option>
-                              ))}
-                            </select>
                             <label className={styles.selectLabel}>Período</label>
                             <select
                               className={styles.periodoSelect}
                               value={item.periodo}
                               onChange={(e) => {
                                 const novoPeriodo = e.target.value;
-                                const planoBase = planos.find(p => p.id === item.plano_id || p.nome === item.plano_id); // Precisa encontrar o plano base novamente
-                                const novoPeriodoInfo = planoBase ? planoBase[novoPeriodo] : null;
+                                if (!novoPeriodo) return;
+                                
+                                // Primeiro tenta manter o mesmo plano com o novo período
+                                let planoParaUsar = planos.find(p => p.nome === item.nome);
+                                let novoPeriodoInfo = planoParaUsar ? planoParaUsar[novoPeriodo] : null;
+                                
+                                // Se o plano atual não tem esse período, pega o primeiro plano que tem
+                                if (!novoPeriodoInfo) {
+                                  planoParaUsar = planos.find(p => p[novoPeriodo]);
+                                  novoPeriodoInfo = planoParaUsar ? planoParaUsar[novoPeriodo] : null;
+                                }
+                                
                                 if (novoPeriodoInfo) {
                                   alterarPlanoPeriodo(item.id, novoPeriodoInfo.id, novoPeriodo);
+                                } else {
+                                  alert(`Nenhum plano disponível para o período ${novoPeriodo}. Verifique se há planos cadastrados.`);
                                 }
                               }}
+                              disabled={isLoading}
                             >
                               <option value="">Selecione um período</option>
-                              {plano && plano.mensal && (
-                                <option value="mensal">
-                                  Mensal - R$ {plano.mensal.preco.toFixed(2)}
-                                </option>
-                              )}
-                              {plano && plano.trimestral && (
-                                <option value="trimestral">
-                                  Trimestral - R$ {plano.trimestral.preco.toFixed(2)}
-                                </option>
-                              )}
-                              {plano && plano.semestral && (
-                                <option value="semestral">
-                                  Semestral - R$ {plano.semestral.preco.toFixed(2)}
-                                </option>
-                              )}
-                              {plano && plano.anual && (
-                                <option value="anual">
-                                  Anual - R$ {plano.anual.preco.toFixed(2)}
-                                </option>
-                              )}
+                              <option value="mensal">Mensal</option>
+                              <option value="trimestral">Trimestral</option>
+                              <option value="semestral">Semestral</option>
+                              <option value="anual">Anual</option>
+                            </select>
+                            <label className={styles.selectLabel}>Plano ({item.periodo})</label>
+                            <select
+                              className={styles.planoSelect}
+                              value={item.nome || ''}
+                              onChange={(e) => {
+                                const novoPlanoNome = e.target.value;
+                                if (!novoPlanoNome) return;
+                                
+                                const novoPlano = planos.find(p => p.nome === novoPlanoNome);
+                                
+                                if (novoPlano) {
+                                  const novoPeriodoInfo = novoPlano[item.periodo];
+                                  
+                                  if (novoPeriodoInfo) {
+                                    alterarPlanoPeriodo(item.id, novoPeriodoInfo.id, item.periodo);
+                                  } else {
+                                    alert(`O plano ${novoPlanoNome} não possui período ${item.periodo}. Escolha outro período.`);
+                                  }
+                                } else {
+                                  alert('Plano não encontrado. Tente recarregar a página.');
+                                }
+                              }}
+                              disabled={isLoading}
+                            >
+                              <option value="">Selecione um plano</option>
+                              {planos
+                                .filter(p => p[item.periodo]) // Filtra apenas planos que têm o período selecionado
+                                .map((p) => (
+                                  <option key={p.nome} value={p.nome}>
+                                    {p.nome} - R$ {p[item.periodo]?.preco?.toFixed(2) || '0.00'}
+                                  </option>
+                                ))}
                             </select>
 
                           </div>
@@ -284,14 +362,13 @@ export default function CarrinhoCompras() {
                 <h2 className={styles.summaryHeader}>Resumo do Pedido</h2>
                 <div className={styles.summaryContent}>
                   {itensCarrinho.map((item) => {
-                    const planoInfoAgrupado = planos.find(p => p.id === item.plano_id || p.nome === item.plano_id);
-                    const periodoInfo = planoInfoAgrupado ? planoInfoAgrupado[item.periodo] : null;
-                    const subtotal = (periodoInfo?.preco || 0) * item.quantidade;
+                    // Os dados já vêm no item do carrinho
+                    const subtotal = (item.preco || 0) * item.quantidade;
 
                     return (
                       <div key={item.id} className={styles.summaryItem}>
                         <span className={styles.summaryItemLabel}>
-                          {planoInfoAgrupado?.nome || 'Plano'} ({item.periodo})
+                          {item.nome || 'Plano'} ({item.periodo})
                         </span>
                         <span className={styles.summaryItemValue}>R${subtotal.toFixed(2)}</span>
                       </div>
@@ -306,29 +383,65 @@ export default function CarrinhoCompras() {
                         type="text"
                         placeholder="Digite seu cupom"
                         value={cupom}
-                        onChange={(e) => setCupom(e.target.value)}
+                        onChange={(e) => {
+                          setCupom(e.target.value.toUpperCase());
+                          setCupomErro("");
+                        }}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && cupom.trim()) {
+                            aplicarCupom();
+                          }
+                        }}
                         className={styles.cupomInput}
+                        disabled={cupomValidando}
                       />
                       <button
                         className={styles.cupomButton}
                         onClick={aplicarCupom}
-                        disabled={!cupom.trim()}
+                        disabled={!cupom.trim() || cupomValidando}
                       >
-                        Aplicar
+                        {cupomValidando ? "Validando..." : "Aplicar"}
                       </button>
                     </div>
+                    {cupomErro && (
+                      <div className={styles.cupomErro}>
+                        ⚠️ {cupomErro}
+                      </div>
+                    )}
                     {cupomAplicado && (
                       <div className={styles.cupomAplicado}>
-                        <span>🎉 Cupom "{cupomAplicado}" aplicado!</span>
+                        <div className={styles.cupomInfo}>
+                          <span className={styles.cupomSuccess}>✓ Cupom "{cupomAplicado.codigo}" aplicado!</span>
+                          <span className={styles.cupomDesconto}>
+                            {cupomAplicado.tipo === 'percentual' 
+                              ? `${cupomAplicado.valor || 0}% de desconto` 
+                              : `R$ ${(cupomAplicado.valor || 0).toFixed(2)} de desconto`}
+                          </span>
+                        </div>
                         <button
                           className={styles.removerCupomButton}
                           onClick={removerCupom}
+                          title="Remover cupom"
                         >
                           ✕
                         </button>
                       </div>
                     )}
                   </div>
+
+                  {/* Subtotal e Desconto */}
+                  {cupomAplicado && (
+                    <>
+                      <div className={styles.summaryItem}>
+                        <span className={styles.summaryItemLabel}>Subtotal</span>
+                        <span className={styles.summaryItemValue}>R${cupomAplicado.valor_original.toFixed(2)}</span>
+                      </div>
+                      <div className={styles.summaryItem} style={{ color: 'var(--success-color)' }}>
+                        <span className={styles.summaryItemLabel}>Desconto</span>
+                        <span className={styles.summaryItemValue}>-R${cupomAplicado.desconto.toFixed(2)}</span>
+                      </div>
+                    </>
+                  )}
 
                   <div className={styles.totalFinal}>Total: R${calcularTotal().toFixed(2)}</div>
 
