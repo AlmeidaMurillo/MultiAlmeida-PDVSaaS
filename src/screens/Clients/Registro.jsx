@@ -10,7 +10,8 @@ import {
   FaSun,
 } from "react-icons/fa";
 import { auth } from "../../auth";
-import styles from "./Registro.module.css"; 
+import styles from "./Registro.module.css";
+import Footer from "../../Components/Footer/Footer";
 
 function Registro() {
   const [searchParams] = useSearchParams();
@@ -199,6 +200,7 @@ function Registro() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

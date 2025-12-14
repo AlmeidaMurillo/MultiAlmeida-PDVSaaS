@@ -171,8 +171,14 @@
   pointer-events: none;
 }
 
-.periodoSelector:hover::before {
+.periodoSelector:active::before {
   opacity: 0.3;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .periodoSelector:hover::before {
+    opacity: 0.3;
+  }
 }
 
 .periodoLabel {
@@ -208,10 +214,18 @@
   pointer-events: auto;
 }
 
-.periodoSelect:hover {
+.periodoSelect:active {
   border-color: var(--primary-color);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .periodoSelect:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+  }
 }
 
 .periodoSelect:focus {
@@ -286,9 +300,16 @@
   transition: all 0.3s ease;
 }
 
-.blocoperiodo:hover {
+.blocoperiodo:active {
   border-color: rgba(255,255,255,0.15);
   box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .blocoperiodo:hover {
+    border-color: rgba(255,255,255,0.15);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  }
 }
 
 /* Header do período */
@@ -361,14 +382,26 @@
   transition: opacity 0.3s ease;
 }
 
-.planoCard:hover {
+.planoCard:active {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.3);
   border-color: rgba(255,255,255,0.15);
 }
 
-.planoCard:hover::before {
+.planoCard:active::before {
   opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .planoCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  .planoCard:hover::before {
+    opacity: 1;
+  }
 }
 
 /* Card Header */
@@ -491,8 +524,10 @@
   border-radius: 3px;
 }
 
-.beneficiosList::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+@media (hover: hover) and (pointer: fine) {
+  .beneficiosList::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
 }
 
 .beneficiosList li {
@@ -547,10 +582,12 @@
   background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
 }
 
-.planoButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
-  filter: brightness(1.1);
+@media (hover: hover) and (pointer: fine) {
+  .planoButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    filter: brightness(1.1);
+  }
 }
 
 .planoButton:active {
@@ -625,9 +662,16 @@
   box-shadow: 0 2px 8px var(--shadow-color);
 }
 
-[data-theme="light"] .blocoperiodo:hover {
+[data-theme="light"] .blocoperiodo:active {
   border-color: var(--active-bg);
   box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="light"] .blocoperiodo:hover {
+    border-color: var(--active-bg);
+    box-shadow: 0 4px 16px var(--shadow-color);
+  }
 }
 
 [data-theme="light"] .contato {
@@ -687,10 +731,18 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
-.contatoDetalhes p:hover {
+.contatoDetalhes p:active {
   transform: translateX(8px);
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contatoDetalhes p:hover {
+    transform: translateX(8px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .contatoDetalhes svg {
@@ -730,11 +782,20 @@
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.redeIcon:hover {
+.redeIcon:active {
   transform: translateY(-5px) scale(1.1);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
   background: var(--button-hover);
   color: var(--bg-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .redeIcon:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    background: var(--button-hover);
+    color: var(--bg-color);
+  }
 }
 
 @media (max-width: 1024px) {

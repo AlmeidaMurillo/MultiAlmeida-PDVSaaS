@@ -68,9 +68,16 @@
   justify-content: center;
 }
 
-.iconButton:hover {
+.iconButton:active {
   background-color: var(--hover-bg);
   transform: scale(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .iconButton:hover {
+    background-color: var(--hover-bg);
+    transform: scale(1.1);
+  }
 }
 
 .mainContent {
@@ -177,8 +184,14 @@
   align-items: center;
 }
 
-.eyeIcon:hover {
+.eyeIcon:active {
   color: var(--text-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .eyeIcon:hover {
+    color: var(--text-color);
+  }
 }
 
 .button {
@@ -196,9 +209,16 @@
   justify-content: center;
 }
 
-.button:hover:not(:disabled) {
+.button:active:not(:disabled) {
   background-color: var(--button-hover);
   transform: translateY(-2px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover:not(:disabled) {
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
+  }
 }
 
 .button:disabled {
@@ -225,8 +245,14 @@
   font-weight: 600;
 }
 
-.registroLink a:hover {
+.registroLink a:active {
   text-decoration: underline;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .registroLink a:hover {
+    text-decoration: underline;
+  }
 }
 
 @media (max-width: 1440px) {

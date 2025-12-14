@@ -11,6 +11,15 @@ export default function PaymentStatus() {
   // Obtém o status do pagamento (sucesso ou expirado)
   const status = location.state?.status || "success";
 
+  // Limpa o contexto após montar
+  useEffect(() => {
+    if (!location.state?.fromPayment) {
+      // Sem contexto válido, volta para landing
+      navigate('/', { replace: true });
+      return;
+    }
+  }, [navigate, location.state]);
+
   useEffect(() => {
     // Não precisa mais limpar localStorage pois o cupom está no banco
     // O carrinho é limpo automaticamente pelo backend quando pagamento aprovado

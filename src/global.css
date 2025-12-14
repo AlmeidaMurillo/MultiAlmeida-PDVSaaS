@@ -95,8 +95,10 @@ html.sidebar-active-page { /* Added this rule */
     transition: background 0.3s ease;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--hoverscrollbar-thumb);
+  @media (hover: hover) and (pointer: fine) {
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--hoverscrollbar-thumb);
+    }
   }
 
   ::-webkit-scrollbar-button {

@@ -12,14 +12,6 @@ COM TODAS AS PERMISSOES DOS PLANOS DO SISTEMA ONDE EU IREI MARCAR AS CAIXAS DE
 QUAIS PERMISSOES AQUELE PLANO IRA TER, COMO FAREI ISSO? TEM QUE CRIAR ALGO NO BANCO? 
 POR ONDE COMEÇAR?
 
-AINDA ESTOU COM PROBLEMA DE ESTAR DESLOGANDO SOZINHO DA CONTA O SISTEMA.
-
-
-VERIFICAR PARA VER SE TA TUDO CERTO COM AS ROTAS A PARTE DO FRONTEND E A PARTE DO BACKEND
-PARA NAO VAZAR NADA E NENHUMA ROTA FICAR EXPOSTA EM LUGAR NENHUM E SER TOTALMENTE IMPOSSIVEL DE ALGUEM
-HACKEAR OU ATACAR O MEU SISTEMA.
-
-
 VERIFICAR COMO IREI FAZER A QUESTAO DE AURIZAÇÕES OS PLANOS DO USUARIO PARA ELE CONSEGUIR
 USAR APENAS OQUE ESTA DESCRITO NO PLANO DE ASSINATURA DELE.
 FAZER MESMA COISA PARA OS FUNCIONARIOS DOS DONOS DAS EMPRESAS, PARA ADMINS CARGOS DE ADMIN DO MEU SISTEMA.
@@ -28,10 +20,6 @@ FAZER ALGO TIPO UMA POLITICA DE REGRAS PARA O SISTEMA TIPO TERMOS DE USO E POLIT
 
 FAZER UMA DOCUMENTAÇÃO PARA ABRIR EM CADA PLANO E O USUARIO VER TODOS OS BENEFICIOS DO PLANO CONTRATADO
 DE PONTA A PONTA.   
-
-FAZER PARA NAO CONSEGUIREM ACESSAR AS ROTAS PUBLICAS QUE NECESSITAM DE ALGO TIPO A LOGIN QUANDO O USUARIO JA ESTIVER
-LOGADO NO SISTEMA, A TELA PAGAMENTO CASO O USUARIO NAO TENHA VINDO DO BOTAO CONTINUAR PARA O PAGAMENTO NA TELA CARRINHO
-E A TELA PAGAMENTO STATUS TAMBEM.
 
 FAZER O STATUS DE QUANDO A ASSINATURA DO USUARIO ESTIVER EXPIRADA, CANCELADA, VENCIDA E ETC NA MODAL DA TELA LANDINGPAGE E NA SIDERBAR DA LANDINGPAGE.
 
@@ -55,6 +43,25 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
+  // Guarda de rota: só permite acesso ao Payment se existir contexto válido
+  const RequirePaymentContext = ({ children }) => {
+    const hasStateFlag = location.state?.fromCart === true;
+    const hasPaymentIdParam = /\/payment\/.+/.test(location.pathname);
+
+    if (hasStateFlag && hasPaymentIdParam) {
+      return children;
+    }
+    return <Navigate to="/" replace />;
+  };
+
+  const RequirePaymentStatusContext = ({ children }) => {
+    const hasStateFlag = location.state?.fromPayment === true;
+    if (hasStateFlag) {
+      return children;
+    }
+    return <Navigate to="/" replace />;
+  };
+
   useEffect(() => {
     setupInterceptors();
 
@@ -73,7 +80,15 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Spinner só aparece durante carregamento inicial
+  // Redireciona usuários autenticados para seus dashboards
+  const RedirectIfAuthenticated = ({ children }) => {
+    if (isAuthenticated) {
+      const redirectPath = auth.isAdmin() ? "/dashboardadmin" : "/dashboardcliente";
+      return <Navigate to={redirectPath} replace />;
+    }
+    return children;
+  };
+
   if (!isAuthReady) return <Spinner />;
 
   return (
@@ -82,10 +97,39 @@ function App() {
       <Suspense fallback={<Spinner />}>
         <Routes location={location}>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Registro />} />
-          <Route path="/payment/:paymentId" element={<Payment />} />
-          <Route path="/payment-status" element={<PaymentStatus />} />
+          <Route
+            path="/login"
+            element={
+              <RedirectIfAuthenticated>
+                <Login />
+              </RedirectIfAuthenticated>
+            }
+          />
+          <Route
+            path="/registro"
+            element={
+              <RedirectIfAuthenticated>
+                <Registro />
+              </RedirectIfAuthenticated>
+            }
+          />
+          <Route path="/payment" element={<Navigate to="/" replace />} />
+          <Route
+            path="/payment/:paymentId"
+            element={
+              <RequirePaymentContext>
+                <Payment />
+              </RequirePaymentContext>
+            }
+          />
+          <Route
+            path="/payment-status"
+            element={
+              <RequirePaymentStatusContext>
+                <PaymentStatus />
+              </RequirePaymentStatusContext>
+            }
+          />
           <Route path="/carrinho" element={<CarrinhoCompras />} />
 
           <Route

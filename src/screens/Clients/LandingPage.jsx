@@ -5,6 +5,7 @@ import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import { Calendar, Check } from "lucide-react";
 import styles from "./LandingPage.module.css";
 import Header from "../../Components/Header/Header";
+import Footer from "../../Components/Footer/Footer";
 import { auth, api } from "../../auth";
 
 function LandingPage() {
@@ -305,6 +306,7 @@ function LandingPage() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

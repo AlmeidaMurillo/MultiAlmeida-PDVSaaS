@@ -102,6 +102,15 @@
   transform: translateX(0);
 }
 
+.menuLi:active {
+  background-color: var(--hover-bg);
+  color: var(--text-color);
+  transform: translateX(5px);
+  box-shadow: inset 4px 0 8px rgba(0, 0, 0, 0.08),
+    0 2px 5px rgba(0, 0, 0, 0.1);
+  border-left-color: var(--primary-color);
+}
+
 @media (hover: hover) and (pointer: fine) {
   .menuLi:hover {
     background-color: var(--hover-bg);
@@ -111,44 +120,56 @@
       0 2px 5px rgba(0, 0, 0, 0.1);
     border-left-color: var(--primary-color);
   }
+}
 
+.menuButton:active {
+  outline: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
   .menuButton:hover {
     outline: none;
   }
+}
 
+.iconButton:active {
+  background-color: var(--hover-bg);
+  transform: scale(1.1);
+  color: var(--text-color); /* Garante que o ícone tenha contraste com o fundo de hover */
+}
+
+@media (hover: hover) and (pointer: fine) {
   .iconButton:hover {
     background-color: var(--hover-bg);
     transform: scale(1.1);
     color: var(--text-color); /* Garante que o ícone tenha contraste com o fundo de hover */
   }
+}
 
+.iconWrapper:active {
+  color: var(--text-color); /* Garante que o ícone tenha contraste com o fundo de hover */
+}
+
+@media (hover: hover) and (pointer: fine) {
   .iconWrapper:hover {
     color: var(--text-color); /* Garante que o ícone tenha contraste com o fundo de hover */
   }
+}
 
+.active:active {
+  background-color: var(--hover-bg);
+  box-shadow:
+    inset 4px 0 10px rgba(0, 0, 0, 0.15),
+    0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+@media (hover: hover) and (pointer: fine) {
   .active:hover {
     background-color: var(--hover-bg);
     box-shadow:
       inset 4px 0 10px rgba(0, 0, 0, 0.15),
       0 4px 10px rgba(0, 0, 0, 0.2);
   }
-}
-
-.menuLi:active {
-  background-color: var(--hover-bg);
-  color: var(--text-color);
-  border-left-color: transparent;
-  padding-left: 1.5rem;
-}
-
-.menuButton:active {
-  color: var(--hover-bg);
-  outline: none;
-}
-
-.iconButton:active,
-.iconWrapper:active {
-  color: var(--hover-bg);
 }
 
 .icon {
@@ -226,9 +247,16 @@
   position: relative; /* Adicionado para posicionamento correto do badge */
 }
 
-.iconButton:hover {
+.iconButton:active {
   background-color: var(--hover-bg);
   transform: scale(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .iconButton:hover {
+    background-color: var(--hover-bg);
+    transform: scale(1.1);
+  }
 }
 
 .iconWrapper {
@@ -285,9 +313,16 @@
   position: relative;
 }
 
-.profileContainer:hover .profileCircle {
+.profileContainer:active .profileCircle {
   transform: scale(1.05);
   border-color: var(--hover-bg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .profileContainer:hover .profileCircle {
+    transform: scale(1.05);
+    border-color: var(--hover-bg);
+  }
 }
 
 /* Dropdown de perfil */
@@ -421,13 +456,26 @@
   text-align: left;
 }
 
-.dropdownItem:hover {
+.dropdownItem:active {
   background: var(--hover-bg);
 }
 
-[data-theme="light"] .dropdownItem:hover {
+@media (hover: hover) and (pointer: fine) {
+  .dropdownItem:hover {
+    background: var(--hover-bg);
+  }
+}
+
+[data-theme="light"] .dropdownItem:active {
   background: linear-gradient(135deg, #e8eaed, #f0f2f5);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="light"] .dropdownItem:hover {
+    background: linear-gradient(135deg, #e8eaed, #f0f2f5);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  }
 }
 
 .dropdownItem svg {

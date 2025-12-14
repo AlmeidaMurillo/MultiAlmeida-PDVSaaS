@@ -71,9 +71,16 @@
   justify-content: center;
 }
 
-.iconButton:hover {
+.iconButton:active {
   background-color: var(--hover-bg);
   transform: scale(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .iconButton:hover {
+    background-color: var(--hover-bg);
+    transform: scale(1.1);
+  }
 }
 
 .header {
@@ -118,10 +125,18 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.backButton:hover {
+.backButton:active {
   background-color: var(--primary-color);
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .backButton:hover {
+    background-color: var(--primary-color);
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .icon {
@@ -232,9 +247,16 @@
   padding: 1.5rem;
 }
 
-.itemCard:hover {
+.itemCard:active {
   border-color: var(--primary-color);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .itemCard:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .itemCardContent {
@@ -289,8 +311,14 @@
   z-index: 10;
 }
 
-.removeButton:hover {
+.removeButton:active {
   color: #ef4444;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .removeButton:hover {
+    color: #ef4444;
+  }
 }
 
 .selectsContainer {
@@ -323,10 +351,18 @@
   text-align: center;
 }
 
-.planoSelect:hover,
-.periodoSelect:hover {
+.planoSelect:active,
+.periodoSelect:active {
   border-color: var(--primary-color);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .planoSelect:hover,
+  .periodoSelect:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .planoSelect:focus,
@@ -369,8 +405,14 @@
   font-size: 0.875rem;
 }
 
-.cupomButton:hover {
+.cupomButton:active {
   background: var(--primary-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cupomButton:hover {
+    background: var(--primary-color);
+  }
 }
 
 .cupomButton:disabled {
@@ -390,8 +432,14 @@
   transition: background-color 0.2s;
 }
 
-.removerCupomButton:hover {
+.removerCupomButton:active {
   background-color: #fef2f2;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .removerCupomButton:hover {
+    background-color: #fef2f2;
+  }
 }
 
 .badgeContainer {
@@ -461,8 +509,14 @@
   transition: box-shadow 0.3s ease;
 }
 
-.summaryCard:hover {
+.summaryCard:active {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .summaryCard:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .summaryHeader {
@@ -595,9 +649,16 @@
   white-space: nowrap;
 }
 
-.cupomButton:hover:not(:disabled) {
+.cupomButton:active:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(67, 181, 129, 0.4);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cupomButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 181, 129, 0.4);
+  }
 }
 
 .cupomButton:disabled {
@@ -689,11 +750,20 @@
   flex-shrink: 0;
 }
 
-.removerCupomButton:hover {
+.removerCupomButton:active {
   background: #dc2626;
   border-color: #dc2626;
   color: white;
   transform: rotate(90deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .removerCupomButton:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: white;
+    transform: rotate(90deg);
+  }
 }
 
 .checkoutButton {
@@ -710,10 +780,18 @@
   transition: all 0.3s ease;
 }
 
-.checkoutButton:hover {
+.checkoutButton:active {
   background: var(--primary-color);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .checkoutButton:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .garantia {
@@ -762,9 +840,16 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.footerSection:hover {
+.footerSection:active {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footerSection:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .footerIcon {
@@ -855,10 +940,18 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.explorarButton:hover {
+.explorarButton:active {
   background: linear-gradient(135deg, var(--button-hover), #2563eb);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .explorarButton:hover {
+    background: linear-gradient(135deg, var(--button-hover), #2563eb);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .beneficiosList {
@@ -900,8 +993,10 @@
   border-radius: 10px;
 }
 
-.beneficiosList::-webkit-scrollbar-thumb:hover {
-  background: var(--hoverscrollbar-thumb);
+@media (hover: hover) and (pointer: fine) {
+  .beneficiosList::-webkit-scrollbar-thumb:hover {
+    background: var(--hoverscrollbar-thumb);
+  }
 }
 
 .beneficiosList li {
@@ -923,10 +1018,18 @@
   margin-bottom: 0;
 }
 
-.beneficiosList li:hover {
+.beneficiosList li:active {
   border-left-color: var(--success-color);
   background: var(--bg-color);
   transform: translateX(3px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .beneficiosList li:hover {
+    border-left-color: var(--success-color);
+    background: var(--bg-color);
+    transform: translateX(3px);
+  }
 }
 
 .beneficiosList li::before {
@@ -1268,10 +1371,18 @@
   align-items: center;
   gap: 0.5rem;
 }
-.loginButton:hover,
-.painelButton:hover {
+.loginButton:active,
+.painelButton:active {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .loginButton:hover,
+  .painelButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
 }
 .profileContainer {
   position: relative;
@@ -1291,10 +1402,18 @@
   transition: all 0.3s ease;
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
-.profileCircle:hover {
+.profileCircle:active {
   background-color: var(--active-bg);
   transform: scale(1.05);
   border-color: var(--hover-bg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .profileCircle:hover {
+    background-color: var(--active-bg);
+    transform: scale(1.05);
+    border-color: var(--hover-bg);
+  }
 }
 .userModalOverlay {
   position: fixed;
@@ -1383,23 +1502,41 @@
   width: 20px;
   height: 20px;
 }
-.modalButton:hover {
+.modalButton:active {
   transform: translateY(-2px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .modalButton:hover {
+    transform: translateY(-2px);
+  }
 }
 .modalButtonPrimary {
   background: var(--hover-bg);
   color: var(--text-color);
 }
-.modalButtonPrimary:hover {
+.modalButtonPrimary:active {
   background: var(--active-bg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .modalButtonPrimary:hover {
+    background: var(--active-bg);
+  }
 }
 .modalButtonSecondary {
   background: transparent;
   color: var(--text-color);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.modalButtonSecondary:hover {
+.modalButtonSecondary:active {
   background: rgba(255, 255, 255, 0.08);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .modalButtonSecondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
 }
 .modalCloseButton {
   position: absolute;
@@ -1417,10 +1554,18 @@
   opacity: 0.7;
   line-height: 0;
 }
-.modalCloseButton:hover {
+.modalCloseButton:active {
   background-color: rgba(255, 255, 255, 0.15);
   opacity: 1;
   transform: scale(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .modalCloseButton:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 .mobileMenuButton {
   display: none;
@@ -1433,9 +1578,16 @@
   border-radius: 50%;
   transition: all 0.3s ease;
 }
-.mobileMenuButton:hover {
+.mobileMenuButton:active {
   background-color: var(--hover-bg);
   transform: scale(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mobileMenuButton:hover {
+    background-color: var(--hover-bg);
+    transform: scale(1.1);
+  }
 }
 .mobileSidebarOverlay {
   position: fixed;
@@ -1493,8 +1645,14 @@
   border-radius: 50%;
   transition: background-color 0.3s ease;
 }
-.closeButton:hover {
+.closeButton:active {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .closeButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
 }
 .mobileSidebarContent {
   flex: 1;
@@ -1517,8 +1675,14 @@
   text-align: left;
   width: 100%;
 }
-.mobileSidebarItem:hover {
+.mobileSidebarItem:active {
   background-color: var(--hover-bg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mobileSidebarItem:hover {
+    background-color: var(--hover-bg);
+  }
 }
 .mobileSidebarItem svg {
   font-size: 1.2rem;
@@ -1680,8 +1844,14 @@
     margin-top: 0.25rem;
   }
 
-  .removerCupomButton:hover {
+  .removerCupomButton:active {
     transform: scale(0.98);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .removerCupomButton:hover {
+      transform: scale(0.98);
+    }
   }
 
   .removeButton {
@@ -1698,8 +1868,14 @@
     border-radius: 0.35rem;
   }
 
-  .removeButton:hover {
+  .removeButton:active {
     background: rgba(239, 68, 68, 0.2);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .removeButton:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
   }
 }
 

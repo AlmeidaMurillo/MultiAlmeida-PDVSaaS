@@ -11,6 +11,7 @@ import {
 import { auth } from "../../auth";
 import styles from "./Login.module.css";
 import Spinner from "../../Components/Spinner/Spinner";
+import Footer from "../../Components/Footer/Footer";
 
 function Login() {
   const navigate = useNavigate();
@@ -174,6 +175,7 @@ function Login() {
 
         </section>
       </main>
+      <Footer />
     </div>
   );
 }

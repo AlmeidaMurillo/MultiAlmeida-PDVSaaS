@@ -61,10 +61,18 @@
   gap: 0.5rem;
 }
 
-.loginButton:hover,
-.painelButton:hover {
+.loginButton:active,
+.painelButton:active {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .loginButton:hover,
+  .painelButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
 }
 
 .profileContainer {
@@ -78,9 +86,15 @@
   transition: background-color 0.3s ease;
 }
 
-.profileContainer:hover,
+.profileContainer:active,
 .profileContainer.active {
   background-color: var(--hover-bg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .profileContainer:hover {
+    background-color: var(--hover-bg);
+  }
 }
 
 .profileWrapper {
@@ -104,9 +118,16 @@
   position: relative;
 }
 
-.profileContainer:hover .profileCircle {
+.profileContainer:active .profileCircle {
   transform: scale(1.05);
   border-color: var(--hover-bg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .profileContainer:hover .profileCircle {
+    transform: scale(1.05);
+    border-color: var(--hover-bg);
+  }
 }
 
 /* Indicador de status da assinatura */
@@ -197,10 +218,18 @@
   position: relative;
 }
 
-.iconButton:hover {
+.iconButton:active {
   background-color: var(--hover-bg);
   transform: scale(1.1);
   color: var(--text-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .iconButton:hover {
+    background-color: var(--hover-bg);
+    transform: scale(1.1);
+    color: var(--text-color);
+  }
 }
 
 /* Badge do carrinho */
@@ -244,9 +273,16 @@
   transition: all 0.3s ease;
 }
 
-.mobileMenuButton:hover {
+.mobileMenuButton:active {
   background-color: var(--hover-bg);
   transform: scale(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mobileMenuButton:hover {
+    background-color: var(--hover-bg);
+    transform: scale(1.1);
+  }
 }
 
 /* Dropdown de perfil */
@@ -380,13 +416,26 @@
   text-align: left;
 }
 
-.dropdownItem:hover {
+.dropdownItem:active {
   background: var(--hover-bg);
 }
 
-[data-theme="light"] .dropdownItem:hover {
+@media (hover: hover) and (pointer: fine) {
+  .dropdownItem:hover {
+    background: var(--hover-bg);
+  }
+}
+
+[data-theme="light"] .dropdownItem:active {
   background: linear-gradient(135deg, #e8eaed, #f0f2f5);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="light"] .dropdownItem:hover {
+    background: linear-gradient(135deg, #e8eaed, #f0f2f5);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  }
 }
 
 .dropdownItem svg {
@@ -504,9 +553,16 @@
   transition: background-color 0.2s, color 0.2s;
 }
 
-.closeButton:hover {
+.closeButton:active {
   background-color: var(--hover-bg);
   color: var(--text-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .closeButton:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-color);
+  }
 }
 
 .mobileSidebarContent {
@@ -613,14 +669,19 @@
   border-left: 3px solid transparent;
 }
 
-.mobileSidebarItem:hover {
+.mobileSidebarItem:active {
   background-color: var(--hover-bg);
   border-left-color: var(--active-bg);
   padding-left: 1.625rem;
+  transform: scale(0.98);
 }
 
-.mobileSidebarItem:active {
-  transform: scale(0.98);
+@media (hover: hover) and (pointer: fine) {
+  .mobileSidebarItem:hover {
+    background-color: var(--hover-bg);
+    border-left-color: var(--active-bg);
+    padding-left: 1.625rem;
+  }
 }
 
 .mobileSidebarItem svg {
@@ -730,10 +791,18 @@
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
 }
 
-.logoutButton:hover {
+.logoutButton:active {
   background: linear-gradient(135deg, rgba(231, 76, 60, 1), rgba(192, 57, 43, 1));
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(231, 76, 60, 0.3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .logoutButton:hover {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 1), rgba(192, 57, 43, 1));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(231, 76, 60, 0.3);
+  }
 }
 
 .logoutButton:active {

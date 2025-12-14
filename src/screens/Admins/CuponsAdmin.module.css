@@ -54,10 +54,18 @@
   letter-spacing: 0.5px;
 }
 
-.btnAdd:hover {
+.btnAdd:active {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   filter: brightness(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnAdd:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    filter: brightness(1.1);
+  }
 }
 
 .btnAdd:active {
@@ -142,10 +150,18 @@
   letter-spacing: 0.5px;
 }
 
-.btnAddEmpty:hover {
+.btnAddEmpty:active {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   filter: brightness(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnAddEmpty:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    filter: brightness(1.1);
+  }
 }
 
 /* Container de status */
@@ -167,9 +183,16 @@
   animation: fadeInUp 0.8s ease-out backwards;
 }
 
-.blocoStatus:hover {
+.blocoStatus:active {
   border-color: rgba(255,255,255,0.15);
   box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .blocoStatus:hover {
+    border-color: rgba(255,255,255,0.15);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  }
 }
 
 /* Header do status */
@@ -242,22 +265,42 @@
   transition: opacity 0.3s ease;
 }
 
-.cupomCard:hover {
+.cupomCard:active {
   transform: translateY(-4px);
   box-shadow: 0 8px 25px rgba(0,0,0,0.3);
   border-color: rgba(255,255,255,0.15);
 }
 
-.cupomCard:hover::before {
+@media (hover: hover) and (pointer: fine) {
+  .cupomCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    border-color: rgba(255,255,255,0.15);
+  }
+}
+
+.cupomCard:active::before {
   opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cupomCard:hover::before {
+    opacity: 1;
+  }
 }
 
 .cardInactive {
   opacity: 0.6;
 }
 
-.cardInactive:hover {
+.cardInactive:active {
   opacity: 0.8;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cardInactive:hover {
+    opacity: 0.8;
+  }
 }
 
 /* Card Header */
@@ -396,16 +439,32 @@
   color: var(--text-color);
 }
 
-.btnEdit:hover {
+.btnEdit:active {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   transform: scale(1.1);
 }
 
-.btnDelete:hover {
+@media (hover: hover) and (pointer: fine) {
+  .btnEdit:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    transform: scale(1.1);
+  }
+}
+
+.btnDelete:active {
   background: linear-gradient(135deg, #dc2626, #b91c1c);
   color: white;
   transform: scale(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnDelete:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    transform: scale(1.1);
+  }
 }
 
 /* Modal */
@@ -542,10 +601,18 @@
   letter-spacing: 0.5px;
 }
 
-.modalBtns button:first-child:hover {
+.modalBtns button:first-child:active {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   filter: brightness(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .modalBtns button:first-child:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    filter: brightness(1.1);
+  }
 }
 
 .btnCancel {
@@ -554,9 +621,16 @@
   box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
 }
 
-.btnCancel:hover {
+.btnCancel:active {
   transform: translateY(-2px) !important;
   box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnCancel:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4) !important;
+  }
 }
 
 /* Estados */
@@ -650,12 +724,20 @@
 }
 
 @media (max-width: 480px) {
+  .cuponsContent {
+    padding: 0.75rem;
+  }
+
+  .titleRow h1 {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
   .cupomCodigo {
-    font-size: 1rem;
+    font-size: clamp(0.85rem, 3vw, 1rem);
   }
 
   .descontoValor {
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
   }
 
   .statusCount {
@@ -674,5 +756,352 @@
 
   .modalBtns button {
     width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .cuponsContent {
+    padding: 0.6rem;
+  }
+
+  .titleRow h1 {
+    font-size: 1.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .btnAdd {
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .cupomCard {
+    padding: 1rem;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .cupomCodigo {
+    font-size: 0.8rem;
+    width: 100%;
+  }
+
+  .cupomBadge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.7rem;
+    align-self: flex-start;
+  }
+
+  .descontoValor {
+    font-size: 1.1rem;
+  }
+
+  .descontoTipo {
+    font-size: 0.75rem;
+  }
+
+  .detalhesLabel {
+    font-size: 0.7rem;
+  }
+
+  .detalhesValue {
+    font-size: 0.8rem;
+  }
+
+  .statusBadge {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .actions button {
+    padding: 0.5rem;
+  }
+
+  .modal {
+    width: 98%;
+    padding: 1rem;
+  }
+
+  .modal h2 {
+    font-size: 1.2rem;
+  }
+
+  .modal input,
+  .modal select,
+  .modal textarea {
+    font-size: 0.85rem;
+    padding: 0.6rem;
+  }
+}
+
+@media (max-width: 300px) {
+  .cuponsContent {
+    padding: 0.5rem;
+  }
+
+  .titleRow h1 {
+    font-size: 1.2rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .btnAdd {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.8rem;
+    gap: 5px;
+  }
+
+  .statusHeader {
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .statusIcon {
+    font-size: 1.4rem;
+  }
+
+  .statusTitle {
+    font-size: 0.9rem;
+    min-width: auto;
+    word-break: break-word;
+  }
+
+  .statusCount {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .cupomCard {
+    padding: 0.85rem;
+    gap: 0.6rem;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .cupomCodigo {
+    font-size: 0.75rem;
+    width: 100%;
+  }
+
+  .cupomBadge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.65rem;
+    align-self: flex-start;
+  }
+
+  .descontoContainer {
+    padding: 0.7rem;
+  }
+
+  .descontoValor {
+    font-size: 1rem;
+  }
+
+  .infoList {
+    font-size: 0.8rem;
+    gap: 0.4rem;
+  }
+
+  .cardFooter {
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+  }
+
+  .statusBox {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.7rem;
+  }
+
+  .actions button {
+    padding: 0.45rem;
+  }
+
+  .modal {
+    width: 96%;
+    padding: 1.2rem;
+  }
+
+  .modal h2 {
+    font-size: 1.1rem;
+  }
+
+  .modal input,
+  .modal select,
+  .modal textarea {
+    font-size: 0.8rem;
+    padding: 0.65rem;
+  }
+}
+
+@media (max-width: 240px) {
+  .cuponsContent {
+    padding: 0.4rem;
+  }
+
+  .titleRow {
+    gap: 0.5rem;
+  }
+
+  .titleRow h1 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .btnAdd {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+
+  .statusHeader {
+    gap: 0.4rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .statusIcon {
+    font-size: 1.2rem;
+  }
+
+  .statusTitle {
+    font-size: 0.8rem;
+    min-width: auto;
+    word-break: break-word;
+  }
+
+  .statusCount {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .cupomCard {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .cupomCodigo {
+    font-size: 0.7rem;
+    width: 100%;
+    gap: 0.4rem;
+  }
+
+  .cupomBadge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+    align-self: flex-start;
+  }
+
+  .descontoContainer {
+    padding: 0.5rem;
+  }
+
+  .descontoValor {
+    font-size: 0.95rem;
+  }
+
+  .descontoTipo {
+    font-size: 0.65rem;
+  }
+
+  .detalhesGrid {
+    gap: 0.4rem;
+  }
+
+  .detalhesItem {
+    gap: 0.2rem;
+  }
+
+  .detalhesLabel {
+    font-size: 0.6rem;
+  }
+
+  .detalhesValue {
+    font-size: 0.7rem;
+  }
+
+  .statusBadge {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .cardFooter {
+    gap: 0.4rem;
+  }
+
+  .statusCount {
+    font-size: 0.65rem;
+  }
+
+  .actions {
+    gap: 0.3rem;
+  }
+
+  .actions button {
+    padding: 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .btnEdit,
+  .btnDelete {
+    width: 28px;
+    height: 28px;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.75rem;
+    margin: 0.25rem;
+  }
+
+  .modal h2 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .modal input,
+  .modal select,
+  .modal textarea {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .modalBtns {
+    gap: 0.4rem;
+  }
+
+  .modalBtns button {
+    font-size: 0.75rem;
+    padding: 0.6rem;
+  }
+
+  .emptyState svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .emptyState p {
+    font-size: 0.75rem;
+  }
+
+  .loading p {
+    font-size: 0.75rem;
+  }
+
+  .spinner {
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
   }
 }

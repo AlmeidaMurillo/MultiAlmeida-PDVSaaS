@@ -43,10 +43,18 @@
   letter-spacing: 0.5px;
 }
 
-.btnAdd:hover {
+.btnAdd:active {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   filter: brightness(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnAdd:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    filter: brightness(1.1);
+  }
 }
 
 .btnAdd:active {
@@ -125,8 +133,14 @@ tbody tr {
   transition: background .2s;
 }
 
-tbody tr:hover {
+tbody tr:active {
   background: rgba(255,255,255,.05);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  tbody tr:hover {
+    background: rgba(255,255,255,.05);
+  }
 }
 
 tr:nth-child(even) {
@@ -161,8 +175,14 @@ thead th {
   transition: .2s;
 }
 
-.actionBtns button:hover {
+.actionBtns button:active {
   background: var(--button-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .actionBtns button:hover {
+    background: var(--button-hover);
+  }
 }
 
 .ativo {
@@ -294,10 +314,18 @@ thead th {
   letter-spacing: 0.5px;
 }
 
-.modalBtns button:first-child:hover {
+.modalBtns button:first-child:active {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   filter: brightness(1.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .modalBtns button:first-child:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    filter: brightness(1.1);
+  }
 }
 
 .btnCancel {
@@ -306,9 +334,16 @@ thead th {
   box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
 }
 
-.btnCancel:hover {
+.btnCancel:active {
   transform: translateY(-2px) !important;
   box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btnCancel:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4) !important;
+  }
 }
 
 

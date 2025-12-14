@@ -121,7 +121,7 @@ export default function Payment() {
   // Detecta quando o tempo expira e redireciona
   useEffect(() => {
     if (timeRemaining === 0 && isMountedRef.current) {
-      navigate('/payment-status', { state: { status: 'expired' } });
+      navigate('/payment-status', { state: { status: 'expired', fromPayment: true } });
     }
   }, [timeRemaining, navigate]);
 
@@ -151,7 +151,7 @@ export default function Payment() {
             clearInterval(countdownIntervalRef.current);
             countdownIntervalRef.current = null;
           }
-          navigate('/payment-status', { state: { status: 'success' } });
+          navigate('/payment-status', { state: { status: 'success', fromPayment: true } });
         } else if (response.data.status === 'expirado') {
           if (pollingIntervalRef.current) {
             clearInterval(pollingIntervalRef.current);
@@ -161,7 +161,7 @@ export default function Payment() {
             clearInterval(countdownIntervalRef.current);
             countdownIntervalRef.current = null;
           }
-          navigate('/payment-status', { state: { status: 'expired' } });
+          navigate('/payment-status', { state: { status: 'expired', fromPayment: true } });
         }
       } catch (err) {
         if (isMountedRef.current) {

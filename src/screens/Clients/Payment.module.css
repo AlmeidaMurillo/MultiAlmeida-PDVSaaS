@@ -172,8 +172,10 @@
   border-radius: 10px;
 }
 
-.planInfo ul::-webkit-scrollbar-thumb:hover {
-  background: var(--hoverscrollbar-thumb);
+@media (hover: hover) and (pointer: fine) {
+  .planInfo ul::-webkit-scrollbar-thumb:hover {
+    background: var(--hoverscrollbar-thumb);
+  }
 }
 
 .planInfo li {
@@ -195,10 +197,18 @@
   margin-bottom: 0;
 }
 
-.planInfo li:hover {
+.planInfo li:active {
   border-left-color: var(--success-color);
   background: var(--bg-color);
   transform: translateX(3px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .planInfo li:hover {
+    border-left-color: var(--success-color);
+    background: var(--bg-color);
+    transform: translateX(3px);
+  }
 }
 
 .planInfo li::before {
@@ -252,9 +262,11 @@
   margin-top: 1rem;
 }
 
-.copyButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+@media (hover: hover) and (pointer: fine) {
+  .copyButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
 }
 
 .copyButton:active {

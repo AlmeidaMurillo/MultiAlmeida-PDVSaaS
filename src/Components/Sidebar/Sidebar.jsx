@@ -21,6 +21,7 @@ import {
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import { auth } from "../../auth";
+import Footer from "../Footer/Footer";
 
 const MenuItem = memo(function MenuItem({
   icon,
@@ -311,6 +312,7 @@ function Sidebar({ children }) {
             }`}
         >
           {children}
+          <Footer />
         </main>
       </div>
     </>

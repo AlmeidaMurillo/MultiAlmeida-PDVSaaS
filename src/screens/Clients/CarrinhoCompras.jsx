@@ -174,7 +174,8 @@ export default function CarrinhoCompras() {
       const response = await api.post("/api/payments/initiate");
       const { paymentId } = response.data;
       if (paymentId) {
-        navigate(`/payment/${paymentId}`);
+        // Navega passando contexto seguro via state (não armazenado)
+        navigate(`/payment/${paymentId}`, { state: { fromCart: true } });
       } else {
         setError("Não foi possível iniciar o pagamento. Tente novamente.");
       }
