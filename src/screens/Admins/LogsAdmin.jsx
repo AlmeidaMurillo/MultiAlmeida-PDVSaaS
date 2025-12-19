@@ -3,7 +3,7 @@ import styles from './LogsAdmin.module.css';
 import Spinner from '../../Components/Spinner/Spinner';
 import Sidebar from '../../Components/Sidebar/Sidebar.jsx';
 import { api } from "../../auth";
-import { Search, AlertCircle, X, FileText as FileTextIcon, Trash2, BarChart3, FileText } from "lucide-react";
+import { Search, AlertCircle, X, FileText as FileTextIcon, Trash2, BarChart3, FileText, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -58,7 +58,7 @@ function LogsAdmin() {
     ip: '',
     data_inicio: '',
     data_fim: '',
-    limite: 50,
+    limite: 25,
     pagina: 1,
   });
 
@@ -431,20 +431,47 @@ function LogsAdmin() {
                     placeholder="Digite para filtrar tipos..."
                     value={buscaTipo}
                     onChange={(e) => {
-                      setBuscaTipo(e.target.value);
+                      const valor = e.target.value;
+                      setBuscaTipo(valor);
+                      
                       // Se limpar a busca, limpar o filtro também
-                      if (!e.target.value) {
+                      if (!valor) {
                         setFiltros(prev => ({ ...prev, tipo: '', pagina: 1 }));
+                      } else {
+                        // Filtrar tipos que correspondem à busca
+                        const tiposCorrespondentes = Object.keys(TIPOS_LOG).filter(tipo => 
+                          TIPOS_LOG[tipo].toLowerCase().includes(valor.toLowerCase())
+                        );
+                        
+                        // Se houver apenas um tipo correspondente, selecioná-lo automaticamente
+                        if (tiposCorrespondentes.length === 1) {
+                          setFiltros(prev => ({ ...prev, tipo: tiposCorrespondentes[0], pagina: 1 }));
+                        } else if (tiposCorrespondentes.length === 0) {
+                          // Se não houver correspondência, limpar o filtro
+                          setFiltros(prev => ({ ...prev, tipo: '', pagina: 1 }));
+                        }
+                        // Se houver múltiplas correspondências, manter o filtro atual se ainda for válido
+                        else if (filtros.tipo && !tiposCorrespondentes.includes(filtros.tipo)) {
+                          setFiltros(prev => ({ ...prev, tipo: '', pagina: 1 }));
+                        }
                       }
                     }}
                   />
                 </div>
 
                 <div className={styles.inputGroup}>
-                  <label>Tipo de Log</label>
+                  <label>Tipo de Log {filtros.tipo && `(${TIPOS_LOG[filtros.tipo]})`}</label>
                   <select
                     value={filtros.tipo}
-                    onChange={(e) => setFiltros(prev => ({ ...prev, tipo: e.target.value, pagina: 1 }))}
+                    onChange={(e) => {
+                      setFiltros(prev => ({ ...prev, tipo: e.target.value, pagina: 1 }));
+                      // Atualizar o campo de busca também
+                      if (e.target.value) {
+                        setBuscaTipo(TIPOS_LOG[e.target.value]);
+                      } else {
+                        setBuscaTipo('');
+                      }
+                    }}
                   >
                     <option value="">Todos os Tipos</option>
                     {Object.keys(TIPOS_LOG)
@@ -530,7 +557,7 @@ function LogsAdmin() {
               </div>
 
               <button onClick={() => {
-                setFiltros({ tipo: '', email: '', nome: '', cargo: '', ip: '', data_inicio: '', data_fim: '', limite: 50, pagina: 1 });
+                setFiltros({ tipo: '', email: '', nome: '', cargo: '', ip: '', data_inicio: '', data_fim: '', limite: 25, pagina: 1 });
                 setBuscaTipo('');
               }} className={styles.btnBuscar}>
                 <Search size={18} />
@@ -568,40 +595,142 @@ function LogsAdmin() {
                   </div>
                 </div>
 
-                {/* Paginação */}
-                <div className={styles.paginacao}>
-                  <span className={styles.paginacaoInfo}>
-                    Mostrando {logs.length} de {pagination.total} logs | Página {pagination.pagina} de {pagination.totalPaginas}
-                  </span>
-                  <div className={styles.paginacaoBtns}>
+                {/* Paginação Moderna */}
+                <div className={styles.paginacaoContainer}>
+                  <div className={styles.paginacaoInfo}>
+                    <span className={styles.resultadosTexto}>
+                      Mostrando <strong>{logs.length}</strong> de <strong>{pagination.total}</strong> logs
+                    </span>
+                  </div>
+                  
+                  <div className={styles.paginacao}>
+                    {/* Primeira página */}
                     <button
                       onClick={() => mudarPagina(1)}
                       disabled={pagination.pagina === 1}
-                      className={styles.btnPaginacao}
+                      className={`${styles.btnPaginacao} ${styles.btnSeta}`}
+                      title="Primeira página"
                     >
-                      Primeira
+                      <ChevronsLeft size={18} />
                     </button>
+                    
+                    {/* Página anterior */}
                     <button
                       onClick={() => mudarPagina(pagination.pagina - 1)}
                       disabled={pagination.pagina === 1}
-                      className={styles.btnPaginacao}
+                      className={`${styles.btnPaginacao} ${styles.btnSeta}`}
+                      title="Página anterior"
                     >
-                      Anterior
+                      <ChevronLeft size={18} />
                     </button>
+                    
+                    {/* Números das páginas */}
+                    <div className={styles.numerosContainer}>
+                      {(() => {
+                        const paginas = [];
+                        const totalPaginas = pagination.totalPaginas;
+                        const paginaAtual = pagination.pagina;
+                        
+                        // Sempre mostrar primeira página
+                        if (totalPaginas > 0) {
+                          paginas.push(
+                            <button
+                              key={1}
+                              onClick={() => mudarPagina(1)}
+                              className={`${styles.btnNumero} ${paginaAtual === 1 ? styles.btnNumeroAtivo : ''}`}
+                            >
+                              1
+                            </button>
+                          );
+                        }
+                        
+                        // Adicionar ... se necessário
+                        if (paginaAtual > 3) {
+                          paginas.push(<span key="dots1" className={styles.dots}>...</span>);
+                        }
+                        
+                        // Páginas ao redor da atual
+                        const inicio = Math.max(2, paginaAtual - 1);
+                        const fim = Math.min(totalPaginas - 1, paginaAtual + 1);
+                        
+                        for (let i = inicio; i <= fim; i++) {
+                          paginas.push(
+                            <button
+                              key={i}
+                              onClick={() => mudarPagina(i)}
+                              className={`${styles.btnNumero} ${paginaAtual === i ? styles.btnNumeroAtivo : ''}`}
+                            >
+                              {i}
+                            </button>
+                          );
+                        }
+                        
+                        // Adicionar ... se necessário
+                        if (paginaAtual < totalPaginas - 2) {
+                          paginas.push(<span key="dots2" className={styles.dots}>...</span>);
+                        }
+                        
+                        // Sempre mostrar última página
+                        if (totalPaginas > 1) {
+                          paginas.push(
+                            <button
+                              key={totalPaginas}
+                              onClick={() => mudarPagina(totalPaginas)}
+                              className={`${styles.btnNumero} ${paginaAtual === totalPaginas ? styles.btnNumeroAtivo : ''}`}
+                            >
+                              {totalPaginas}
+                            </button>
+                          );
+                        }
+                        
+                        return paginas;
+                      })()}
+                    </div>
+                    
+                    {/* Próxima página */}
                     <button
                       onClick={() => mudarPagina(pagination.pagina + 1)}
                       disabled={pagination.pagina === pagination.totalPaginas}
-                      className={styles.btnPaginacao}
+                      className={`${styles.btnPaginacao} ${styles.btnSeta}`}
+                      title="Próxima página"
                     >
-                      Próxima
+                      <ChevronRight size={18} />
                     </button>
+                    
+                    {/* Última página */}
                     <button
                       onClick={() => mudarPagina(pagination.totalPaginas)}
                       disabled={pagination.pagina === pagination.totalPaginas}
-                      className={styles.btnPaginacao}
+                      className={`${styles.btnPaginacao} ${styles.btnSeta}`}
+                      title="Última página"
                     >
-                      Última
+                      <ChevronsRight size={18} />
                     </button>
+                  </div>
+                  
+                  <div className={styles.irParaContainer}>
+                    <span>Ir para:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max={pagination.totalPaginas}
+                      placeholder={pagination.pagina.toString()}
+                      onChange={(e) => {
+                        const valor = parseInt(e.target.value);
+                        if (valor >= 1 && valor <= pagination.totalPaginas) {
+                          mudarPagina(valor);
+                        }
+                      }}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          const valor = parseInt(e.target.value);
+                          if (valor >= 1 && valor <= pagination.totalPaginas) {
+                            mudarPagina(valor);
+                          }
+                        }
+                      }}
+                      className={styles.inputIrPara}
+                    />
                   </div>
                 </div>
               </>

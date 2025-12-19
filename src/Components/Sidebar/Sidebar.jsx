@@ -312,7 +312,9 @@ function Sidebar({ children }) {
           className={`${styles.pageContent} ${!isMobile && isCollapsed ? styles.collapsed : ""
             }`}
         >
-          {children}
+          <div className={styles.contentWrapper}>
+            {children}
+          </div>
           <Footer />
         </main>
       </div>

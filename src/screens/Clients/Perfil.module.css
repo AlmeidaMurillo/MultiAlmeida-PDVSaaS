@@ -1,7 +1,7 @@
 .perfilContainer {
   width: 100%;
   min-height: 100%;
-  padding: 2rem 2.5rem;
+  padding: 1.5rem;
   background: var(--sidebar-bg);
   border-radius: 16px;
   box-shadow: 0 0 20px rgb(0 0 0 / 0.1);
