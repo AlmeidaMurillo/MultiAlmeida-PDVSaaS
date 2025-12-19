@@ -29,7 +29,6 @@
   display: flex;
   flex-direction: column;
   user-select: none;
-  /* Adicionado para evitar que o logo quebre linha */
   white-space: nowrap;
   cursor: pointer;
 }
@@ -306,7 +305,7 @@
 
 @media (max-width: 480px) {
   .registroPage {
-    min-height: -webkit-fill-available; /* iOS Safari */
+    min-height: -webkit-fill-available; 
     min-height: 100svh;
   }
   .headerTop {
@@ -345,13 +344,13 @@
 
 @media (max-width: 320px) {
   .headerTop {
-    padding: 0 0.75rem; /* Aumenta o padding lateral do header */
+    padding: 0 0.75rem;
   }
   .logo {
     font-size: 0.9rem;
   }
   .subtitle {
-    display: block; /* Garante que o subtítulo esteja visível */
+    display: block; 
     font-size: 0.5rem;
     opacity: 0.7;
   }
@@ -360,13 +359,12 @@
     padding: 0.4rem;
   }
   .mainContent {
-    padding: 1rem 0.75rem; /* Garante padding lateral */
+    padding: 1rem 0.75rem; 
   }
   .registroForm {
-    /* Mantém o estilo do formulário */
     background-color: var(--input-bg);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem 1rem; /* Garante padding interno */
+    padding: 1.5rem 1rem; 
   }
   .heroTitle {
     font-size: 1.5rem;

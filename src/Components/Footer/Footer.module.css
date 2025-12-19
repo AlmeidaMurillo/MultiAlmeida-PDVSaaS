@@ -1,7 +1,7 @@
 .footer {
   background: var(--card-bg);
   color: var(--text-color);
-  padding: 1rem 1rem 0.75rem;
+  padding: 0.75rem 1rem;
   margin-top: auto;
   border-top: 1px solid var(--border-color);
 }
@@ -10,170 +10,37 @@
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
-  margin-bottom: 0.75rem;
-}
-
-.footerTitle {
-  font-size: clamp(0.9rem, 3vw, 1.1rem);
-  font-weight: 600;
-  color: var(--text-color);
-  margin: 0 0 0.25rem 0;
-}
-
-.footerDescription {
-  font-size: clamp(0.7rem, 2vw, 0.8rem);
-  line-height: 1.4;
-  color: var(--footer-color);
-  margin: 0;
-  padding: 0 0.5rem;
-}
-
-.footerBottom {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  text-align: center;
 }
 
 .copyright {
-  font-size: clamp(0.65rem, 2vw, 0.75rem);
+  font-size: 0.813rem;
   color: var(--footer-color);
   margin: 0;
-  padding: 0 0.5rem;
-  word-break: break-word;
+  padding: 0;
 }
 
-.developer {
-  font-size: clamp(0.65rem, 2vw, 0.75rem);
-  color: var(--footer-color);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  flex-wrap: wrap;
-  padding: 0 0.5rem;
-}
-
-.developer strong {
+.copyright strong {
   color: var(--text-color);
-  font-weight: 600;
-}
-
-.heartIcon {
-  color: #ef4444;
-  animation: heartbeat 1.5s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes heartbeat {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-  }
+  font-weight: 500;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
   .footer {
-    padding: 0.85rem 0.75rem 0.6rem;
+    padding: 0.65rem 0.75rem;
   }
-
-  .footerContent {
-    margin-bottom: 0.65rem;
-  }
-
-  .footerBottom {
-    padding-top: 0.65rem;
-    gap: 0.3rem;
-  }
-}
-
-/* Responsividade extrema - até 240px */
-@media (max-width: 480px) {
-  .footer {
-    padding: 0.75rem 0.5rem 0.5rem;
-  }
-
-  .footerTitle {
-    font-size: 0.95rem;
-    margin-bottom: 0.2rem;
-  }
-
-  .footerDescription {
-    font-size: 0.65rem;
-    padding: 0 0.25rem;
-  }
-
+  
   .copyright {
-    font-size: 0.6rem;
-  }
-
-  .developer {
-    font-size: 0.6rem;
-    gap: 0.25rem;
-  }
-
-  .footerBottom {
-    padding-top: 0.6rem;
-  }
-}
-
-@media (max-width: 320px) {
-  .footer {
-    padding: 0.65rem 0.4rem 0.4rem;
-  }
-
-  .footerTitle {
-    font-size: 0.85rem;
-  }
-
-  .footerDescription {
-    font-size: 0.6rem;
-  }
-
-  .copyright,
-  .developer {
-    font-size: 0.55rem;
-  }
-}
-
-@media (max-width: 240px) {
-  .footer {
-    padding: 0.5rem 0.3rem 0.3rem;
-  }
-
-  .footerTitle {
     font-size: 0.75rem;
   }
-
-  .footerDescription {
-    font-size: 0.55rem;
-    line-height: 1.3;
-  }
-
-  .copyright,
-  .developer {
-    font-size: 0.5rem;
-    line-height: 1.3;
-  }
-
-  .footerBottom {
-    padding-top: 0.4rem;
-    gap: 0.25rem;
-  }
-
-  .heartIcon {
-    width: 8px;
-    height: 8px;
-  }
 }
 
-/* As cores já são aplicadas automaticamente pelas variáveis CSS do sistema */
+@media (max-width: 480px) {
+  .footer {
+    padding: 0.6rem 0.5rem;
+  }
+  
+  .copyright {
+    font-size: 0.688rem;
+  }
+}

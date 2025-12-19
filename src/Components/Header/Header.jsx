@@ -33,9 +33,21 @@ function Header() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
 
+  // Função para carregar quantidade de itens no carrinho
+  const loadCartItemCount = async () => {
+    try {
+      const { data } = await api.get('/api/carrinho');
+      const totalItems = data.itens?.reduce((sum, item) => sum + (item.quantidade || 0), 0) || 0;
+      setCartItemCount(totalItems);
+    } catch (error) {
+      console.error("Erro ao carregar carrinho:", error);
+      setCartItemCount(0);
+    }
+  };
+
   useEffect(() => {
     async function checkSubscription() {
-      if (userRole === 'usuario') { // Usar userRole do useAuth
+      if (userRole === 'usuario') {
         try {
           const { data } = await api.get('/api/auth/status');
           setIsSubscriptionActive(data.isSubscriptionActive);
@@ -54,19 +66,17 @@ function Header() {
       setIsSubscriptionExpired(false);
       setCartItemCount(0);
     }
-  }, [isAuthenticated, userRole]); // Dependências atualizadas
+  }, [isAuthenticated, userRole]);
 
-  // Carregar quantidade de itens no carrinho
-  const loadCartItemCount = async () => {
-    try {
-      const { data } = await api.get('/api/carrinho');
-      const totalItems = data.itens?.reduce((sum, item) => sum + (item.quantidade || 0), 0) || 0;
-      setCartItemCount(totalItems);
-    } catch (error) {
-      console.error("Erro ao carregar carrinho:", error);
-      setCartItemCount(0);
-    }
-  };
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const interval = setInterval(() => {
+      loadCartItemCount();
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   // Fechar dropdown ao clicar fora
   useEffect(() => {

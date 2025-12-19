@@ -242,7 +242,7 @@
   box-shadow: 0 0 8px var(--primary-color);
 }
 
-.modalInput[type="select"],
+.modalInput[type='select'],
 select.modalInput {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -293,7 +293,7 @@ select.modalInput option {
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
 .fotoAmpliada {
@@ -443,57 +443,58 @@ select.modalInput option {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .leftPanel {
     padding: 1rem 0.75rem;
     gap: 1rem;
   }
-  
+
   .fotoPerfil {
     width: 100px;
     height: 100px;
   }
-  
+
   .userIcon {
     width: 40px;
     height: 40px;
   }
-  
+
   .uploadLabel {
     padding: 0.5rem 0.8rem;
     font-size: 12px;
   }
-  
-  .btn, .btnCancel {
+
+  .btn,
+  .btnCancel {
     padding: 0.5rem 0.8rem;
     font-size: 11px;
     width: 100%;
   }
-  
+
   .btnGroup {
     gap: 0.5rem;
   }
-  
+
   .rightPanel {
     grid-template-columns: 1fr;
     padding: 0.75rem;
   }
-  
+
   .infoQuadrante {
     padding: 0.8rem;
     margin-bottom: 1rem;
   }
-  
+
   .infoQuadrante h3 {
     font-size: 14px;
     margin-bottom: 0.5rem;
   }
-  
+
   .infoCard {
     font-size: 12px;
     padding: 0.4rem 0;
   }
-  
+
   .infoCard strong {
     font-size: 12px;
   }
@@ -529,7 +530,7 @@ select.modalInput option {
   background-color: #f8fafc;
   border-radius: 10px;
   border: 2px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .tempoRestanteTitulo {
@@ -602,7 +603,7 @@ select.modalInput option {
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 8px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .progressBarFill {
@@ -614,7 +615,7 @@ select.modalInput option {
   height: 100%;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 10px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.1);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
 }
 
 .progressBarFillGreen {

@@ -25,7 +25,10 @@ function Login() {
   const [authReady, setAuthReady] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
-  // Verifica autenticação inicial
+  useEffect(() => {
+    document.title = "MultiAlmeida | Login";
+  }, []);
+
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -38,11 +41,11 @@ function Login() {
   useEffect(() => {
     if (auth.isInitialized()) {
       setAuthReady(true);
-      
+
       if (auth.isAuthenticated()) {
         const locationState = location.state;
         const userRole = auth.getRole();
-        
+
         if (userRole === 'admin') {
           navigate("/");
         } else if (locationState?.from === "/carrinho" || locationState?.planId) {
@@ -52,13 +55,13 @@ function Login() {
         }
       }
     }
-    
+
     const unsubscribe = auth.subscribe((state) => {
       if (state.initialized) {
         setAuthReady(true);
       }
     });
-    
+
     return () => unsubscribe();
   }, [navigate, location.state]);
 
@@ -71,10 +74,10 @@ function Login() {
 
     try {
       await auth.login(email, senha);
-      
+
       const locationState = location.state;
       const userRole = auth.getRole();
-      
+
       if (userRole === 'admin') {
         navigate("/");
       } else if (locationState?.from === "/carrinho" || locationState?.planId) {

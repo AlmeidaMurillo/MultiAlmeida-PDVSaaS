@@ -11,6 +11,7 @@ import {
   FaHeadset,
   FaUserCircle,
   FaBars,
+  FaClipboardList,
   FaMoon,
   FaSun,
   FaDollarSign,
@@ -183,7 +184,7 @@ function Sidebar({ children }) {
     { icon: <FaBell />, label: "Notificações", path: "/notificacoes" },
     { icon: <FaHeadset />, label: "Suporte", path: "/suporte" },
     { icon: <FaUserCircle />, label: "Perfil/Admin", path: "/perfil" },
-    { icon: <FaBars />, label: "Logs do Sistema", path: "/logs" },
+    { icon: <FaClipboardList />, label: "Logs do Sistema", path: "/logsadmin" },
     { icon: <FaChartBar />, label: "Configurações Avançadas", path: "/configuracoes" },
   ];
 

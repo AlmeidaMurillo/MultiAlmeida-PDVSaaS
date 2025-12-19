@@ -23,6 +23,15 @@ DE PONTA A PONTA.
 
 FAZER O STATUS DE QUANDO A ASSINATURA DO USUARIO ESTIVER EXPIRADA, CANCELADA, VENCIDA E ETC NA MODAL DA TELA LANDINGPAGE E NA SIDERBAR DA LANDINGPAGE.
 
+
+FAZER A TELA CONFIGURACOES AVANCADAS LOGO, QUERO CONTROLAR TODO AS VARIBLES DO SISTEMA POR LA
+ONDE IREI MUDAR CONFIGS DE TEMPO DE SESSAO, DE PAGAMENTO, DE TODOS VARIABLES DO .ENV.
+
+FAZER A TELA DE CRIAÇÃO DE CARGOS E PERMISSOES PARA OS FUNCIONARIOS MEUS E DAS EMPRESAS QUE USAM O SISTEMA.
+E CONSEGUIR GERENCIAR QUAIS PERMISSOES CADA CARGO PODERÁ USAR NO SISTEMA.
+
+NA ABA DE PLANOS E NA DE CRIAR O PLANO FAZER UMA NOVA IMPLEMENTAÇÃO DE VALOR ANTIGO DO PLANO E NOVO VALOR COM DESCONTO, TIPO MOSTRAR O VALOR ANTIGO RISCADO E AO LADO O NOVO VALOR COM DESCONTO.
+
 */
 
 const LandingPage = lazy(() => import("./screens/Clients/LandingPage"));
@@ -37,13 +46,15 @@ const Payment = lazy(() => import("./screens/Clients/Payment"));
 const PaymentStatus = lazy(() => import("./screens/Clients/PaymentStatus"));
 const DashboardCliente = lazy(() => import("./screens/Clients/DashboardCliente"));
 const Perfil = lazy(() => import("./screens/Clients/Perfil"));
+const PagamentosAdmin = lazy(() => import("./screens/Admins/PagamentosAdmin"));
+const LogsAdmin = lazy(() => import("./screens/Admins/LogsAdmin"));
 
 function App() {
   const location = useLocation(); 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [isPageTransitioning, setIsPageTransitioning] = useState(false);
 
-  // Guarda de rota: só permite acesso ao Payment se existir contexto válido
   const RequirePaymentContext = ({ children }) => {
     const hasStateFlag = location.state?.fromCart === true;
     const hasPaymentIdParam = /\/payment\/.+/.test(location.pathname);
@@ -80,16 +91,17 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Redireciona usuários autenticados para seus dashboards
-  const RedirectIfAuthenticated = ({ children }) => {
-    if (isAuthenticated) {
-      const redirectPath = auth.isAdmin() ? "/dashboardadmin" : "/dashboardcliente";
-      return <Navigate to={redirectPath} replace />;
-    }
-    return children;
-  };
+  useEffect(() => {
+    setIsPageTransitioning(true);
+    const timer = setTimeout(() => {
+      setIsPageTransitioning(false);
+    }, 300);
 
-  if (!isAuthReady) return <Spinner />;
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
+
+  if (!isAuthReady || isPageTransitioning) return <Spinner />;
 
   return (
     <>
@@ -100,17 +112,13 @@ function App() {
           <Route
             path="/login"
             element={
-              <RedirectIfAuthenticated>
                 <Login />
-              </RedirectIfAuthenticated>
             }
           />
           <Route
             path="/registro"
             element={
-              <RedirectIfAuthenticated>
                 <Registro />
-              </RedirectIfAuthenticated>
             }
           />
           <Route path="/payment" element={<Navigate to="/" replace />} />
@@ -148,6 +156,14 @@ function App() {
             path="/cuponsadmin"
             element={isAuthenticated && auth.isAdmin() ? <CuponsAdmin /> : <Navigate to="/login" replace />}
           />
+          <Route
+            path="/pagamentosadmin"
+            element={isAuthenticated && auth.isAdmin() ? <PagamentosAdmin /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/logsadmin"
+            element={isAuthenticated && auth.isAdmin() ? <LogsAdmin /> : <Navigate to="/login" replace />}
+          />
 
           <Route
             path="/dashboardcliente"
@@ -162,4 +178,5 @@ function App() {
     </>
   );
 }
+
 export default App;

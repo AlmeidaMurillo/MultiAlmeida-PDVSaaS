@@ -3,13 +3,25 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import styles from "./PaymentStatus.module.css";
 
-export default function PaymentStatus() {
+function PaymentStatus() {
   const navigate = useNavigate();
   const location = useLocation();
   const [countdown, setCountdown] = useState(6);
+
+  useEffect(() => {
+    document.title = "MultiAlmeida | Status Pagamento";
+  }, []);
   
   // Obtém o status do pagamento (sucesso ou expirado)
   const status = location.state?.status || "success";
+
+  useEffect(() => {
+    if(status === "success"){
+      document.title = "MultiAlmeida | Pagamento Aprovado";
+    } else {
+      document.title = "MultiAlmeida | Pagamento Expirado";
+    }
+  }, [status]);
 
   // Limpa o contexto após montar
   useEffect(() => {
@@ -89,3 +101,5 @@ export default function PaymentStatus() {
     </div>
   );
 }
+
+export default PaymentStatus;

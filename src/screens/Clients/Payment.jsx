@@ -9,7 +9,7 @@ import { api } from "../../auth";
 import styles from "./Payment.module.css";
 import Header from "../../Components/Header/Header";
 
-export default function Payment() {
+function Payment() {
   const { paymentId } = useParams();
   const navigate = useNavigate();
 
@@ -19,7 +19,6 @@ export default function Payment() {
   const [copied, setCopied] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(null);
   
-  // Refs para gerenciar os intervals
   const pollingIntervalRef = useRef(null);
   const countdownIntervalRef = useRef(null);
   const isMountedRef = useRef(true);
@@ -61,13 +60,11 @@ export default function Payment() {
     }
   }, [paymentId]); 
 
-  // Cleanup quando o componente for desmontado
   useEffect(() => {
     isMountedRef.current = true;
     
     return () => {
       isMountedRef.current = false;
-      // Limpa todos os intervals ao desmontar
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
@@ -79,11 +76,9 @@ export default function Payment() {
     };
   }, []);
 
-  // Timer de contagem regressiva
   useEffect(() => {
     if (timeRemaining === null || timeRemaining <= 0) return;
 
-    // Limpa o interval anterior se existir
     if (countdownIntervalRef.current) {
       clearInterval(countdownIntervalRef.current);
     }
@@ -118,18 +113,15 @@ export default function Payment() {
     };
   }, [timeRemaining]);
 
-  // Detecta quando o tempo expira e redireciona
   useEffect(() => {
     if (timeRemaining === 0 && isMountedRef.current) {
       navigate('/payment-status', { state: { status: 'expired', fromPayment: true } });
     }
   }, [timeRemaining, navigate]);
 
-  // Polling para verificar status do pagamento
   useEffect(() => {
     if (!paymentId) return;
 
-    // Limpa o interval anterior se existir
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
     }
@@ -170,7 +162,7 @@ export default function Payment() {
       }
     };
 
-    pollingIntervalRef.current = setInterval(checkPaymentStatus, 10000); // Poll a cada 10 segundos para evitar rate limit
+    pollingIntervalRef.current = setInterval(checkPaymentStatus, 10000);
 
     return () => {
       if (pollingIntervalRef.current) {
@@ -180,7 +172,6 @@ export default function Payment() {
     };
   }, [paymentId, navigate]);
 
-  // Função para formatar o tempo restante
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -194,7 +185,6 @@ export default function Payment() {
 
 
 
-      {/* Payment Content */}
       <div className={styles.content}>
         {initialLoading && <div className={styles.loading}>Carregando dados do pagamento...</div>}
         {error && <div className={styles.error}>{error}</div>}
@@ -278,3 +268,5 @@ export default function Payment() {
     </div>
   );
 }
+
+export default Payment;

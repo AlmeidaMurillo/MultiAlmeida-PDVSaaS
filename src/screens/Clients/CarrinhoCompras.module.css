@@ -928,7 +928,7 @@
 }
 
 .explorarButton {
-  background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+  background: linear-gradient(135deg, var(--primary-color), #555454);
   color: var(--text-color);
   border: none;
   padding: 1rem 2rem;

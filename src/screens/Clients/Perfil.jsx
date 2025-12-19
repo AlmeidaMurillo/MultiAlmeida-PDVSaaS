@@ -17,6 +17,10 @@ import {
 function Perfil() {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    document.title = "MultiAlmeida | Perfil";
+  }, []);
+
   const [dadosUsuario, setDadosUsuario] = useState({
     nome: "",
     email: "",
@@ -52,20 +56,17 @@ function Perfil() {
 
   const [planosDisponiveis, setPlanosDisponiveis] = useState([]);
   
-  // Estados para os modais de senha
   const [senha, setSenha] = useState({
     atual: "",
     nova: "",
     confirmacao: ""
   });
 
-  // Estados para os modais de plano
   const [novoPlano, setNovoPlano] = useState({
     periodo: "",
     planoNome: ""
   });
 
-  // Estados locais para edição de dados
   const [dadosLocaisUsuario, setDadosLocaisUsuario] = useState(dadosUsuario);
   const [dadosLocaisEmpresa, setDadosLocaisEmpresa] = useState(dadosEmpresa);
 
@@ -192,7 +193,6 @@ function Perfil() {
     await auth.logout();
   };
 
-  // Handlers para Modal Editar Dados Usuário
   const handleChangeDadosUsuario = (e) => {
     setDadosLocaisUsuario({ ...dadosLocaisUsuario, [e.target.name]: e.target.value });
   };
@@ -208,7 +208,6 @@ function Perfil() {
     }
   };
 
-  // Handlers para Modal Editar Dados Empresa
   const handleChangeDadosEmpresa = (e) => {
     setDadosLocaisEmpresa({ ...dadosLocaisEmpresa, [e.target.name]: e.target.value });
   };
@@ -224,7 +223,6 @@ function Perfil() {
     }
   };
 
-  // Handlers para Modal Alterar Senha
   const handleChangeSenha = (e) => {
     setSenha({ ...senha, [e.target.name]: e.target.value });
   };
@@ -258,7 +256,6 @@ function Perfil() {
     }
   };
 
-  // Handlers para Modal Alterar Plano
   const planoSelecionado = React.useMemo(() => {
     const planoGrupo = planosDisponiveis.find(p => p.nome === novoPlano.planoNome);
     if (planoGrupo && novoPlano.periodo) {
@@ -302,7 +299,6 @@ function Perfil() {
     }
   };
 
-  // Modal Inline - Editar Dados Usuário
   const ModalEditarDadosUsuario = () => {
     if (!mostrarModalDados) return null;
     return (
@@ -350,7 +346,6 @@ function Perfil() {
     );
   };
 
-  // Modal Inline - Editar Dados Empresa
   const ModalEditarDadosEmpresa = () => {
     if (!mostrarModalEmpresa) return null;
     return (
@@ -390,7 +385,6 @@ function Perfil() {
     );
   };
 
-  // Modal Inline - Alterar Senha
   const ModalAlterarSenha = () => {
     if (!mostrarModalSenha) return null;
     return (
@@ -430,7 +424,6 @@ function Perfil() {
     );
   };
 
-  // Modal Inline - Alterar Plano
   const ModalAlterarPlano = () => {
     if (!mostrarModalPlano) return null;
     return (
@@ -490,7 +483,6 @@ function Perfil() {
     );
   };
 
-  // Modal Inline - Visualizar Foto
   const ModalVisualizarFoto = () => {
     if (!mostrarModalFoto) return null;
     return (
@@ -585,7 +577,6 @@ function Perfil() {
           </div>
         )}
 
-        {/* Renderizar os modais */}
         <ModalEditarDadosUsuario />
         <ModalEditarDadosEmpresa />
         <ModalAlterarSenha />

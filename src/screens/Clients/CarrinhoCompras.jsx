@@ -9,7 +9,7 @@ import styles from "./CarrinhoCompras.module.css";
 import Header from "../../Components/Header/Header";
 import { auth, api } from "../../auth";
 
-export default function CarrinhoCompras() {
+function CarrinhoCompras() {
   const location = useLocation();
   const navigate = useNavigate();
   const { planId, periodo } = location.state || {};
@@ -24,7 +24,6 @@ export default function CarrinhoCompras() {
   const [cupomErro, setCupomErro] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Verificar se há cupom aplicado no carrinho ao carregar
   useEffect(() => {
     if (itensCarrinho.length > 0 && itensCarrinho[0].cupom_codigo) {
       const item = itensCarrinho[0];
@@ -38,6 +37,8 @@ export default function CarrinhoCompras() {
         valor: item.cupom_valor,
         desconto: item.cupom_desconto,
         valor_original: valorTotal,
+        valor_desconto: item.cupom_desconto,
+        valor_final_compra: valorTotal - item.cupom_desconto,
         valor_final: valorTotal - item.cupom_desconto
       });
     } else {
@@ -67,10 +68,7 @@ export default function CarrinhoCompras() {
   }, []);
 
   useEffect(() => {
-    // A rota já é protegida por ProtectedRoute, não precisa verificar isAuthenticated aqui
     if (!auth.isAuthenticated()) {
-        // Embora a rota seja protegida, se por algum motivo o estado de auth falhar, redireciona.
-        // Isso é um fallback.
         navigate("/login", { state: { from: "/carrinho", planId, periodo } });
         return; 
     }
@@ -82,14 +80,14 @@ export default function CarrinhoCompras() {
       const adicionarAoCarrinho = async () => {
         try {
           await api.post("/api/carrinho", { planoId: planId, periodo });
-          carregarCarrinho(); // Recarrega o carrinho após adicionar o item
+          carregarCarrinho();
         } catch (err) {
           console.error("Erro ao adicionar ao carrinho:", err);
         }
       };
       adicionarAoCarrinho();
     }
-  }, [navigate, planId, periodo, carregarCarrinho, carregarPlanos]); // Dependências atualizadas
+  }, [navigate, planId, periodo, carregarCarrinho, carregarPlanos]);
 
   const removerItem = async (itemId) => {
     try {
@@ -136,6 +134,8 @@ export default function CarrinhoCompras() {
           valor: response.data.cupom.valor,
           desconto: response.data.cupom.desconto,
           valor_original: response.data.cupom.valor_original,
+          valor_desconto: response.data.cupom.valor_desconto,
+          valor_final_compra: response.data.cupom.valor_final_compra,
           valor_final: response.data.cupom.valor_final
         });
         setCupom("");
@@ -170,11 +170,9 @@ export default function CarrinhoCompras() {
     setError("");
 
     try {
-      // O cupom já está salvo no carrinho, não precisa enviar
       const response = await api.post("/api/payments/initiate");
       const { paymentId } = response.data;
       if (paymentId) {
-        // Navega passando contexto seguro via state (não armazenado)
         navigate(`/payment/${paymentId}`, { state: { fromCart: true } });
       } else {
         setError("Não foi possível iniciar o pagamento. Tente novamente.");
@@ -192,24 +190,21 @@ export default function CarrinhoCompras() {
 
   const calcularTotal = useCallback(() => {
     const subtotal = itensCarrinho.reduce((total, item) => {
-      // Os dados de preço já vêm no item do carrinho
       const preco = Number(item.preco || 0) * item.quantidade;
       return total + preco;
     }, 0);
     
-    // Se houver cupom aplicado, retorna o valor com desconto
     if (cupomAplicado && cupomAplicado.valor_final !== undefined) {
       return cupomAplicado.valor_final;
     }
     
     return subtotal;
-  }, [itensCarrinho, cupomAplicado]); // Dependências
+  }, [itensCarrinho, cupomAplicado]);
 
   return (
     <div className={styles.container}>
       <Header />
 
-      {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.headerLeft}>
@@ -225,7 +220,6 @@ export default function CarrinhoCompras() {
         </div>
       </div>
 
-      {/* Conteúdo */}
       <div className={styles.content}>
         {error && <div className={styles.error}>{error}</div>}
 
@@ -238,8 +232,6 @@ export default function CarrinhoCompras() {
               </div>
 
               {itensCarrinho.map((item) => {
-                // Os dados do plano já vêm no item do carrinho (nome, preco, duracao_dias, beneficios)
-                // Para exibição, usamos os dados que já vêm no item
                 const periodoInfo = {
                   id: item.plano_id,
                   preco: item.preco,
@@ -269,11 +261,9 @@ export default function CarrinhoCompras() {
                                 const novoPeriodo = e.target.value;
                                 if (!novoPeriodo) return;
                                 
-                                // Primeiro tenta manter o mesmo plano com o novo período
                                 let planoParaUsar = planos.find(p => p.nome === item.nome);
                                 let novoPeriodoInfo = planoParaUsar ? planoParaUsar[novoPeriodo] : null;
                                 
-                                // Se o plano atual não tem esse período, pega o primeiro plano que tem
                                 if (!novoPeriodoInfo) {
                                   planoParaUsar = planos.find(p => p[novoPeriodo]);
                                   novoPeriodoInfo = planoParaUsar ? planoParaUsar[novoPeriodo] : null;
@@ -319,7 +309,7 @@ export default function CarrinhoCompras() {
                             >
                               <option value="">Selecione um plano</option>
                               {planos
-                                .filter(p => p[item.periodo]) // Filtra apenas planos que têm o período selecionado
+                                .filter(p => p[item.periodo])
                                 .map((p) => (
                                   <option key={p.nome} value={p.nome}>
                                     {p.nome} - R$ {p[item.periodo]?.preco?.toFixed(2) || '0.00'}
@@ -350,20 +340,17 @@ export default function CarrinhoCompras() {
                 );
               })}
 
-              {/* Banner */}
               <div className={styles.banner}>
                 <h3>💎 Upgrade para plano anual e ganhe mais!</h3>
                 <p>Economize até 40% com planos anuais e ganhe um domínio grátis</p>
               </div>
             </div>
 
-            {/* Resumo */}
             <div className={styles.summary}>
               <div className={styles.summaryCard}>
                 <h2 className={styles.summaryHeader}>Resumo do Pedido</h2>
                 <div className={styles.summaryContent}>
                   {itensCarrinho.map((item) => {
-                    // Os dados já vêm no item do carrinho
                     const subtotal = (item.preco || 0) * item.quantidade;
 
                     return (
@@ -376,7 +363,6 @@ export default function CarrinhoCompras() {
                     );
                   })}
 
-                  {/* Campo Cupom */}
                   <div className={styles.cupom}>
                     <h4>Cupom de Desconto</h4>
                     <div className={styles.cupomInputGroup}>
@@ -430,7 +416,6 @@ export default function CarrinhoCompras() {
                     )}
                   </div>
 
-                  {/* Subtotal e Desconto */}
                   {cupomAplicado && (
                     <>
                       <div className={styles.summaryItem}>
@@ -438,8 +423,12 @@ export default function CarrinhoCompras() {
                         <span className={styles.summaryItemValue}>R${cupomAplicado.valor_original.toFixed(2)}</span>
                       </div>
                       <div className={styles.summaryItem} style={{ color: 'var(--success-color)' }}>
-                        <span className={styles.summaryItemLabel}>Desconto</span>
-                        <span className={styles.summaryItemValue}>-R${cupomAplicado.desconto.toFixed(2)}</span>
+                        <span className={styles.summaryItemLabel}>Desconto ({cupomAplicado.codigo})</span>
+                        <span className={styles.summaryItemValue}>-R${(cupomAplicado.valor_desconto || cupomAplicado.desconto).toFixed(2)}</span>
+                      </div>
+                      <div className={styles.summaryItem} style={{ fontWeight: '700', color: 'var(--primary-color)' }}>
+                        <span className={styles.summaryItemLabel}>Valor Final da Compra</span>
+                        <span className={styles.summaryItemValue}>R${(cupomAplicado.valor_final_compra || cupomAplicado.valor_final).toFixed(2)}</span>
                       </div>
                     </>
                   )}
@@ -470,7 +459,6 @@ export default function CarrinhoCompras() {
         )}
       </div>
 
-      {/* Footer */}
       <div className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerSection}>
@@ -508,4 +496,6 @@ export default function CarrinhoCompras() {
     </div>
   );
 }
+
+export default CarrinhoCompras;
 

@@ -32,6 +32,10 @@ function Registro() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "MultiAlmeida | Registro";
+  }, []);
+
+  useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);

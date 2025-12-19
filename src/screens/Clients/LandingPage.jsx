@@ -16,6 +16,10 @@ function LandingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    document.title = "MultiAlmeida | ERP SaaS PDV";
+  }, []);
+
   const periodosOptions = [
     { label: "Mensal", key: "mensal", icon: "📅" },
     { label: "Trimestral", key: "trimestral", icon: "📊" },
@@ -31,10 +35,8 @@ function LandingPage() {
     }
   };
 
-  // Filtrar planos do período selecionado
   const planosFiltrados = todosPlanos.filter(p => p.periodo === periodoSelecionado);
   
-  // Encontrar informações do período atual
   const periodoAtual = periodosOptions.find(p => p.key === periodoSelecionado);
 
   useEffect(() => {
@@ -140,7 +142,6 @@ function LandingPage() {
             Planos flexíveis que se adaptam ao crescimento da sua empresa. Sem taxas escondidas.
           </p>
 
-          {/* Seletor de Período */}
           <div className={styles.periodoSelector}>
             <label htmlFor="periodo-select" className={styles.periodoLabel}>
               <Calendar size={20} />
