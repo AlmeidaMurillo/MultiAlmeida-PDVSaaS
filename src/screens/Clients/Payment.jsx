@@ -162,13 +162,33 @@ function Payment() {
       }
     };
 
-    pollingIntervalRef.current = setInterval(checkPaymentStatus, 10000);
+    // Verificação imediata ao montar
+    checkPaymentStatus();
+
+    // Polling a cada 3 segundos (reduzido de 10s)
+    pollingIntervalRef.current = setInterval(checkPaymentStatus, 3000);
+
+    // Verificar quando a página volta a ter foco (quando o usuário retorna ao navegador)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkPaymentStatus();
+      }
+    };
+
+    const handleFocus = () => {
+      checkPaymentStatus();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
 
     return () => {
       if (pollingIntervalRef.current) {
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
       }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
     };
   }, [paymentId, navigate]);
 
