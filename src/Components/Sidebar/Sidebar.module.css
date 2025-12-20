@@ -503,7 +503,7 @@
 @media (max-width: 768px) {
   .contentWrapper {
     padding: 1rem;
-    min-height: calc(100vh - 4.5rem - 4rem);
+    min-height: 100vh;
     flex: 1 0 auto;
   }
   
@@ -524,7 +524,7 @@
   }
 
   .sidebar .nav {
-    padding-bottom: calc(env(safe-area-inset-bottom, 60px) + 3rem);
+    padding-bottom: 80px;
   }
 
   .sidebar.mobileOpen {
@@ -535,11 +535,11 @@
   .pageContent {
     margin-left: 0 !important;
     width: 100% !important;
-    min-height: calc(100vh - 4.5rem);
+    min-height: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    padding-bottom: calc(env(safe-area-inset-bottom, 60px) + 3rem);
+    padding-bottom: 80px;
   }
 }
 
