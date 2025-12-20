@@ -503,7 +503,8 @@
 @media (max-width: 768px) {
   .contentWrapper {
     padding: 1rem;
-    min-height: 0;
+    min-height: calc(100vh - 4.5rem - 4rem);
+    flex: 1 0 auto;
   }
   
   .sidebar {
@@ -534,6 +535,8 @@
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
   }
 }
 
