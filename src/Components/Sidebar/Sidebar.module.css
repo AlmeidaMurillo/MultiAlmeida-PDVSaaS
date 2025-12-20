@@ -53,6 +53,7 @@
   min-height: calc(100dvh - 4.5rem);
   margin-top: 4.5rem;
   transition: margin-left 0.3s ease;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -219,7 +220,7 @@
   flex: 1;
   margin-left: 260px;
   padding: 0;
-  min-height: calc(100vh - 4.5rem);
+  height: calc(100vh - 4.5rem);
   width: calc(100% - 260px);
   display: flex;
   flex-direction: column;
@@ -527,6 +528,10 @@
   .pageContent {
     margin-left: 0 !important;
     width: 100% !important;
+    height: calc(100vh - 4.5rem);
+    max-height: calc(100vh - 4.5rem);
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
   }
 }
 
