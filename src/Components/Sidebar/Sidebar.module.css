@@ -219,7 +219,7 @@
   flex: 1;
   margin-left: 260px;
   padding: 0;
-  height: calc(100vh - 4.5rem);
+  min-height: calc(100vh - 4.5rem);
   width: calc(100% - 260px);
   display: flex;
   flex-direction: column;
@@ -493,7 +493,7 @@
 
 /* Content Wrapper para separar conteúdo do footer */
 .contentWrapper {
-  flex: 1;
+  flex: 1 0 auto;
   padding: 1.5rem;
   width: 100%;
   box-sizing: border-box;
