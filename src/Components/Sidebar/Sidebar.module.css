@@ -503,7 +503,7 @@
 @media (max-width: 768px) {
   .contentWrapper {
     padding: 1rem;
-    min-height: 100vh;
+    min-height: calc(100vh - 4.5rem - 60px);
     flex: 1 0 auto;
   }
   
@@ -535,11 +535,10 @@
   .pageContent {
     margin-left: 0 !important;
     width: 100% !important;
-    min-height: auto;
+    min-height: 100vh;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    padding-bottom: 80px;
   }
 }
 
