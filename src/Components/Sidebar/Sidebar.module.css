@@ -502,6 +502,7 @@
 @media (max-width: 768px) {
   .contentWrapper {
     padding: 1rem;
+    min-height: calc(100vh - 4.5rem - 3rem);
   }
   
   .sidebar {
