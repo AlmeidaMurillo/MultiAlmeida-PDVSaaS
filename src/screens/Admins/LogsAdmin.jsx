@@ -3,11 +3,10 @@ import styles from './LogsAdmin.module.css';
 import Spinner from '../../Components/Spinner/Spinner';
 import Sidebar from '../../Components/Sidebar/Sidebar.jsx';
 import { api } from "../../auth";
-import { Search, AlertCircle, X, FileText as FileTextIcon, Trash2, BarChart3, FileText, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Search, AlertCircle, X, FileText as FileTextIcon, Trash2, BarChart3, FileText, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Clock, Calendar, TrendingUp, Activity, AlertTriangle, Shield } from "lucide-react";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-// Mapeamento de tipos de log para português
 const TIPOS_LOG = {
   rate_limit: 'Rate Limit',
   login: 'Login',
@@ -38,6 +37,44 @@ const TIPOS_LOG = {
   sessao_expirada: 'Sessão Expirada',
 };
 
+const SEVERIDADE_LOG = {
+  rate_limit: 'warning',
+  login: 'info',
+  logout: 'info',
+  registro: 'success',
+  pagamento: 'success',
+  compra: 'success',
+  erro: 'error',
+  admin: 'info',
+  sessao: 'info',
+  acesso: 'info',
+  carrinho_adicionar: 'info',
+  carrinho_remover: 'info',
+  carrinho_limpar: 'info',
+  cupom_aplicado: 'success',
+  cupom_removido: 'info',
+  cupom_invalido: 'warning',
+  perfil_atualizado: 'success',
+  senha_alterada: 'warning',
+  admin_cupom: 'info',
+  admin_plano: 'info',
+  admin_empresa: 'info',
+  admin_usuario: 'info',
+  tentativa_acesso: 'warning',
+  validacao_falha: 'warning',
+  ataque_detectado: 'error',
+  token_invalido: 'error',
+  sessao_expirada: 'warning',
+};
+
+const PERIODOS_RAPIDOS = [
+  { label: 'Última Hora', valor: 'ultima_hora', horas: 1 },
+  { label: 'Últimas 24h', valor: 'ultimo_dia', horas: 24 },
+  { label: 'Últimos 7 dias', valor: 'ultima_semana', dias: 7 },
+  { label: 'Últimos 30 dias', valor: 'ultimo_mes', dias: 30 },
+  { label: 'Últimos 90 dias', valor: 'ultimo_trimestre', dias: 90 },
+];
+
 function LogsAdmin() {
   const [logs, setLogs] = useState([]);
   const [stats, setStats] = useState(null);
@@ -49,7 +86,6 @@ function LogsAdmin() {
     document.title = 'MultiAlmeida | Logs do Sistema';
   })
   
-  // Filtros
   const [filtros, setFiltros] = useState({
     tipo: '',
     email: '',
@@ -58,11 +94,14 @@ function LogsAdmin() {
     ip: '',
     data_inicio: '',
     data_fim: '',
+    data_inicio_api: '', // Valor interno com datetime para API
+    data_fim_api: '', // Valor interno com datetime para API
     limite: 25,
     pagina: 1,
+    severidade: '',
+    periodo_rapido: '',
   });
 
-  // Paginação
   const [pagination, setPagination] = useState({
     total: 0,
     pagina: 1,
@@ -70,23 +109,32 @@ function LogsAdmin() {
     totalPaginas: 0,
   });
 
-  // Aba ativa
-  const [abaAtiva, setAbaAtiva] = useState('logs'); // 'logs' ou 'stats'
+  const [abaAtiva, setAbaAtiva] = useState('logs');
 
-  // Log selecionado para detalhes
   const [logSelecionado, setLogSelecionado] = useState(null);
 
-  // Busca de tipos
-  const [buscaTipo, setBuscaTipo] = useState('');
+  const [periodoStats, setPeriodoStats] = useState('30');
 
-  const buscarLogs = useCallback(async () => {
+  const buscarLogsComFiltros = useCallback(async (filtrosParaBusca) => {
     setLoading(true);
     setErro('');
     try {
       const params = new URLSearchParams();
-      Object.keys(filtros).forEach(key => {
-        if (filtros[key]) {
-          params.append(key, filtros[key]);
+      
+      if (filtrosParaBusca.data_inicio_api) {
+        params.append('data_inicio', filtrosParaBusca.data_inicio_api);
+      } else if (filtrosParaBusca.data_inicio) {
+        params.append('data_inicio', filtrosParaBusca.data_inicio);
+      }
+
+      if (filtrosParaBusca.data_fim_api) {
+        params.append('data_fim', filtrosParaBusca.data_fim_api);
+      } else if (filtrosParaBusca.data_fim) {
+        params.append('data_fim', filtrosParaBusca.data_fim);
+      }
+      Object.keys(filtrosParaBusca).forEach(key => {
+        if (key !== 'data_inicio' && key !== 'data_fim' && key !== 'data_inicio_api' && key !== 'data_fim_api' && filtrosParaBusca[key]) {
+          params.append(key, filtrosParaBusca[key]);
         }
       });
 
@@ -101,26 +149,24 @@ function LogsAdmin() {
     } finally {
       setLoading(false);
     }
-  }, [filtros]);
+  }, []);
 
   const buscarEstatisticas = useCallback(async () => {
     setLoadingStats(true);
     try {
-      const response = await api.get('/api/admin/logs/stats?periodo=30');
+      const response = await api.get(`/api/admin/logs/stats?periodo=${periodoStats}`);
       setStats(response.data.data);
     } catch (error) {
       console.error('Erro:', error);
     } finally {
       setLoadingStats(false);
     }
-  }, []);
+  }, [periodoStats]);
 
-  // Buscar logs quando filtros mudarem
   useEffect(() => {
-    buscarLogs();
-  }, [buscarLogs]);
+    buscarLogsComFiltros(filtros);
+  }, [buscarLogsComFiltros, filtros]);
 
-  // Buscar estatísticas ao montar
   useEffect(() => {
     buscarEstatisticas();
   }, [buscarEstatisticas]);
@@ -131,7 +177,7 @@ function LogsAdmin() {
     try {
       const response = await api.delete('/api/admin/logs', { data: { dias: 90 } });
       alert(response.data.message);
-      buscarLogs();
+      buscarLogsComFiltros(filtros);
       buscarEstatisticas();
     } catch (error) {
       console.error('Erro:', error);
@@ -143,7 +189,6 @@ function LogsAdmin() {
   };
 
   const formatarChave = (chave) => {
-    // Converte snake_case para Título
     return chave
       .split('_')
       .map(palavra => palavra.charAt(0).toUpperCase() + palavra.slice(1))
@@ -154,7 +199,6 @@ function LogsAdmin() {
     if (valor === null || valor === undefined) return 'N/A';
     if (typeof valor === 'boolean') return valor ? 'Sim' : 'Não';
     if (typeof valor === 'number') {
-      // Campos que devem ser formatados como moeda
       const camposMonetarios = ['valor', 'preco', 'desconto', 'valor_total', 'valor_desconto', 'valor_final_compra', 'valor_original', 'valor_final', 'desconto_aplicado'];
       const ehMonetario = camposMonetarios.some(campo => chave.toLowerCase().includes(campo));
       
@@ -170,117 +214,154 @@ function LogsAdmin() {
   };
 
   const mudarPagina = (novaPagina) => {
-    setFiltros(prev => ({ ...prev, pagina: novaPagina }));
+    const novosFiltros = { ...filtros, pagina: novaPagina };
+    setFiltros(novosFiltros);
+    buscarLogsComFiltros(novosFiltros);
+  };
+
+  const aplicarPeriodoRapido = (periodo) => {
+    const agora = new Date();
+    let dataInicio = new Date();
+    
+    const periodoConfig = PERIODOS_RAPIDOS.find(p => p.valor === periodo);
+    if (!periodoConfig) return;
+    
+    if (periodoConfig.horas) {
+      dataInicio = new Date(agora.getTime() - periodoConfig.horas * 60 * 60 * 1000);
+    } else if (periodoConfig.dias) {
+      dataInicio = new Date(agora.getTime() - periodoConfig.dias * 24 * 60 * 60 * 1000);
+    }
+    
+    const formatarDataTimeMySQL = (data) => {
+      const ano = data.getUTCFullYear();
+      const mes = String(data.getUTCMonth() + 1).padStart(2, '0');
+      const dia = String(data.getUTCDate()).padStart(2, '0');
+      const hora = String(data.getUTCHours()).padStart(2, '0');
+      const minuto = String(data.getUTCMinutes()).padStart(2, '0');
+      const segundo = String(data.getUTCSeconds()).padStart(2, '0');
+      return `${ano}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
+    };
+    
+    const novosFiltros = {
+      ...filtros,
+      data_inicio: '', // Limpa o input visual
+      data_fim: '', // Limpa o input visual
+      data_inicio_api: formatarDataTimeMySQL(dataInicio), // Valor para API
+      data_fim_api: formatarDataTimeMySQL(agora), // Valor para API
+      periodo_rapido: periodo,
+      pagina: 1
+    };
+    
+    setFiltros(novosFiltros);
+    buscarLogsComFiltros(novosFiltros);
+  };
+
+  const aplicarFiltroSeveridade = (severidade) => {
+    const novosFiltros = {
+      ...filtros,
+      severidade,
+      pagina: 1
+    };
+    setFiltros(novosFiltros);
+    buscarLogsComFiltros(novosFiltros);
   };
 
   const exportarPDF = () => {
     const doc = new jsPDF('l', 'mm', 'a4');
     const dataAtual = new Date().toLocaleDateString('pt-BR');
-    const horaAtual = new Date().toLocaleTimeString('pt-BR');
+    const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     
-    // Cores modernas
-    const corPrimaria = [88, 101, 242]; // Roxo vibrante
-    const corSecundaria = [139, 92, 246]; // Roxo claro
-    const corAcento = [59, 130, 246]; // Azul
-    const corTexto = [30, 30, 30];
-    const corSubtexto = [100, 100, 100];
+    const corPreta = [0, 0, 0];
+    const corCinzaEscuro = [45, 45, 45];
+    const corCinza = [100, 100, 100];
+    const corCinzaClaro = [180, 180, 180];
+    const corCinzaMuitoClaro = [240, 240, 240];
+    const corBranca = [255, 255, 255];
     
-    // Função para criar gradiente simulado com retângulos
-    const criarGradienteHeader = () => {
-      for (let i = 0; i < 40; i++) {
-        const r = corPrimaria[0] + (255 - corPrimaria[0]) * (i / 40);
-        const g = corPrimaria[1] + (255 - corPrimaria[1]) * (i / 40);
-        const b = corPrimaria[2] + (255 - corPrimaria[2]) * (i / 40);
-        doc.setFillColor(r, g, b);
-        doc.rect(0, i, 297, 1, 'F');
-      }
-    };
+    doc.setFillColor(corPreta[0], corPreta[1], corPreta[2]);
+    doc.rect(0, 0, 297, 40, 'F');
     
-    // Header com gradiente
-    criarGradienteHeader();
+    doc.setFillColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+    doc.rect(0, 0, 297, 1, 'F');
     
-    // Logo/Ícone (simulado com formas)
-    doc.setFillColor(255, 255, 255);
-    doc.circle(25, 20, 8, 'F');
-    doc.setFillColor(corPrimaria[0], corPrimaria[1], corPrimaria[2]);
+    doc.setFillColor(corBranca[0], corBranca[1], corBranca[2]);
+    doc.roundedRect(15, 12, 16, 16, 1, 1, 'F');
+    doc.setFillColor(corPreta[0], corPreta[1], corPreta[2]);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(255, 255, 255);
-    doc.text('M', 23, 22.5);
+    doc.text('MA', 18, 22);
     
-    // Título principal
+    doc.setTextColor(corBranca[0], corBranca[1], corBranca[2]);
     doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
-    doc.text('RELATÓRIO DE LOGS', 40, 18);
+    doc.text('RELATÓRIO DE LOGS', 35, 18);
     
-    // Subtítulo
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Sistema MultiAlmeida PDV', 40, 25);
-    
-    // Linha decorativa
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(0.5);
-    doc.line(40, 28, 260, 28);
-    
-    // Card de informações (canto superior direito)
-    doc.setFillColor(255, 255, 255);
-    doc.roundedRect(200, 10, 85, 24, 3, 3, 'F');
-    doc.setFontSize(8);
-    doc.setTextColor(corSubtexto[0], corSubtexto[1], corSubtexto[2]);
-    doc.setFont('helvetica', 'normal');
-    doc.text('GERADO EM', 205, 15);
     doc.setFontSize(9);
-    doc.setTextColor(corTexto[0], corTexto[1], corTexto[2]);
-    doc.setFont('helvetica', 'bold');
-    doc.text(dataAtual, 205, 20);
-    doc.text(horaAtual, 205, 25);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(corSubtexto[0], corSubtexto[1], corSubtexto[2]);
-    doc.text(`Total: ${logs.length} registros`, 205, 30);
+    doc.setTextColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+    doc.text('MultiAlmeida PDV • Sistema de Gestão Empresarial', 35, 26);
     
-    // Seção de filtros aplicados
+    doc.setDrawColor(corCinza[0], corCinza[1], corCinza[2]);
+    doc.setLineWidth(0.2);
+    doc.line(35, 29, 180, 29);
+    doc.setFillColor(corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]);
+    doc.roundedRect(230, 10, 55, 20, 2, 2, 'F');
+    
+    doc.setFontSize(6);
+    doc.setTextColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.text('GERADO EM', 234, 14);
+    
+    doc.setFontSize(9);
+    doc.setTextColor(corBranca[0], corBranca[1], corBranca[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(dataAtual, 234, 19);
+    doc.setFontSize(8);
+    doc.text(horaAtual, 234, 23.5);
+    
+    doc.setFontSize(6);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+    doc.text(`${logs.length} LOGS`, 234, 27.5);
+    
     let yPos = 48;
-    if (filtros.tipo || filtros.email || filtros.nome || filtros.cargo || filtros.data_inicio || filtros.data_fim) {
-      doc.setFillColor(245, 247, 250);
-      doc.roundedRect(14, yPos, 269, 15, 2, 2, 'F');
+    if (filtros.tipo || filtros.email || filtros.nome || filtros.cargo || filtros.data_inicio || filtros.data_fim || filtros.periodo_rapido) {
+      doc.setDrawColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+      doc.setLineWidth(0.3);
+      doc.line(14, yPos, 283, yPos);
       
-      doc.setFontSize(9);
-      doc.setTextColor(corTexto[0], corTexto[1], corTexto[2]);
+      yPos += 5;
+      
+      doc.setFontSize(7);
+      doc.setTextColor(corCinza[0], corCinza[1], corCinza[2]);
       doc.setFont('helvetica', 'bold');
-      doc.text('🔍 FILTROS APLICADOS:', 18, yPos + 5);
+      doc.text('FILTROS APLICADOS', 14, yPos);
+      
+      yPos += 4;
       
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8);
-      let xFilter = 18;
-      let yFilter = yPos + 10;
+      doc.setFontSize(7);
+      doc.setTextColor(corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]);
+      let xFilter = 14;
       
-      if (filtros.tipo) {
-        doc.text(`Tipo: ${TIPOS_LOG[filtros.tipo]}`, xFilter, yFilter);
-        xFilter += 50;
+      const filtrosTexto = [];
+      if (filtros.tipo) filtrosTexto.push(`Tipo: ${TIPOS_LOG[filtros.tipo]}`);
+      if (filtros.periodo_rapido) {
+        const periodo = PERIODOS_RAPIDOS.find(p => p.valor === filtros.periodo_rapido);
+        filtrosTexto.push(`Período: ${periodo?.label}`);
       }
-      if (filtros.email) {
-        doc.text(`Email: ${filtros.email}`, xFilter, yFilter);
-        xFilter += 60;
-      }
-      if (filtros.nome) {
-        doc.text(`Nome: ${filtros.nome}`, xFilter, yFilter);
-        xFilter += 50;
-      }
-      if (filtros.cargo) {
-        doc.text(`Cargo: ${filtros.cargo}`, xFilter, yFilter);
-      }
+      if (filtros.email) filtrosTexto.push(`Email: ${filtros.email}`);
+      if (filtros.nome) filtrosTexto.push(`Nome: ${filtros.nome}`);
+      if (filtros.cargo) filtrosTexto.push(`Cargo: ${filtros.cargo}`);
       
-      if (filtros.data_inicio || filtros.data_fim) {
-        yFilter += 5;
-        doc.text(`Período: ${filtros.data_inicio || 'início'} até ${filtros.data_fim || 'hoje'}`, 18, yFilter);
-      }
+      doc.text(filtrosTexto.join(' • '), xFilter, yPos);
       
-      yPos += 18;
+      yPos += 5;
+      doc.setLineWidth(0.3);
+      doc.line(14, yPos, 283, yPos);
+      yPos += 3;
     }
     
-    // Preparar dados da tabela
     const tableData = logs.map(log => [
       formatarData(log.criado_em).split(' ')[0],
       formatarData(log.criado_em).split(' ')[1],
@@ -292,73 +373,379 @@ function LogsAdmin() {
       log.acao.substring(0, 35) + (log.acao.length > 35 ? '...' : '')
     ]);
     
-    // Criar tabela moderna
     autoTable(doc, {
       startY: yPos,
-      head: [['Data', 'Hora', 'Tipo', 'Email', 'Nome', 'Cargo', 'IP', 'Ação']],
+      head: [['DATA', 'HORA', 'TIPO', 'EMAIL', 'NOME', 'CARGO', 'IP', 'AÇÃO']],
       body: tableData,
-      theme: 'grid',
+      theme: 'plain',
       headStyles: {
-        fillColor: [corSecundaria[0], corSecundaria[1], corSecundaria[2]],
+        fillColor: [corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]],
         textColor: [255, 255, 255],
-        fontSize: 9,
+        fontSize: 7,
         fontStyle: 'bold',
         halign: 'center',
-        cellPadding: 3
+        cellPadding: { top: 3, right: 2, bottom: 3, left: 2 },
+        lineWidth: 0,
+        valign: 'middle'
       },
       bodyStyles: {
-        fontSize: 8,
-        textColor: corTexto,
-        cellPadding: 2.5
+        fontSize: 7,
+        textColor: [corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]],
+        cellPadding: { top: 2.5, right: 2, bottom: 2.5, left: 2 },
+        lineWidth: 0.1,
+        lineColor: [230, 230, 230],
+        valign: 'middle'
       },
       alternateRowStyles: {
-        fillColor: [248, 250, 252]
+        fillColor: [248, 248, 248]
       },
       columnStyles: {
-        0: { cellWidth: 22, halign: 'center', fontStyle: 'bold' },
-        1: { cellWidth: 18, halign: 'center' },
-        2: { cellWidth: 28, halign: 'center', fontStyle: 'bold', textColor: corAcento },
-        3: { cellWidth: 42 },
-        4: { cellWidth: 35 },
-        5: { cellWidth: 24, halign: 'center' },
-        6: { cellWidth: 28, halign: 'center', fontStyle: 'italic' },
-        7: { cellWidth: 'auto' }
+        0: { cellWidth: 22, halign: 'center', fontStyle: 'bold', textColor: [corPreta[0], corPreta[1], corPreta[2]] },
+        1: { cellWidth: 18, halign: 'center', textColor: [corCinza[0], corCinza[1], corCinza[2]] },
+        2: { cellWidth: 28, halign: 'center', fontStyle: 'bold', fontSize: 6.5 },
+        3: { cellWidth: 42, fontSize: 6.5 },
+        4: { cellWidth: 35, fontSize: 7 },
+        5: { cellWidth: 24, halign: 'center', fontSize: 6.5 },
+        6: { cellWidth: 28, halign: 'center', fontStyle: 'italic', textColor: [corCinza[0], corCinza[1], corCinza[2]], fontSize: 6.5 },
+        7: { cellWidth: 'auto', fontSize: 6 }
       },
       margin: { left: 14, right: 14 },
       didDrawPage: function(data) {
         const pageCount = doc.internal.getNumberOfPages();
         const pageHeight = doc.internal.pageSize.height;
         
-        // Linha decorativa no rodapé
-        doc.setDrawColor(corSecundaria[0], corSecundaria[1], corSecundaria[2]);
-        doc.setLineWidth(1.5);
-        doc.line(14, pageHeight - 18, 283, pageHeight - 18);
+        doc.setFillColor(corCinzaMuitoClaro[0], corCinzaMuitoClaro[1], corCinzaMuitoClaro[2]);
+        doc.rect(0, pageHeight - 12, 297, 12, 'F');
         
-        // Rodapé esquerdo
-        doc.setFontSize(8);
-        doc.setTextColor(corSubtexto[0], corSubtexto[1], corSubtexto[2]);
-        doc.setFont('helvetica', 'italic');
-        doc.text('MultiAlmeida PDV - Sistema de Gestão', 14, pageHeight - 12);
+        doc.setDrawColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+        doc.setLineWidth(0.3);
+        doc.line(0, pageHeight - 12, 297, pageHeight - 12);
         
-        // Paginação central
+        doc.setFontSize(6);
+        doc.setTextColor(corCinza[0], corCinza[1], corCinza[2]);
+        doc.setFont('helvetica', 'normal');
+        doc.text('MultiAlmeida PDV', 14, pageHeight - 6);
+        
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(corPrimaria[0], corPrimaria[1], corPrimaria[2]);
+        doc.setTextColor(corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]);
         doc.text(
-          `Página ${data.pageNumber} de ${pageCount}`,
+          `${data.pageNumber} / ${pageCount}`,
           148.5,
-          pageHeight - 12,
+          pageHeight - 6,
           { align: 'center' }
         );
-        
-        // Informação direita
-        doc.setFont('helvetica', 'italic');
-        doc.setTextColor(corSubtexto[0], corSubtexto[1], corSubtexto[2]);
-        doc.text('Confidencial', 283, pageHeight - 12, { align: 'right' });
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(corCinza[0], corCinza[1], corCinza[2]);
+        doc.text('CONFIDENCIAL', 283, pageHeight - 6, { align: 'right' });
       }
     });
     
-    // Salvar PDF
     const nomeArquivo = `logs-multialmeida-${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(nomeArquivo);
+  };
+
+  const exportarEstatisticasPDF = () => {
+    if (!stats) return;
+    
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    
+    const corPreta = [0, 0, 0];
+    const corCinzaEscuro = [45, 45, 45];
+    const corCinza = [100, 100, 100];
+    const corCinzaClaro = [180, 180, 180];
+    const corCinzaMuitoClaro = [240, 240, 240];
+    const corBranca = [255, 255, 255];
+    
+    doc.setFillColor(corPreta[0], corPreta[1], corPreta[2]);
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setFillColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+    doc.rect(0, 0, 210, 1, 'F');
+    doc.setFillColor(corBranca[0], corBranca[1], corBranca[2]);
+    doc.roundedRect(15, 12, 16, 16, 1, 1, 'F');
+    doc.setFillColor(corPreta[0], corPreta[1], corPreta[2]);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MA', 18, 22);
+    
+    doc.setTextColor(corBranca[0], corBranca[1], corBranca[2]);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RELATÓRIO DE ESTATÍSTICAS', 35, 18);
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+    doc.text('MultiAlmeida PDV • Sistema de Gestão Empresarial', 35, 26);
+    
+    doc.setDrawColor(corCinza[0], corCinza[1], corCinza[2]);
+    doc.setLineWidth(0.2);
+    doc.line(35, 29, 160, 29);
+    
+    doc.setFillColor(corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]);
+    doc.roundedRect(155, 10, 45, 20, 2, 2, 'F');
+    
+    doc.setFontSize(6);
+    doc.setTextColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+    doc.setFont('helvetica', 'normal');
+    doc.text('GERADO EM', 159, 14);
+    
+    doc.setFontSize(9);
+    doc.setTextColor(corBranca[0], corBranca[1], corBranca[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text(dataAtual, 159, 19);
+    doc.setFontSize(8);
+    doc.text(horaAtual, 159, 23.5);
+    
+    let yPos = 48;
+    
+    doc.setFontSize(11);
+    doc.setTextColor(corPreta[0], corPreta[1], corPreta[2]);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RESUMO EXECUTIVO', 20, yPos);
+    
+    yPos += 6;
+    const metricas = [
+      { label: 'TOTAL DE EVENTOS', valor: (stats.total || 0).toLocaleString('pt-BR') },
+      { label: 'TIPOS DE EVENTOS', valor: (stats.porTipo?.length || 0).toString() },
+      { label: 'USUÁRIOS ATIVOS', valor: (stats.topUsuarios?.length || 0).toString() },
+      { label: 'IPs ÚNICOS', valor: (stats.topIPs?.length || 0).toString() }
+    ];
+    
+    const cardWidth = 40;
+    const cardHeight = 18;
+    const spacing = 3;
+    let xCard = 20;
+    
+    metricas.forEach((metrica) => {
+      doc.setFillColor(corCinzaMuitoClaro[0], corCinzaMuitoClaro[1], corCinzaMuitoClaro[2]);
+      doc.roundedRect(xCard, yPos, cardWidth, cardHeight, 1, 1, 'F');
+      doc.setDrawColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+      doc.setLineWidth(0.2);
+      doc.roundedRect(xCard, yPos, cardWidth, cardHeight, 1, 1, 'S');
+      
+      doc.setFontSize(6);
+      doc.setTextColor(corCinza[0], corCinza[1], corCinza[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.text(metrica.label, xCard + cardWidth / 2, yPos + 6, { align: 'center' });
+      
+      doc.setFontSize(14);
+      doc.setTextColor(corPreta[0], corPreta[1], corPreta[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.text(metrica.valor, xCard + cardWidth / 2, yPos + 14, { align: 'center' });
+      
+      xCard += cardWidth + spacing;
+    });
+    
+    yPos += cardHeight + 8;
+    
+    if (stats.porTipo && stats.porTipo.length > 0) {
+      doc.setFontSize(11);
+      doc.setTextColor(corPreta[0], corPreta[1], corPreta[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.text('EVENTOS POR TIPO', 20, yPos);
+      yPos += 5;
+      
+      const tiposData = stats.porTipo.slice(0, 15).map(item => [
+        TIPOS_LOG[item.tipo] || item.tipo,
+        item.total.toLocaleString('pt-BR'),
+        `${((item.total / stats.total) * 100).toFixed(1)}%`
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Tipo de Evento', 'Quantidade', '%']],
+        body: tiposData,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [corPreta[0], corPreta[1], corPreta[2]],
+          textColor: [255, 255, 255],
+          fontSize: 8,
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        bodyStyles: {
+          fontSize: 7,
+          textColor: corCinzaEscuro
+        },
+        alternateRowStyles: {
+          fillColor: [250, 250, 250]
+        },
+        columnStyles: {
+          0: { cellWidth: 80 },
+          1: { cellWidth: 45, halign: 'center', fontStyle: 'bold' },
+          2: { cellWidth: 45, halign: 'center' }
+        },
+        margin: { left: 20, right: 20 }
+      });
+      
+      yPos = doc.lastAutoTable.finalY + 10;
+    }
+    
+    if (stats.topUsuarios && stats.topUsuarios.length > 0 && yPos < 250) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(11);
+      doc.setTextColor(corPreta[0], corPreta[1], corPreta[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TOP USUÁRIOS', 20, yPos);
+      yPos += 5;
+      
+      const usuariosData = stats.topUsuarios.slice(0, 10).map((user, idx) => [
+        `#${idx + 1}`,
+        user.email,
+        user.total.toLocaleString('pt-BR')
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Rank', 'E-mail', 'Total']],
+        body: usuariosData,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]],
+          textColor: [255, 255, 255],
+          fontSize: 8,
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        bodyStyles: {
+          fontSize: 7,
+          textColor: corCinzaEscuro
+        },
+        alternateRowStyles: {
+          fillColor: [250, 250, 250]
+        },
+        columnStyles: {
+          0: { cellWidth: 10, halign: 'center', fontStyle: 'bold' },
+          1: { cellWidth: 'auto' },
+          2: { cellWidth: 20, halign: 'center', fontStyle: 'bold' }
+        },
+        margin: { left: 20, right: 20 }
+      });
+      
+      yPos = doc.lastAutoTable.finalY + 10;
+    }
+    
+    if (stats.topIPs && stats.topIPs.length > 0 && yPos < 250) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(11);
+      doc.setTextColor(corPreta[0], corPreta[1], corPreta[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TOP ENDEREÇOS IP', 20, yPos);
+      yPos += 5;
+      
+      const ipsData = stats.topIPs.slice(0, 10).map((ip, idx) => [
+        `#${idx + 1}`,
+        ip.ip,
+        ip.total.toLocaleString('pt-BR')
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Rank', 'Endereço IP', 'Total']],
+        body: ipsData,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]],
+          textColor: [255, 255, 255],
+          fontSize: 8,
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        bodyStyles: {
+          fontSize: 7,
+          textColor: corCinzaEscuro
+        },
+        alternateRowStyles: {
+          fillColor: [250, 250, 250]
+        },
+        columnStyles: {
+          0: { cellWidth: 10, halign: 'center', fontStyle: 'bold' },
+          1: { cellWidth: 'auto', halign: 'center' },
+          2: { cellWidth: 20, halign: 'center', fontStyle: 'bold' }
+        },
+        margin: { left: 20, right: 20 }
+      });
+    }
+    
+    if (stats.eventosPorDia && stats.eventosPorDia.length > 0) {
+      doc.addPage();
+      yPos = 20;
+      
+      doc.setFontSize(11);
+      doc.setTextColor(corPreta[0], corPreta[1], corPreta[2]);
+      doc.setFont('helvetica', 'bold');
+      doc.text('ATIVIDADE DIÁRIA', 20, yPos);
+      yPos += 5;
+      
+      const diasData = stats.eventosPorDia.slice(0, 30).map(dia => [
+        new Date(dia.data).toLocaleDateString('pt-BR'),
+        dia.total.toLocaleString('pt-BR')
+      ]);
+      
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Data', 'Total']],
+        body: diasData,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]],
+          textColor: [255, 255, 255],
+          fontSize: 8,
+          fontStyle: 'bold',
+          halign: 'center'
+        },
+        bodyStyles: {
+          fontSize: 7,
+          textColor: corCinzaEscuro
+        },
+        alternateRowStyles: {
+          fillColor: [250, 250, 250]
+        },
+        columnStyles: {
+          0: { cellWidth: 35, halign: 'center' },
+          1: { cellWidth: 'auto', halign: 'center', fontStyle: 'bold' }
+        },
+        margin: { left: 20, right: 20 }
+      });
+    }
+    
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      const pageHeight = doc.internal.pageSize.height;
+      
+      doc.setFillColor(corCinzaMuitoClaro[0], corCinzaMuitoClaro[1], corCinzaMuitoClaro[2]);
+      doc.rect(0, pageHeight - 12, 210, 12, 'F');
+      doc.setDrawColor(corCinzaClaro[0], corCinzaClaro[1], corCinzaClaro[2]);
+      doc.setLineWidth(0.3);
+      doc.line(0, pageHeight - 12, 210, pageHeight - 12);
+      
+      doc.setFontSize(6);
+      doc.setTextColor(corCinza[0], corCinza[1], corCinza[2]);
+      doc.setFont('helvetica', 'normal');
+      doc.text('MultiAlmeida PDV', 20, pageHeight - 6);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(corCinzaEscuro[0], corCinzaEscuro[1], corCinzaEscuro[2]);
+      doc.text(`${i} / ${totalPages}`, 105, pageHeight - 6, { align: 'center' });
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(corCinza[0], corCinza[1], corCinza[2]);
+      doc.text('CONFIDENCIAL', 190, pageHeight - 6, { align: 'right' });
+    }
+    
+    const nomeArquivo = `estatisticas-multialmeida-${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(nomeArquivo);
   };
 
@@ -370,10 +757,10 @@ function LogsAdmin() {
           <h1>Logs do Sistema</h1>
           <div className={styles.headerActions}>
             <button 
-              onClick={exportarPDF} 
+              onClick={abaAtiva === 'stats' ? exportarEstatisticasPDF : exportarPDF} 
               className={styles.btnExportar} 
-              disabled={logs.length === 0}
-              title="Exportar logs para PDF"
+              disabled={abaAtiva === 'logs' ? logs.length === 0 : !stats}
+              title={abaAtiva === 'stats' ? 'Exportar estatísticas para PDF' : 'Exportar logs para PDF'}
             >
               <FileTextIcon size={18} />
               Exportar PDF
@@ -423,64 +810,103 @@ function LogsAdmin() {
           <>
             {/* Filtros */}
             <div className={styles.filtrosContainer}>
+              {/* Filtros Rápidos de Período */}
+              <div className={styles.secaoFiltro}>
+                <div className={styles.labelFiltro}>
+                  <Clock size={16} />
+                  <span>Períodos Rápidos:</span>
+                </div>
+                <div className={styles.botoesGrid}>
+                  {PERIODOS_RAPIDOS.map(periodo => (
+                    <button
+                      key={periodo.valor}
+                      onClick={() => aplicarPeriodoRapido(periodo.valor)}
+                      className={`${styles.btnPeriodo} ${
+                        filtros.periodo_rapido === periodo.valor ? styles.btnPeriodoAtivo : ''
+                      }`}
+                    >
+                      {periodo.label}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => {
+                      const novosFiltros = { ...filtros, data_inicio: '', data_fim: '', data_inicio_api: '', data_fim_api: '', periodo_rapido: '', pagina: 1 };
+                      setFiltros(novosFiltros);
+                      buscarLogsComFiltros(novosFiltros);
+                    }}
+                    className={`${styles.btnPeriodo} ${!filtros.periodo_rapido ? styles.btnPeriodoAtivo : ''}`}
+                  >
+                    Personalizado
+                  </button>
+                </div>
+              </div>
+
+              {/* Filtros por Severidade */}
+              <div className={styles.secaoFiltro}>
+                <div className={styles.labelFiltro}>
+                  <Shield size={16} />
+                  <span>Filtrar por Severidade:</span>
+                </div>
+                <div className={styles.botoesGrid}>
+                  <button
+                    onClick={() => aplicarFiltroSeveridade('')}
+                    className={`${styles.btnSeveridade} ${
+                      !filtros.severidade ? styles.btnSeveridadeAtivo : ''
+                    }`}
+                  >
+                    Todos
+                  </button>
+                  <button
+                    onClick={() => aplicarFiltroSeveridade('info')}
+                    className={`${styles.btnSeveridade} ${styles.btnSeveridadeInfo} ${
+                      filtros.severidade === 'info' ? styles.btnSeveridadeAtivo : ''
+                    }`}
+                  >
+                    Info
+                  </button>
+                  <button
+                    onClick={() => aplicarFiltroSeveridade('success')}
+                    className={`${styles.btnSeveridade} ${styles.btnSeveridadeSuccess} ${
+                      filtros.severidade === 'success' ? styles.btnSeveridadeAtivo : ''
+                    }`}
+                  >
+                    Sucesso
+                  </button>
+                  <button
+                    onClick={() => aplicarFiltroSeveridade('warning')}
+                    className={`${styles.btnSeveridade} ${styles.btnSeveridadeWarning} ${
+                      filtros.severidade === 'warning' ? styles.btnSeveridadeAtivo : ''
+                    }`}
+                  >
+                    Aviso
+                  </button>
+                  <button
+                    onClick={() => aplicarFiltroSeveridade('error')}
+                    className={`${styles.btnSeveridade} ${styles.btnSeveridadeError} ${
+                      filtros.severidade === 'error' ? styles.btnSeveridadeAtivo : ''
+                    }`}
+                  >
+                    Erro
+                  </button>
+                </div>
+              </div>
+
+              {/* Demais Filtros */}
               <div className={styles.filtrosGrid}>
                 <div className={styles.inputGroup}>
-                  <label>Buscar Tipo de Log</label>
-                  <input
-                    type="text"
-                    placeholder="Digite para filtrar tipos..."
-                    value={buscaTipo}
-                    onChange={(e) => {
-                      const valor = e.target.value;
-                      setBuscaTipo(valor);
-                      
-                      // Se limpar a busca, limpar o filtro também
-                      if (!valor) {
-                        setFiltros(prev => ({ ...prev, tipo: '', pagina: 1 }));
-                      } else {
-                        // Filtrar tipos que correspondem à busca
-                        const tiposCorrespondentes = Object.keys(TIPOS_LOG).filter(tipo => 
-                          TIPOS_LOG[tipo].toLowerCase().includes(valor.toLowerCase())
-                        );
-                        
-                        // Se houver apenas um tipo correspondente, selecioná-lo automaticamente
-                        if (tiposCorrespondentes.length === 1) {
-                          setFiltros(prev => ({ ...prev, tipo: tiposCorrespondentes[0], pagina: 1 }));
-                        } else if (tiposCorrespondentes.length === 0) {
-                          // Se não houver correspondência, limpar o filtro
-                          setFiltros(prev => ({ ...prev, tipo: '', pagina: 1 }));
-                        }
-                        // Se houver múltiplas correspondências, manter o filtro atual se ainda for válido
-                        else if (filtros.tipo && !tiposCorrespondentes.includes(filtros.tipo)) {
-                          setFiltros(prev => ({ ...prev, tipo: '', pagina: 1 }));
-                        }
-                      }
-                    }}
-                  />
-                </div>
-
-                <div className={styles.inputGroup}>
-                  <label>Tipo de Log {filtros.tipo && `(${TIPOS_LOG[filtros.tipo]})`}</label>
+                  <label>Tipo de Log</label>
                   <select
                     value={filtros.tipo}
                     onChange={(e) => {
-                      setFiltros(prev => ({ ...prev, tipo: e.target.value, pagina: 1 }));
-                      // Atualizar o campo de busca também
-                      if (e.target.value) {
-                        setBuscaTipo(TIPOS_LOG[e.target.value]);
-                      } else {
-                        setBuscaTipo('');
-                      }
+                      const novosFiltros = { ...filtros, tipo: e.target.value, pagina: 1 };
+                      setFiltros(novosFiltros);
+                      buscarLogsComFiltros(novosFiltros);
                     }}
                   >
                     <option value="">Todos os Tipos</option>
-                    {Object.keys(TIPOS_LOG)
-                      .filter(tipo => 
-                        !buscaTipo || TIPOS_LOG[tipo].toLowerCase().includes(buscaTipo.toLowerCase())
-                      )
-                      .map(tipo => (
-                        <option key={tipo} value={tipo}>{TIPOS_LOG[tipo]}</option>
-                      ))}
+                    {Object.keys(TIPOS_LOG).map(tipo => (
+                      <option key={tipo} value={tipo}>{TIPOS_LOG[tipo]}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -490,7 +916,12 @@ function LogsAdmin() {
                     type="text"
                     placeholder="Filtrar por email..."
                     value={filtros.email}
-                    onChange={(e) => setFiltros(prev => ({ ...prev, email: e.target.value, pagina: 1 }))}
+                    onChange={(e) => {
+                      const novoValor = e.target.value;
+                      const novosFiltros = { ...filtros, email: novoValor, pagina: 1 };
+                      setFiltros(novosFiltros);
+                      buscarLogsComFiltros(novosFiltros);
+                    }}
                   />
                 </div>
 
@@ -500,7 +931,12 @@ function LogsAdmin() {
                     type="text"
                     placeholder="Filtrar por nome..."
                     value={filtros.nome}
-                    onChange={(e) => setFiltros(prev => ({ ...prev, nome: e.target.value, pagina: 1 }))}
+                    onChange={(e) => {
+                      const novoValor = e.target.value;
+                      const novosFiltros = { ...filtros, nome: novoValor, pagina: 1 };
+                      setFiltros(novosFiltros);
+                      buscarLogsComFiltros(novosFiltros);
+                    }}
                   />
                 </div>
 
@@ -510,7 +946,12 @@ function LogsAdmin() {
                     type="text"
                     placeholder="Filtrar por cargo..."
                     value={filtros.cargo}
-                    onChange={(e) => setFiltros(prev => ({ ...prev, cargo: e.target.value, pagina: 1 }))}
+                    onChange={(e) => {
+                      const novoValor = e.target.value;
+                      const novosFiltros = { ...filtros, cargo: novoValor, pagina: 1 };
+                      setFiltros(novosFiltros);
+                      buscarLogsComFiltros(novosFiltros);
+                    }}
                   />
                 </div>
 
@@ -520,7 +961,12 @@ function LogsAdmin() {
                     type="text"
                     placeholder="Filtrar por IP..."
                     value={filtros.ip}
-                    onChange={(e) => setFiltros(prev => ({ ...prev, ip: e.target.value, pagina: 1 }))}
+                    onChange={(e) => {
+                      const novoValor = e.target.value;
+                      const novosFiltros = { ...filtros, ip: novoValor, pagina: 1 };
+                      setFiltros(novosFiltros);
+                      buscarLogsComFiltros(novosFiltros);
+                    }}
                   />
                 </div>
 
@@ -529,7 +975,11 @@ function LogsAdmin() {
                   <input
                     type="date"
                     value={filtros.data_inicio}
-                    onChange={(e) => setFiltros(prev => ({ ...prev, data_inicio: e.target.value, pagina: 1 }))}
+                    onChange={(e) => {
+                      const novosFiltros = { ...filtros, data_inicio: e.target.value, data_inicio_api: '', periodo_rapido: '', pagina: 1 };
+                      setFiltros(novosFiltros);
+                      buscarLogsComFiltros(novosFiltros);
+                    }}
                   />
                 </div>
 
@@ -538,7 +988,11 @@ function LogsAdmin() {
                   <input
                     type="date"
                     value={filtros.data_fim}
-                    onChange={(e) => setFiltros(prev => ({ ...prev, data_fim: e.target.value, pagina: 1 }))}
+                    onChange={(e) => {
+                      const novosFiltros = { ...filtros, data_fim: e.target.value, data_fim_api: '', periodo_rapido: '', pagina: 1 };
+                      setFiltros(novosFiltros);
+                      buscarLogsComFiltros(novosFiltros);
+                    }}
                   />
                 </div>
 
@@ -546,7 +1000,11 @@ function LogsAdmin() {
                   <label>Por Página</label>
                   <select
                     value={filtros.limite}
-                    onChange={(e) => setFiltros(prev => ({ ...prev, limite: e.target.value, pagina: 1 }))}
+                    onChange={(e) => {
+                      const novosFiltros = { ...filtros, limite: e.target.value, pagina: 1 };
+                      setFiltros(novosFiltros);
+                      buscarLogsComFiltros(novosFiltros);
+                    }}
                   >
                     <option value="25">25 por página</option>
                     <option value="50">50 por página</option>
@@ -557,8 +1015,9 @@ function LogsAdmin() {
               </div>
 
               <button onClick={() => {
-                setFiltros({ tipo: '', email: '', nome: '', cargo: '', ip: '', data_inicio: '', data_fim: '', limite: 25, pagina: 1 });
-                setBuscaTipo('');
+                const novosFiltros = { tipo: '', email: '', nome: '', cargo: '', ip: '', data_inicio: '', data_fim: '', data_inicio_api: '', data_fim_api: '', limite: 25, pagina: 1, severidade: '', periodo_rapido: '' };
+                setFiltros(novosFiltros);
+                buscarLogsComFiltros(novosFiltros);
               }} className={styles.btnBuscar}>
                 <Search size={18} />
                 Limpar Filtros
@@ -575,23 +1034,41 @@ function LogsAdmin() {
               <>
                 <div className={styles.logsListContainer}>
                   <div className={styles.logsList}>
-                    {logs.map((log) => (
-                      <div key={log.id} className={styles.logItem} onClick={() => setLogSelecionado(log)}>
-                        <div className={styles.logHeader}>
-                          <span className={styles.logTipo}>
-                            {TIPOS_LOG[log.tipo]}
-                          </span>
-                          <span className={styles.logData}>{formatarData(log.criado_em)}</span>
+                    {logs.map((log) => {
+                      const severidade = SEVERIDADE_LOG[log.tipo] || 'info';
+                      return (
+                        <div 
+                          key={log.id} 
+                          className={`${styles.logItem} ${styles[`logItem${severidade.charAt(0).toUpperCase() + severidade.slice(1)}`]}`}
+                          onClick={() => setLogSelecionado(log)}
+                        >
+                          <div className={styles.logHeader}>
+                            <div className={styles.logTipoWrapper}>
+                              <span className={`${styles.logTipo} ${styles[`logTipo${severidade.charAt(0).toUpperCase() + severidade.slice(1)}`]}`}>
+                                {severidade === 'error' && <AlertTriangle size={14} />}
+                                {severidade === 'warning' && <AlertCircle size={14} />}
+                                {severidade === 'success' && <Activity size={14} />}
+                                {TIPOS_LOG[log.tipo]}
+                              </span>
+                              <span className={`${styles.severidadeBadge} ${styles[`severidade${severidade.charAt(0).toUpperCase() + severidade.slice(1)}`]}`}>
+                                {severidade === 'info' && 'Info'}
+                                {severidade === 'success' && 'Sucesso'}
+                                {severidade === 'warning' && 'Aviso'}
+                                {severidade === 'error' && 'Erro'}
+                              </span>
+                            </div>
+                            <span className={styles.logData}>{formatarData(log.criado_em)}</span>
+                          </div>
+                          <div className={styles.logInfo}>
+                            {log.email && <p><strong>Email:</strong> {log.email}</p>}
+                            {log.nome && <p><strong>Nome:</strong> {log.nome}</p>}
+                            {log.cargo && <p><strong>Cargo:</strong> {log.cargo}</p>}
+                            {log.ip && <p><strong>IP:</strong> {log.ip}</p>}
+                            <p><strong>Ação:</strong> {log.acao}</p>
+                          </div>
                         </div>
-                        <div className={styles.logInfo}>
-                          {log.email && <p><strong>Email:</strong> {log.email}</p>}
-                          {log.nome && <p><strong>Nome:</strong> {log.nome}</p>}
-                          {log.cargo && <p><strong>Cargo:</strong> {log.cargo}</p>}
-                          {log.ip && <p><strong>IP:</strong> {log.ip}</p>}
-                          <p><strong>Ação:</strong> {log.acao}</p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -631,7 +1108,6 @@ function LogsAdmin() {
                         const totalPaginas = pagination.totalPaginas;
                         const paginaAtual = pagination.pagina;
                         
-                        // Sempre mostrar primeira página
                         if (totalPaginas > 0) {
                           paginas.push(
                             <button
@@ -644,12 +1120,9 @@ function LogsAdmin() {
                           );
                         }
                         
-                        // Adicionar ... se necessário
                         if (paginaAtual > 3) {
                           paginas.push(<span key="dots1" className={styles.dots}>...</span>);
                         }
-                        
-                        // Páginas ao redor da atual
                         const inicio = Math.max(2, paginaAtual - 1);
                         const fim = Math.min(totalPaginas - 1, paginaAtual + 1);
                         
@@ -665,12 +1138,10 @@ function LogsAdmin() {
                           );
                         }
                         
-                        // Adicionar ... se necessário
                         if (paginaAtual < totalPaginas - 2) {
                           paginas.push(<span key="dots2" className={styles.dots}>...</span>);
                         }
                         
-                        // Sempre mostrar última página
                         if (totalPaginas > 1) {
                           paginas.push(
                             <button
@@ -740,6 +1211,46 @@ function LogsAdmin() {
 
         {abaAtiva === 'stats' && (
           <div>
+            {/* Filtro de Período para Estatísticas */}
+            <div className={styles.periodoStatsContainer}>
+              <div className={styles.periodoStatsLabel}>
+                <Calendar size={16} />
+                <span>Período de Análise:</span>
+              </div>
+              <div className={styles.periodoStatsButtons}>
+                <button
+                  onClick={() => setPeriodoStats('7')}
+                  className={`${styles.btnPeriodoStats} ${periodoStats === '7' ? styles.btnPeriodoStatsAtivo : ''}`}
+                >
+                  Últimos 7 dias
+                </button>
+                <button
+                  onClick={() => setPeriodoStats('15')}
+                  className={`${styles.btnPeriodoStats} ${periodoStats === '15' ? styles.btnPeriodoStatsAtivo : ''}`}
+                >
+                  Últimos 15 dias
+                </button>
+                <button
+                  onClick={() => setPeriodoStats('30')}
+                  className={`${styles.btnPeriodoStats} ${periodoStats === '30' ? styles.btnPeriodoStatsAtivo : ''}`}
+                >
+                  Últimos 30 dias
+                </button>
+                <button
+                  onClick={() => setPeriodoStats('60')}
+                  className={`${styles.btnPeriodoStats} ${periodoStats === '60' ? styles.btnPeriodoStatsAtivo : ''}`}
+                >
+                  Últimos 60 dias
+                </button>
+                <button
+                  onClick={() => setPeriodoStats('90')}
+                  className={`${styles.btnPeriodoStats} ${periodoStats === '90' ? styles.btnPeriodoStatsAtivo : ''}`}
+                >
+                  Últimos 90 dias
+                </button>
+              </div>
+            </div>
+
             {loadingStats ? (
               <div className={styles.loadingContainer}>
                 <Spinner />
@@ -748,37 +1259,105 @@ function LogsAdmin() {
               <>
                 {/* Cards de Estatísticas */}
                 <div className={styles.statsGrid}>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Total de Eventos</div>
-                    <div className={styles.statValue}>{stats.total?.toLocaleString('pt-BR') || 0}</div>
+                  <div className={`${styles.statCard} ${styles.statCardPrimary}`}>
+                    <div className={styles.statIcon}>
+                      <Activity size={24} />
+                    </div>
+                    <div className={styles.statContent}>
+                      <div className={styles.statLabel}>Total de Eventos</div>
+                      <div className={styles.statValue}>{stats.total?.toLocaleString('pt-BR') || 0}</div>
+                    </div>
                   </div>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Tipos de Eventos</div>
-                    <div className={styles.statValue}>{stats.porTipo?.length || 0}</div>
+                  <div className={`${styles.statCard} ${styles.statCardSuccess}`}>
+                    <div className={styles.statIcon}>
+                      <BarChart3 size={24} />
+                    </div>
+                    <div className={styles.statContent}>
+                      <div className={styles.statLabel}>Tipos de Eventos</div>
+                      <div className={styles.statValue}>{stats.porTipo?.length || 0}</div>
+                    </div>
                   </div>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>Usuários Ativos</div>
-                    <div className={styles.statValue}>{stats.topUsuarios?.length || 0}</div>
+                  <div className={`${styles.statCard} ${styles.statCardInfo}`}>
+                    <div className={styles.statIcon}>
+                      <TrendingUp size={24} />
+                    </div>
+                    <div className={styles.statContent}>
+                      <div className={styles.statLabel}>Usuários Ativos</div>
+                      <div className={styles.statValue}>{stats.topUsuarios?.length || 0}</div>
+                    </div>
                   </div>
-                  <div className={styles.statCard}>
-                    <div className={styles.statLabel}>IPs Únicos</div>
-                    <div className={styles.statValue}>{stats.topIPs?.length || 0}</div>
+                  <div className={`${styles.statCard} ${styles.statCardWarning}`}>
+                    <div className={styles.statIcon}>
+                      <Shield size={24} />
+                    </div>
+                    <div className={styles.statContent}>
+                      <div className={styles.statLabel}>IPs Únicos</div>
+                      <div className={styles.statValue}>{stats.topIPs?.length || 0}</div>
+                    </div>
                   </div>
                 </div>
+
+                {/* Estatísticas Avançadas */}
+                {stats.eventosPorDia && stats.eventosPorDia.length > 0 && (
+                  <div className={styles.logsListContainerStats}>
+                    <h2 className={styles.statsTitle}>
+                      <Calendar size={20} />
+                      Atividade Diária (Últimos 30 dias)
+                    </h2>
+                    <div className={styles.atividadeDiariaGrid}>
+                      {stats.eventosPorDia.slice(0, 30).map(dia => (
+                        <div key={dia.data} className={styles.diaCard}>
+                          <div className={styles.diaData}>
+                            {new Date(dia.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                          </div>
+                          <div className={styles.diaValor}>{dia.total}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Eventos por Hora */}
+                {stats.eventosPorHora && stats.eventosPorHora.length > 0 && (
+                  <div className={styles.logsListContainerStats}>
+                    <h2 className={styles.statsTitle}>
+                      <Clock size={20} />
+                      Distribuição por Hora do Dia
+                    </h2>
+                    <div className={styles.horaGrid}>
+                      {stats.eventosPorHora.map(hora => (
+                        <div key={hora.hora} className={styles.horaCard}>
+                          <div className={styles.horaLabel}>{hora.hora}h</div>
+                          <div className={styles.horaBarra}>
+                            <div 
+                              className={styles.horaBarraFill} 
+                              style={{ 
+                                width: `${(hora.total / Math.max(...stats.eventosPorHora.map(h => h.total))) * 100}%` 
+                              }}
+                            ></div>
+                          </div>
+                          <div className={styles.horaValor}>{hora.total}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Eventos por Tipo */}
                 {stats.porTipo && stats.porTipo.length > 0 && (
                   <div className={styles.logsListContainerStats}>
                     <h2 className={styles.statsTitle}>Eventos por Tipo</h2>
-                    <div className={styles.logsList}>
-                      {stats.porTipo.map(item => (
-                        <div key={item.tipo} className={styles.logItem}>
-                          <div className={styles.logHeader}>
-                            <span className={styles.logTipo}>{TIPOS_LOG[item.tipo]}</span>
-                            <span className={styles.logData}>{item.total} eventos</span>
+                    <div className={styles.statsListScrollable}>
+                      <div className={styles.logsList}>
+                        {stats.porTipo.map(item => (
+                          <div key={item.tipo} className={styles.logItem}>
+                            <div className={styles.logHeader}>
+                              <span className={styles.logTipo}>{TIPOS_LOG[item.tipo]}</span>
+                              <span className={styles.logData}>{item.total} eventos</span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -787,18 +1366,20 @@ function LogsAdmin() {
                 {stats.topUsuarios && stats.topUsuarios.length > 0 && (
                   <div className={styles.logsListContainerStats}>
                     <h2 className={styles.statsTitle}>Top Usuários</h2>
-                    <div className={styles.logsList}>
-                      {stats.topUsuarios.map((user, idx) => (
-                        <div key={idx} className={styles.logItem}>
-                          <div className={styles.logHeader}>
-                            <span className={styles.logData}>#{idx + 1}</span>
-                            <span className={styles.logData}>{user.total} eventos</span>
+                    <div className={styles.statsListScrollable}>
+                      <div className={styles.logsList}>
+                        {stats.topUsuarios.map((user, idx) => (
+                          <div key={idx} className={styles.logItem}>
+                            <div className={styles.logHeader}>
+                              <span className={styles.logData}>#{idx + 1}</span>
+                              <span className={styles.logData}>{user.total} eventos</span>
+                            </div>
+                            <div className={styles.logInfo}>
+                              <p><strong>Email:</strong> {user.email}</p>
+                            </div>
                           </div>
-                          <div className={styles.logInfo}>
-                            <p><strong>Email:</strong> {user.email}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -807,18 +1388,20 @@ function LogsAdmin() {
                 {stats.topIPs && stats.topIPs.length > 0 && (
                   <div className={styles.logsListContainerStats}>
                     <h2 className={styles.statsTitle}>Top IPs</h2>
-                    <div className={styles.logsList}>
-                      {stats.topIPs.map((ip, idx) => (
-                        <div key={idx} className={styles.logItem}>
-                          <div className={styles.logHeader}>
-                            <span className={styles.logData}>#{idx + 1}</span>
-                            <span className={styles.logData}>{ip.total} eventos</span>
+                    <div className={styles.statsListScrollable}>
+                      <div className={styles.logsList}>
+                        {stats.topIPs.map((ip, idx) => (
+                          <div key={idx} className={styles.logItem}>
+                            <div className={styles.logHeader}>
+                              <span className={styles.logData}>#{idx + 1}</span>
+                              <span className={styles.logData}>{ip.total} eventos</span>
+                            </div>
+                            <div className={styles.logInfo}>
+                              <p><strong>IP:</strong> {ip.ip}</p>
+                            </div>
                           </div>
-                          <div className={styles.logInfo}>
-                            <p><strong>IP:</strong> {ip.ip}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
