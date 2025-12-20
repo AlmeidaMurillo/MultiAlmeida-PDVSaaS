@@ -523,6 +523,10 @@
     overflow-y: auto;
   }
 
+  .sidebar .nav {
+    padding-bottom: calc(env(safe-area-inset-bottom, 60px) + 3rem);
+  }
+
   .sidebar.mobileOpen {
     width: 260px;
     transform: translateX(0);
@@ -535,6 +539,7 @@
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
+    padding-bottom: calc(env(safe-area-inset-bottom, 60px) + 3rem);
   }
 }
 
