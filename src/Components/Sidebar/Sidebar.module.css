@@ -497,12 +497,13 @@
   padding: 1.5rem;
   width: 100%;
   box-sizing: border-box;
+  min-height: 0;
 }
 
 @media (max-width: 768px) {
   .contentWrapper {
     padding: 1rem;
-    min-height: calc(100vh - 4.5rem - 3rem);
+    min-height: 0;
   }
   
   .sidebar {
@@ -530,7 +531,6 @@
     margin-left: 0 !important;
     width: 100% !important;
     height: calc(100vh - 4.5rem);
-    min-height: calc(100vh - 4.5rem);
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
