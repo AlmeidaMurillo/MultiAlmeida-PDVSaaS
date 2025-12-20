@@ -50,7 +50,7 @@
 
 .container {
   display: flex;
-  min-height: calc(100dvh - 4.5rem);
+  min-height: calc(100vh - 4.5rem);
   margin-top: 4.5rem;
   transition: margin-left 0.3s ease;
 }
@@ -531,13 +531,10 @@
   .pageContent {
     margin-left: 0 !important;
     width: 100% !important;
-    height: calc(100vh - 4.5rem);
-    overflow-y: auto;
+    min-height: calc(100vh - 4.5rem);
     overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
-    padding-bottom: env(safe-area-inset-bottom, 60px);
   }
 }
 
