@@ -225,7 +225,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
-  max-height: calc(100vh - 4.5rem);
+  max-height: calc(100vh - 10rem);
 }
 
 .pageContent.collapsed {
