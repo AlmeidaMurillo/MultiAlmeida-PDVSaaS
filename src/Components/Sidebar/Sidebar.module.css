@@ -206,14 +206,7 @@
   color: var(--text-color) !important;
 }
 
-.sidebar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-  background-color: var(--hover-bg);
-  border-radius: 4px;
-}
+/* Scrollbar global aplicada via global.css */
 
 .pageContent {
   flex: 1;

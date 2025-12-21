@@ -74,28 +74,46 @@ body,
   -webkit-tap-highlight-color: transparent;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  ::-webkit-scrollbar {
-    width: 3px;
-    height: 2px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: #929292;
-    transition: background 0.3s ease;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    ::-webkit-scrollbar-thumb:hover {
-      background-color: var(--hoverscrollbar-thumb);
-    }
-  }
-
-  ::-webkit-scrollbar-button {
-    display: none;
-  }
+/* Scrollbar global — padrão das telas de Planos */
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--hover-bg) rgba(255, 255, 255, 0.05);
 }
+
+/* WebKit (Chrome/Edge/Safari) - Scrollbar customizada SEM setas */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--hover-bg);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--hoverscrollbar-thumb);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* SOLUÇÃO DEFINITIVA: Remover setas no Windows */
+::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+}
+
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment {
+  width: 0;
+  height: 0;
+}
+

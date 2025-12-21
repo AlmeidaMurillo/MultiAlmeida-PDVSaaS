@@ -16,6 +16,19 @@
                    base-uri 'self'; 
                    form-action 'self';">
     
+    <style>
+      /* FORÇA REMOVER SETAS DA SCROLLBAR */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-button { display: block !important; width: 0 !important; height: 0 !important; }
+      ::-webkit-scrollbar-button:vertical:start:decrement,
+      ::-webkit-scrollbar-button:vertical:end:increment { display: block !important; width: 0 !important; height: 0 !important; }
+      
+      /* Remove setas de inputs number também (caso seja isso) */
+      input[type=number]::-webkit-inner-spin-button,
+      input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+      input[type=number] { -moz-appearance: textfield; }
+    </style>
+    
     <!-- Proteções Adicionais -->
     <!-- Nota: X-Frame-Options e frame-ancestors devem ser configurados no servidor -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">

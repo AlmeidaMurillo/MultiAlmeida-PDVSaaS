@@ -979,25 +979,7 @@
   border-radius: 0.75rem 0.75rem 0 0;
 }
 
-/* Estilizar scrollbar para benefícios */
-.beneficiosList::-webkit-scrollbar {
-  width: 4px;
-}
-
-.beneficiosList::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.beneficiosList::-webkit-scrollbar-thumb {
-  background: var(--success-color);
-  border-radius: 10px;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .beneficiosList::-webkit-scrollbar-thumb:hover {
-    background: var(--hoverscrollbar-thumb);
-  }
-}
+/* Scrollbar global aplicada via global.css */
 
 .beneficiosList li {
   font-size: 0.875rem;

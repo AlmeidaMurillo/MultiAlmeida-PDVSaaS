@@ -11,33 +11,36 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.titleRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-  width: 100%;
-  max-width: 100%;
+.searchBox:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
 }
 
-.titleRow h1 {
-  font-size: clamp(2rem, 4.5vw, 3.2rem);
-  font-weight: 900;
-  margin-bottom: 1.5rem;
+.searchBox svg {
   color: var(--text-color);
-  letter-spacing: -0.02em;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.searchBox input {
   flex: 1;
-  min-width: 200px;
-  word-break: break-word;
-  overflow-wrap: break-word;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--input-text);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+.searchBox input::placeholder {
+  color: var(--input-placeholder);
+  opacity: 0.6;
 }
 
 .headerActions {
@@ -66,7 +69,7 @@
 }
 
 .btnExportar {
-  background: linear-gradient(135deg, #5865f2, #7c3aed);
+  background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
   color: white;
 }
 
@@ -78,14 +81,14 @@
 
 .btnExportar:not(:disabled):active {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   filter: brightness(1.1);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btnExportar:not(:disabled):hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
     filter: brightness(1.1);
   }
 }
@@ -157,10 +160,10 @@
 }
 
 .filtrosContainer {
-  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
   border-radius: 1rem;
   padding: 1.5rem;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 2rem;
   animation: fadeInUp 0.8s ease-out backwards;
   width: 100%;
@@ -172,7 +175,7 @@
 .secaoFiltro {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .secaoFiltro:last-of-type {
@@ -293,11 +296,11 @@
 }
 
 .statCard {
-  background: linear-gradient(135deg, var(--sidebar-bg), rgba(0,0,0,0.3));
+  background: linear-gradient(135deg, var(--sidebar-bg), rgba(0, 0, 0, 0.3));
   padding: 1.5rem;
   border-radius: 1rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -318,15 +321,15 @@
 
 .statCard:active {
   transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-  border-color: rgba(255,255,255,0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .statCard:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    border-color: rgba(255,255,255,0.15);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
   }
 
   .statCard:hover::before {
@@ -356,7 +359,7 @@
 }
 
 .logsListContainer {
-  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
   border-top-left-radius: 1rem;
   border-bottom-left-radius: 1rem;
   padding: 1.5rem;
@@ -368,34 +371,15 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  padding-right: 0.5rem;
+  /* espaço para afastar a scrollbar da borda */
+  scrollbar-gutter: stable;
+  /* previne deslocamento e reserva espaço da barra */
 }
 
-.logsListContainer::-webkit-scrollbar {
-  width: 8px;
-}
-
-.logsListContainer::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-}
-
-.logsListContainer::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #5865f2, #7c3aed);
-  border-radius: 10px;
-  transition: background 0.3s ease;
-}
-
-.logsListContainer::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #7c3aed, #5865f2);
-}
-
-.logsListContainer {
-  scrollbar-width: thin;
-  scrollbar-color: #5865f2 rgba(255,255,255,0.05);
-}
-
+/* Scrollbar global aplicada via global.css */
 .logsListContainerStats {
-  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
   border-radius: 1rem;
   padding: 1.5rem;
   border: 2px solid rgba(0, 0, 0, 0.08);
@@ -423,11 +407,11 @@
 }
 
 .logItem {
-  background: linear-gradient(135deg, var(--sidebar-bg), rgba(0,0,0,0.3));
+  background: linear-gradient(135deg, var(--sidebar-bg), rgba(0, 0, 0, 0.3));
   padding: 1.2rem;
   border-radius: 0.8rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -451,15 +435,15 @@
 
 .logItem:active {
   transform: translateX(4px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  border-color: rgba(255,255,255,0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .logItem:hover {
     transform: translateX(4px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    border-color: rgba(255,255,255,0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
   }
 
   .logItem:hover::before {
@@ -492,7 +476,7 @@
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   background: linear-gradient(135deg, var(--hover-bg), var(--active-bg));
 }
 
@@ -533,7 +517,7 @@
     align-items: flex-start;
     gap: 0.2rem;
   }
-  
+
   .logInfo strong {
     font-size: 0.75rem;
     opacity: 0.7;
@@ -626,7 +610,7 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
   }
-  
+
   .btnPaginacao:not(:disabled):hover::before {
     width: 120%;
     height: 120%;
@@ -726,7 +710,7 @@
   font-size: 0.95rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   appearance: textfield;
-  -moz-appearance: textfield; 
+  -moz-appearance: textfield;
 }
 
 .inputIrPara::-webkit-outer-spin-button,
@@ -785,6 +769,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -799,8 +784,8 @@
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   animation: slideUp 0.3s ease;
   position: relative;
 }
@@ -810,6 +795,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -867,10 +853,10 @@
 }
 
 .detalhesSection {
-  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
   border-radius: 0.8rem;
   padding: 1.5rem;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .detalhesTitle {
@@ -879,7 +865,7 @@
   color: var(--text-color);
   margin: 0 0 1rem 0;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -890,7 +876,7 @@
   flex-direction: column;
   gap: 0.4rem;
   padding: 1rem;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 0.5rem;
   border-left: 3px solid var(--primary-color);
   margin-bottom: 0.8rem;
@@ -898,13 +884,13 @@
 }
 
 .detailRow:active {
-  background: rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.04);
   transform: translateX(2px);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .detailRow:hover {
-    background: rgba(255,255,255,0.04);
+    background: rgba(255, 255, 255, 0.04);
     transform: translateX(2px);
   }
 }
@@ -926,7 +912,7 @@
 }
 
 .detailValueCode {
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   padding: 1rem;
   border-radius: 0.5rem;
   font-family: 'Courier New', monospace;
@@ -935,19 +921,19 @@
   white-space: pre-wrap;
   word-break: break-all;
   color: #00ff88;
-  border: 1px solid rgba(0,255,136,0.2);
+  border: 1px solid rgba(0, 255, 136, 0.2);
   max-height: 300px;
   overflow-y: auto;
 }
 
 .codeText {
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   padding: 0.2rem 0.5rem;
   border-radius: 0.3rem;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
   color: #00ff88;
-  border: 1px solid rgba(0,255,136,0.2);
+  border: 1px solid rgba(0, 255, 136, 0.2);
 }
 
 .cargoBadge {
@@ -960,7 +946,7 @@
   color: white;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .emptyState {
@@ -1711,7 +1697,7 @@
 
 .btnPeriodo {
   padding: 0.7rem 1.2rem;
-  border: 2px solid rgba(255,255,255,0.1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   background: var(--sidebar-bg);
   color: var(--text-color);
@@ -1738,7 +1724,7 @@
 
 .btnSeveridade {
   padding: 0.7rem 1.2rem;
-  border: 2px solid rgba(255,255,255,0.1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   background: var(--sidebar-bg);
   color: var(--text-color);
@@ -1962,7 +1948,7 @@
   padding: 0.8rem;
   border-radius: 0.6rem;
   text-align: center;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.3s ease;
   cursor: default;
 }
@@ -2001,7 +1987,7 @@
   background: var(--sidebar-bg);
   padding: 0.8rem;
   border-radius: 0.6rem;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .horaLabel {
@@ -2014,7 +2000,7 @@
 .horaBarra {
   flex: 1;
   height: 24px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 0.4rem;
   overflow: hidden;
   position: relative;
@@ -2043,37 +2029,38 @@
 }
 
 @media (max-width: 768px) {
+
   .periodoRapidoButtons,
   .severidadeButtons {
     gap: 0.5rem;
   }
-  
+
   .btnPeriodo,
   .btnSeveridade {
     padding: 0.6rem 1rem;
     font-size: 0.85rem;
   }
-  
+
   .logTipoWrapper {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .atividadeDiariaGrid {
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 0.5rem;
   }
-  
+
   .diaCard {
     padding: 0.6rem 0.4rem;
   }
-  
+
   .statCard {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .statIcon {
     width: 45px;
     height: 45px;
@@ -2081,7 +2068,7 @@
 }
 
 .periodoStatsContainer {
-  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
   border-radius: 1rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -2106,7 +2093,7 @@
 
 .btnPeriodoStats {
   padding: 0.7rem 1.2rem;
-  border: 2px solid rgba(255,255,255,0.1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   background: var(--sidebar-bg);
   color: var(--text-color);
@@ -2136,42 +2123,19 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 0.5rem;
-}
-
-.statsListScrollable::-webkit-scrollbar {
-  width: 8px;
-}
-
-.statsListScrollable::-webkit-scrollbar-track {
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-}
-
-.statsListScrollable::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #5865f2, #7c3aed);
-  border-radius: 10px;
-  transition: background 0.3s ease;
-}
-
-.statsListScrollable::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #7c3aed, #5865f2);
-}
-
-.statsListScrollable {
-  scrollbar-width: thin;
-  scrollbar-color: #5865f2 rgba(255,255,255,0.05);
+  scrollbar-gutter: stable;
 }
 
 @media (max-width: 768px) {
   .periodoStatsButtons {
     gap: 0.5rem;
   }
-  
+
   .btnPeriodoStats {
     padding: 0.6rem 1rem;
     font-size: 0.85rem;
   }
-  
+
   .statsListScrollable {
     max-height: 300px;
   }

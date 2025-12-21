@@ -77,6 +77,7 @@ const PERIODOS_RAPIDOS = [
 
 function LogsAdmin() {
   const [logs, setLogs] = useState([]);
+  const [busca, setBusca] = useState("");
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -749,6 +750,21 @@ function LogsAdmin() {
     doc.save(nomeArquivo);
   };
 
+  // Filtro local de busca no padrão das telas Cupons/Planos
+  const logsFiltrados = logs.filter((log) => {
+    const texto = busca.toLowerCase();
+    if (!texto) return true;
+    const campos = [
+      TIPOS_LOG[log.tipo] || log.tipo,
+      log.email || "",
+      log.nome || "",
+      log.cargo || "",
+      log.ip || "",
+      log.acao || "",
+    ];
+    return campos.some((c) => c.toLowerCase().includes(texto));
+  });
+
   return (
     <Sidebar>
       <div className={styles.logsContent}>
@@ -808,6 +824,15 @@ function LogsAdmin() {
         {/* Conteúdo das abas */}
         {abaAtiva === 'logs' && (
           <>
+            {/* Busca simples, igual ao padrão das páginas Cupons/Planos */}
+            <div className={styles.searchBox}>
+              <Search size={18} />
+              <input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Pesquisar logs..."
+              />
+            </div>
             {/* Filtros */}
             <div className={styles.filtrosContainer}>
               {/* Filtros Rápidos de Período */}
@@ -1025,16 +1050,16 @@ function LogsAdmin() {
             </div>
 
             {/* Lista de Logs */}
-            {logs.length === 0 && !loading ? (
+            {logsFiltrados.length === 0 && !loading ? (
               <div className={styles.emptyState}>
                 <FileText size={64} />
                 <p>Nenhum log encontrado</p>
               </div>
-            ) : logs.length > 0 && (
+            ) : logsFiltrados.length > 0 && (
               <>
                 <div className={styles.logsListContainer}>
                   <div className={styles.logsList}>
-                    {logs.map((log) => {
+                    {logsFiltrados.map((log) => {
                       const severidade = SEVERIDADE_LOG[log.tipo] || 'info';
                       return (
                         <div 
@@ -1076,21 +1101,11 @@ function LogsAdmin() {
                 <div className={styles.paginacaoContainer}>
                   <div className={styles.paginacaoInfo}>
                     <span className={styles.resultadosTexto}>
-                      Mostrando <strong>{logs.length}</strong> de <strong>{pagination.total}</strong> logs
+                      Mostrando <strong>{logsFiltrados.length}</strong> de <strong>{pagination.total}</strong> logs
                     </span>
                   </div>
                   
                   <div className={styles.paginacao}>
-                    {/* Primeira página */}
-                    <button
-                      onClick={() => mudarPagina(1)}
-                      disabled={pagination.pagina === 1}
-                      className={`${styles.btnPaginacao} ${styles.btnSeta}`}
-                      title="Primeira página"
-                    >
-                      <ChevronsLeft size={18} />
-                    </button>
-                    
                     {/* Página anterior */}
                     <button
                       onClick={() => mudarPagina(pagination.pagina - 1)}
@@ -1168,15 +1183,6 @@ function LogsAdmin() {
                       <ChevronRight size={18} />
                     </button>
                     
-                    {/* Última página */}
-                    <button
-                      onClick={() => mudarPagina(pagination.totalPaginas)}
-                      disabled={pagination.pagina === pagination.totalPaginas}
-                      className={`${styles.btnPaginacao} ${styles.btnSeta}`}
-                      title="Última página"
-                    >
-                      <ChevronsRight size={18} />
-                    </button>
                   </div>
                   
                   <div className={styles.irParaContainer}>

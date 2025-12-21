@@ -158,25 +158,7 @@
   border-radius: 0.75rem 0.75rem 0 0;
 }
 
-/* Estilizar scrollbar para benefícios */
-.planInfo ul::-webkit-scrollbar {
-  width: 4px;
-}
-
-.planInfo ul::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.planInfo ul::-webkit-scrollbar-thumb {
-  background: var(--success-color);
-  border-radius: 10px;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .planInfo ul::-webkit-scrollbar-thumb:hover {
-    background: var(--hoverscrollbar-thumb);
-  }
-}
+/* Scrollbar global aplicada via global.css */
 
 .planInfo li {
   font-size: 0.875rem;
