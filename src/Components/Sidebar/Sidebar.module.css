@@ -225,7 +225,6 @@
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
-  max-height: calc(100vh - 10rem);
 }
 
 .pageContent.collapsed {
@@ -535,12 +534,23 @@
   .pageContent {
     margin-left: 0 !important;
     width: 100% !important;
-    min-height: calc(100vh - 10rem);
-    height: auto;
-    overflow-x: hidden;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: calc(100vh - 4.5rem);
+  }
+
+  @supports (height: 100svh) {
+    .pageContent {
+      min-height: calc(100svh - 4.5rem);
+    }
+  }
+
+  @supports (height: 100dvh) {
+    .pageContent {
+      min-height: calc(100dvh - 4.5rem);
+    }
   }
 }
 
