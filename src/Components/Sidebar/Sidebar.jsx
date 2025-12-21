@@ -201,12 +201,16 @@ function Sidebar({ children }) {
   const userName = user?.nome || "";
   const userEmail = user?.email || "";
 
+  // Desabilita rolagem do body apenas quando o menu mobile está aberto
   useEffect(() => {
-    document.documentElement.classList.add('sidebar-active-page');
-    return () => {
-      document.documentElement.classList.remove('sidebar-active-page');
-    };
-  }, []);
+    const root = document.documentElement;
+    if (isMobile && mobileOpen) {
+      root.classList.add('modal-open');
+    } else {
+      root.classList.remove('modal-open');
+    }
+    return () => root.classList.remove('modal-open');
+  }, [isMobile, mobileOpen]);
 
   return (
     <>

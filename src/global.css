@@ -60,9 +60,7 @@ body,
   -webkit-tap-highlight-color: transparent;
 }
 
-html.sidebar-active-page {
-  overflow: hidden;
-}
+/* Removido: bloquear scroll global sempre que sidebar estiver presente. */
 
 .modal-open {
   overflow: hidden;
