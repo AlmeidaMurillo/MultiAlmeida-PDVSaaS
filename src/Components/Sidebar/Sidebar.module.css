@@ -535,7 +535,7 @@
   .pageContent {
     margin-left: 0 !important;
     width: 100% !important;
-    min-height: calc(100vh - 4.5rem);
+    min-height: calc(100vh - 10rem);
     height: auto;
     overflow-x: hidden;
     overflow-y: auto;
