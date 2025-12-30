@@ -5,7 +5,6 @@
   background: var(--bg-color);
   color: var(--text-color);
   font-family: "Inter", sans-serif;
-  line-height: 1.6;
   scroll-behavior: smooth;
   position: relative;
   overflow-x: hidden;
@@ -35,6 +34,7 @@
 
 .mainContent {
   padding: 0 clamp(1rem, 3vw, 5rem);
+  padding-top: clamp(3.5rem, 8vh, 4.5rem);
   position: relative;
   z-index: 1;
 }
@@ -57,6 +57,7 @@
 }
 
 .hero {
+  padding-top: clamp(6rem, 12vh, 8rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -509,7 +510,6 @@
   padding-right: 0.5rem;
 }
 
-/* Scrollbar global aplicada via global.css */
 
 .beneficiosList li {
   display: flex;

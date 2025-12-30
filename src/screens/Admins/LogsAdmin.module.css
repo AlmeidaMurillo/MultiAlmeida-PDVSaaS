@@ -1,3 +1,30 @@
+/* Barra de ações principal (botões e abas) */
+.actionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem;
+  margin-bottom: 2.2rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  letter-spacing: -0.02em;
+}
+
+.actionBar .tabsContainer {
+  margin-bottom: 0;
+  gap: 1.2rem;
+}
+
+.actionBar .headerActions {
+  gap: 1.2rem;
+}
+
 .logsContent {
   padding: 1.5rem;
   background-color: var(--bg-color);
@@ -18,15 +45,30 @@
   }
 }
 
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: var(--input-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 0.7rem;
+  padding: 0.7rem 1.2rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 10px rgba(88,101,242,0.07);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
 .searchBox:focus-within {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
+  box-shadow: 0 0 0 4px rgba(88, 101, 242, 0.13);
 }
 
 .searchBox svg {
-  color: var(--text-color);
-  opacity: 0.6;
+  color: var(--primary-color);
+  opacity: 0.8;
   flex-shrink: 0;
+  transition: color 0.2s;
 }
 
 .searchBox input {
@@ -35,7 +77,9 @@
   border: none;
   outline: none;
   color: var(--input-text);
-  font-size: clamp(0.9rem, 2vw, 1rem);
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  font-weight: 500;
+  padding-left: 0.2rem;
 }
 
 .searchBox input::placeholder {
@@ -372,12 +416,10 @@
   max-width: 100%;
   box-sizing: border-box;
   padding-right: 0.5rem;
-  /* espaço para afastar a scrollbar da borda */
   scrollbar-gutter: stable;
   /* previne deslocamento e reserva espaço da barra */
 }
 
-/* Scrollbar global aplicada via global.css */
 .logsListContainerStats {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
   border-radius: 1rem;
@@ -1709,17 +1751,19 @@
 }
 
 .btnPeriodo:hover {
-  background: var(--hover-bg);
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe 80%);
   border-color: var(--primary-color);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+  color: #222;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 18px rgba(88, 101, 242, 0.13);
 }
 
 .btnPeriodoAtivo {
   background: linear-gradient(135deg, #5865f2, #7c3aed);
   border-color: #5865f2;
-  color: white;
-  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.18);
+  transform: scale(1.07);
 }
 
 .btnSeveridade {
@@ -1800,15 +1844,19 @@
 }
 
 .btnSeveridade:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe 80%);
+  border-color: var(--primary-color);
+  color: #222;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 18px rgba(88, 101, 242, 0.13);
 }
 
 .btnSeveridadeAtivo {
   background: linear-gradient(135deg, #5865f2, #7c3aed);
   border-color: #5865f2;
-  color: white;
-  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.4);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.18);
+  transform: scale(1.07);
 }
 
 .logTipoWrapper {

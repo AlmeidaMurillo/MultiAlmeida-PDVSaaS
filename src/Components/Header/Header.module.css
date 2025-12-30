@@ -1,7 +1,9 @@
 .headerTop {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   z-index: 999;
+  width: 100%;
   height: clamp(3.5rem, 8vh, 4.5rem);
   background-color: var(--bg-color);
   backdrop-filter: blur(12px);
@@ -15,6 +17,7 @@
     0 2px 8px rgba(0, 0, 0, 0.15);
   flex-wrap: nowrap;
   transition: background-color 0.3s ease;
+  box-sizing: border-box;
 }
 
 .logoContainer {
@@ -22,6 +25,7 @@
   flex-direction: column;
   user-select: none;
   cursor: pointer;
+  gap: 0;
 }
 
 .logo {
@@ -36,6 +40,8 @@
   color: var(--text-color);
   font-weight: 500;
   opacity: 0.8;
+  line-height: 1;
+  margin: 0;
 }
 
 .actionsContainer {
@@ -266,11 +272,16 @@
   background: none;
   border: none;
   color: var(--text-color);
-  font-size: 1.5rem;
+  font-size: clamp(1.3rem, 4vw, 1.6rem);
   cursor: pointer;
-  padding: 0.5rem;
+  padding: clamp(0.35rem, 1.5vw, 0.5rem);
   border-radius: 50%;
   transition: all 0.3s ease;
+  flex-shrink: 0;
+  width: clamp(36px, 9vw, 44px);
+  height: clamp(36px, 9vw, 44px);
+  align-items: center;
+  justify-content: center;
 }
 
 .mobileMenuButton:active {
@@ -818,7 +829,7 @@
     padding: 0 1.5rem;
   }
   .mobileMenuButton {
-    display: block;
+    display: flex;
   }
   .actionsContainer {
     display: none;
@@ -835,6 +846,10 @@
   .subtitle {
     font-size: 0.6rem;
   }
+
+  .logoContainer {
+    gap: 0.15rem;
+  }
 }
 
 @media (max-width: 320px) {
@@ -843,5 +858,9 @@
     min-height: 3.5rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
+  }
+
+  .logoContainer {
+    gap: 0.2rem;
   }
 }

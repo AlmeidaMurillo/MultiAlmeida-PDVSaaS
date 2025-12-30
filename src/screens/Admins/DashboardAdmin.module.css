@@ -2,9 +2,10 @@
 .dashboardContent {
   padding: 1.5rem;
   background-color: var(--bg-color);
-  min-height: 100%;
-  overflow: hidden;
-  
+  min-height: 100vh;
+  color: var(--text-color);
+  font-family: "Inter", sans-serif;
+  line-height: 1.6;
 }
 
 

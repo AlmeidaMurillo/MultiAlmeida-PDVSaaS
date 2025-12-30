@@ -77,7 +77,7 @@ const PERIODOS_RAPIDOS = [
 
 function LogsAdmin() {
   const [logs, setLogs] = useState([]);
-  const [busca, setBusca] = useState("");
+  const [busca] = useState("");
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -770,26 +770,7 @@ function LogsAdmin() {
       <div className={styles.logsContent}>
         {/* Header */}
         <div className={styles.titleRow}>
-          <h1>Logs do Sistema</h1>
-          <div className={styles.headerActions}>
-            <button 
-              onClick={abaAtiva === 'stats' ? exportarEstatisticasPDF : exportarPDF} 
-              className={styles.btnExportar} 
-              disabled={abaAtiva === 'logs' ? logs.length === 0 : !stats}
-              title={abaAtiva === 'stats' ? 'Exportar estatísticas para PDF' : 'Exportar logs para PDF'}
-            >
-              <FileTextIcon size={18} />
-              Exportar PDF
-            </button>
-            <button 
-              onClick={limparLogsAntigos} 
-              className={styles.btnLimpar}
-              title="Limpar logs com mais de 90 dias"
-            >
-              <Trash2 size={18} />
-              Limpar Antigos
-            </button>
-          </div>
+          <h1 className={styles.title}>Logs do Sistema</h1>
         </div>
 
         {/* Erro */}
@@ -804,34 +785,48 @@ function LogsAdmin() {
         )}
 
         {/* Abas */}
-        <div className={styles.tabsContainer}>
-          <button
-            className={`${styles.tab} ${abaAtiva === 'logs' ? styles.tabActive : ''}`}
-            onClick={() => setAbaAtiva('logs')}
-          >
-            <FileText size={18} />
-            Logs
-          </button>
-          <button
-            className={`${styles.tab} ${abaAtiva === 'stats' ? styles.tabActive : ''}`}
-            onClick={() => setAbaAtiva('stats')}
-          >
-            <BarChart3 size={18} />
-            Estatísticas
-          </button>
-        </div>
+
 
         {/* Conteúdo das abas */}
         {abaAtiva === 'logs' && (
           <>
-            {/* Busca simples, igual ao padrão das páginas Cupons/Planos */}
-            <div className={styles.searchBox}>
-              <Search size={18} />
-              <input
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                placeholder="Pesquisar logs..."
-              />
+            {/* Linha de botões principais */}
+            <div className={styles.actionBar}>
+              <div className={styles.tabsContainer}>
+                <button
+                  className={`${styles.tab} ${abaAtiva === 'logs' ? styles.tabActive : ''}`}
+                  onClick={() => setAbaAtiva('logs')}
+                >
+                  <FileText size={18} />
+                  Logs
+                </button>
+                <button
+                  className={`${styles.tab} ${abaAtiva === 'stats' ? styles.tabActive : ''}`}
+                  onClick={() => setAbaAtiva('stats')}
+                >
+                  <BarChart3 size={18} />
+                  Estatísticas
+                </button>
+              </div>
+              <div className={styles.headerActions}>
+                <button 
+                  onClick={abaAtiva === 'stats' ? exportarEstatisticasPDF : exportarPDF} 
+                  className={styles.btnExportar} 
+                  disabled={abaAtiva === 'logs' ? logs.length === 0 : !stats}
+                  title={abaAtiva === 'stats' ? 'Exportar estatísticas para PDF' : 'Exportar logs para PDF'}
+                >
+                  <FileTextIcon size={18} />
+                  Exportar PDF
+                </button>
+                <button 
+                  onClick={limparLogsAntigos} 
+                  className={styles.btnLimpar}
+                  title="Limpar logs com mais de 90 dias"
+                >
+                  <Trash2 size={18} />
+                  Limpar Antigos
+                </button>
+              </div>
             </div>
             {/* Filtros */}
             <div className={styles.filtrosContainer}>
@@ -1218,6 +1213,43 @@ function LogsAdmin() {
         {abaAtiva === 'stats' && (
           <div>
             {/* Filtro de Período para Estatísticas */}
+            <div className={styles.actionBar}>
+              <div className={styles.tabsContainer}>
+                <button
+                  className={`${styles.tab} ${abaAtiva === 'logs' ? styles.tabActive : ''}`}
+                  onClick={() => setAbaAtiva('logs')}
+                >
+                  <FileText size={18} />
+                  Logs
+                </button>
+                <button
+                  className={`${styles.tab} ${abaAtiva === 'stats' ? styles.tabActive : ''}`}
+                  onClick={() => setAbaAtiva('stats')}
+                >
+                  <BarChart3 size={18} />
+                  Estatísticas
+                </button>
+              </div>
+              <div className={styles.headerActions}>
+                <button 
+                  onClick={abaAtiva === 'stats' ? exportarEstatisticasPDF : exportarPDF} 
+                  className={styles.btnExportar} 
+                  disabled={abaAtiva === 'logs' ? logs.length === 0 : !stats}
+                  title={abaAtiva === 'stats' ? 'Exportar estatísticas para PDF' : 'Exportar logs para PDF'}
+                >
+                  <FileTextIcon size={18} />
+                  Exportar PDF
+                </button>
+                <button 
+                  onClick={limparLogsAntigos} 
+                  className={styles.btnLimpar}
+                  title="Limpar logs com mais de 90 dias"
+                >
+                  <Trash2 size={18} />
+                  Limpar Antigos
+                </button>
+              </div>
+            </div>
             <div className={styles.periodoStatsContainer}>
               <div className={styles.periodoStatsLabel}>
                 <Calendar size={16} />
